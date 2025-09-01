@@ -1,0 +1,9 @@
+{
+  "watch": ["server.ts", "routes/", "middleware/", "controllers/", "convex/"],
+  "ext": "ts,js,json",
+  "ignore": ["node_modules/", "*.test.ts", "*.test.js"],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "exec": "ts-node server.ts"
+}

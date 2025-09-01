@@ -1,0 +1,13 @@
+{
+  "project": {
+    "name": "fly-fim"
+  },
+  "team": {
+    "name": "fly-fim-team"
+  },
+  "providers": {
+    "convex": {
+      "url": "https://sincere-roadrunner-227.convex.cloud"
+    }
+  }
+}
