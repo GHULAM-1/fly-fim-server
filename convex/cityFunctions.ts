@@ -125,3 +125,4 @@ export const deleteCity = mutation({
     await ctx.db.delete(args.id);
   },
 });
+
