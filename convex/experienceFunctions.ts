@@ -44,13 +44,17 @@ export const getExperiencesByCity = query({
     for (const id of expIds) {
       const cats = await ctx.db
         .query("category")
-        .withIndex("byExperience", (q) => q.eq("experienceId", id as unknown as any))
+        .withIndex("byExperience", (q) =>
+          q.eq("experienceId", id as unknown as any)
+        )
         .collect();
       for (const c of cats) catSet.add(c.categoryName);
 
       const subs = await ctx.db
         .query("subcategory")
-        .withIndex("byExperience", (q) => q.eq("experienceId", id as unknown as any))
+        .withIndex("byExperience", (q) =>
+          q.eq("experienceId", id as unknown as any)
+        )
         .collect();
       for (const s of subs) subcatSet.add(s.subcategoryName);
     }
@@ -80,7 +84,6 @@ export const getExperiencesByCity = query({
   },
 });
 
-
 // Get all experiences by category (within a city)
 export const getExperiencesByCategory = query({
   args: {
@@ -94,14 +97,24 @@ export const getExperiencesByCategory = query({
 
     // 1) resolve cityId → experienceIds
     const cityDoc = await ctx.db.get(cityId);
-    if (!cityDoc) return { page: [], isDone: true, continueCursor: offset.toString(), total: 0, distinctCategories: [], distinctSubcategories: [] };
+    if (!cityDoc)
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: offset.toString(),
+        total: 0,
+        distinctCategories: [],
+        distinctSubcategories: [],
+      };
 
     const cityRows = await ctx.db
       .query("city")
       .withIndex("byCityName", (q) => q.eq("cityName", cityDoc.cityName))
       .collect();
 
-    const cityExpIds = new Set(cityRows.map(r => r.experienceId as unknown as string));
+    const cityExpIds = new Set(
+      cityRows.map((r) => r.experienceId as unknown as string)
+    );
 
     // 2) find categories with this name, restricted to those expIds
     const catRows = await ctx.db
@@ -109,21 +122,29 @@ export const getExperiencesByCategory = query({
       .withIndex("byCategoryName", (q) => q.eq("categoryName", categoryName))
       .collect();
 
-    const expIds = Array.from(new Set(
-      catRows
-        .map(r => r.experienceId as unknown as string)
-        .filter(id => cityExpIds.has(id))
-    ));
+    const expIds = Array.from(
+      new Set(
+        catRows
+          .map((r) => r.experienceId as unknown as string)
+          .filter((id) => cityExpIds.has(id))
+      )
+    );
 
     // 3) gather distinct cats/subcats
     const catSet = new Set<string>();
     const subcatSet = new Set<string>();
     for (const id of expIds) {
-      const cats = await ctx.db.query("category").withIndex("byExperience", q => q.eq("experienceId", id as any)).collect();
-      cats.forEach(c => catSet.add(c.categoryName));
+      const cats = await ctx.db
+        .query("category")
+        .withIndex("byExperience", (q) => q.eq("experienceId", id as any))
+        .collect();
+      cats.forEach((c) => catSet.add(c.categoryName));
 
-      const subs = await ctx.db.query("subcategory").withIndex("byExperience", q => q.eq("experienceId", id as any)).collect();
-      subs.forEach(s => subcatSet.add(s.subcategoryName));
+      const subs = await ctx.db
+        .query("subcategory")
+        .withIndex("byExperience", (q) => q.eq("experienceId", id as any))
+        .collect();
+      subs.forEach((s) => subcatSet.add(s.subcategoryName));
     }
 
     // 4) paginate experiences
@@ -145,7 +166,6 @@ export const getExperiencesByCategory = query({
   },
 });
 
-
 // Get all experiences by category + subcategory (within a city)
 export const getExperiencesBySubcategory = query({
   args: {
@@ -156,45 +176,75 @@ export const getExperiencesBySubcategory = query({
     offset: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const { cityId, categoryName, subcategoryName, limit = 50, offset = 0 } = args;
+    const {
+      cityId,
+      categoryName,
+      subcategoryName,
+      limit = 50,
+      offset = 0,
+    } = args;
 
     // 1) resolve cityId → experienceIds
     const cityDoc = await ctx.db.get(cityId);
-    if (!cityDoc) return { page: [], isDone: true, continueCursor: offset.toString(), total: 0, distinctCategories: [], distinctSubcategories: [] };
+    if (!cityDoc)
+      return {
+        page: [],
+        isDone: true,
+        continueCursor: offset.toString(),
+        total: 0,
+        distinctCategories: [],
+        distinctSubcategories: [],
+      };
 
     const cityRows = await ctx.db
       .query("city")
       .withIndex("byCityName", (q) => q.eq("cityName", cityDoc.cityName))
       .collect();
 
-    const cityExpIds = new Set(cityRows.map(r => r.experienceId as unknown as string));
+    const cityExpIds = new Set(
+      cityRows.map((r) => r.experienceId as unknown as string)
+    );
 
     // 2) find experiences with categoryName
     const catRows = await ctx.db
       .query("category")
       .withIndex("byCategoryName", (q) => q.eq("categoryName", categoryName))
       .collect();
-    const catExpIds = new Set(catRows.map(r => r.experienceId as unknown as string));
+    const catExpIds = new Set(
+      catRows.map((r) => r.experienceId as unknown as string)
+    );
 
     // 3) find experiences with subcategoryName
     const subRows = await ctx.db
       .query("subcategory")
-      .withIndex("bySubcategoryName", (q) => q.eq("subcategoryName", subcategoryName))
+      .withIndex("bySubcategoryName", (q) =>
+        q.eq("subcategoryName", subcategoryName)
+      )
       .collect();
-    const subExpIds = new Set(subRows.map(r => r.experienceId as unknown as string));
+    const subExpIds = new Set(
+      subRows.map((r) => r.experienceId as unknown as string)
+    );
 
     // 4) intersection restricted to cityExpIds
-    const expIds = Array.from(catExpIds).filter(id => subExpIds.has(id) && cityExpIds.has(id));
+    const expIds = Array.from(catExpIds).filter(
+      (id) => subExpIds.has(id) && cityExpIds.has(id)
+    );
 
     // 5) distinct categories/subcategories
     const catSet = new Set<string>();
     const subcatSet = new Set<string>();
     for (const id of expIds) {
-      const cats = await ctx.db.query("category").withIndex("byExperience", q => q.eq("experienceId", id as any)).collect();
-      cats.forEach(c => catSet.add(c.categoryName));
+      const cats = await ctx.db
+        .query("category")
+        .withIndex("byExperience", (q) => q.eq("experienceId", id as any))
+        .collect();
+      cats.forEach((c) => catSet.add(c.categoryName));
 
-      const subs = await ctx.db.query("subcategory").withIndex("byExperience", q => q.eq("experienceId", id as any)).collect();
-      subs.forEach(s => subcatSet.add(s.subcategoryName));
+      const subs = await ctx.db
+        .query("subcategory")
+        .withIndex("byExperience", (q) => q.eq("experienceId", id as any))
+        .collect();
+      subs.forEach((s) => subcatSet.add(s.subcategoryName));
     }
 
     // 6) paginate
@@ -216,10 +266,39 @@ export const getExperiencesBySubcategory = query({
   },
 });
 
+// NEW QUERY to fetch experiences with their city details
+export const getExperiencesWithDetails = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const limit = args.limit ?? 10;
 
+    // 1. Fetch experiences
+    const experiences = await ctx.db
+      .query("experience")
+      .order("desc")
+      .take(limit);
 
+    // 2. For each experience, fetch its associated city
+    const experiencesWithDetails = await Promise.all(
+      experiences.map(async (exp) => {
+        const cityDoc = await ctx.db
+          .query("city")
+          .withIndex("byExperience", (q) => q.eq("experienceId", exp._id))
+          .first();
 
-/* --- The standard CRUD you already had/needed (kept here for completeness) --- */
+        return {
+          ...exp,
+          cityName: cityDoc?.cityName || "Unknown City",
+          countryName: cityDoc?.countryName || "Unknown Country",
+        };
+      })
+    );
+
+    return experiencesWithDetails;
+  },
+});
+
+/* --- The standard CRUD --- */
 
 export const getAllExperiences = query({
   args: { limit: v.optional(v.number()), offset: v.optional(v.number()) },
@@ -228,7 +307,10 @@ export const getAllExperiences = query({
     return await ctx.db
       .query("experience")
       .order("desc")
-      .paginate({ numItems: limit, cursor: offset > 0 ? offset.toString() : null });
+      .paginate({
+        numItems: limit,
+        cursor: offset > 0 ? offset.toString() : null,
+      });
   },
 });
 
@@ -252,12 +334,16 @@ export const createExperience = mutation({
   args: {
     type: v.string(),
     title: v.string(),
-    price: v.string(),
-    sale: v.string(),
-    images: v.array(v.id("_storage")),
-    mainImage: v.id("_storage"),
+    description: v.string(),
+    price: v.number(),
+    oldPrice: v.optional(v.number()),
+    sale: v.optional(v.number()),
+    images: v.array(v.string()),
+    mainImage: v.string(),
     experienceType: v.string(),
-    tagOnCards: v.string(),
+    tagOnCards: v.optional(v.string()),
+    rating: v.number(),
+    reviews: v.number(),
     features: v.array(v.string()),
     featureText: v.string(),
     highlights: v.string(),
@@ -287,12 +373,12 @@ export const createExperience = mutation({
       v.object({
         startDate: v.number(),
         endDate: v.number(),
-        price: v.string(),
+        price: v.number(),
       })
     ),
     packageType: v.object({
       name: v.string(),
-      price: v.string(),
+      price: v.number(),
       points: v.array(
         v.object({
           title: v.string(),
@@ -303,14 +389,14 @@ export const createExperience = mutation({
         v.object({
           openTime: v.string(),
           closeTime: v.string(),
-          price: v.string(),
+          price: v.number(),
         })
       ),
     }),
-    adultPrice: v.string(),
-    childPrice: v.string(),
-    seniorPrice: v.string(),
-    totalLimit: v.string(),
+    adultPrice: v.number(),
+    childPrice: v.number(),
+    seniorPrice: v.number(),
+    totalLimit: v.number(),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("experience", args);
@@ -323,17 +409,21 @@ export const updateExperience = mutation({
     patch: v.object({
       type: v.optional(v.string()),
       title: v.optional(v.string()),
-      price: v.optional(v.string()),
-      sale: v.optional(v.string()),
-      images: v.optional(v.array(v.id("_storage"))),
-      mainImage: v.optional(v.id("_storage")),
+      description: v.optional(v.string()),
+      price: v.optional(v.number()),
+      oldPrice: v.optional(v.number()),
+      sale: v.optional(v.number()),
+      images: v.optional(v.array(v.string())),
+      mainImage: v.optional(v.string()),
       experienceType: v.optional(v.string()),
       tagOnCards: v.optional(v.string()),
+      rating: v.optional(v.number()),
+      reviews: v.optional(v.number()),
       features: v.optional(v.array(v.string())),
       featureText: v.optional(v.string()),
       highlights: v.optional(v.string()),
       inclusions: v.optional(v.string()),
-      exclusions: v.optional(v.string()),     // <-- fixed (no extra parenthesis)
+      exclusions: v.optional(v.string()),
       cancellationPolicy: v.optional(v.string()),
       ticketValidity: v.optional(v.string()),
       exploreMore: v.optional(v.string()),
@@ -363,14 +453,14 @@ export const updateExperience = mutation({
           v.object({
             startDate: v.number(),
             endDate: v.number(),
-            price: v.string(),
+            price: v.number(),
           })
         )
       ),
       packageType: v.optional(
         v.object({
           name: v.string(),
-          price: v.string(),
+          price: v.number(),
           points: v.array(
             v.object({
               title: v.string(),
@@ -381,22 +471,21 @@ export const updateExperience = mutation({
             v.object({
               openTime: v.string(),
               closeTime: v.string(),
-              price: v.string(),
+              price: v.number(),
             })
           ),
         })
       ),
-      adultPrice: v.optional(v.string()),
-      childPrice: v.optional(v.string()),
-      seniorPrice: v.optional(v.string()),
-      totalLimit: v.optional(v.string()),
+      adultPrice: v.optional(v.number()),
+      childPrice: v.optional(v.number()),
+      seniorPrice: v.optional(v.number()),
+      totalLimit: v.optional(v.number()),
     }),
   },
   handler: async (ctx, { id, patch }) => {
     await ctx.db.patch(id, patch);
   },
 });
-
 
 export const deleteExperience = mutation({
   args: { id: v.id("experience") },

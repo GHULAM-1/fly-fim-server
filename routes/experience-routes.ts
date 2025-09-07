@@ -8,9 +8,13 @@ import {
   getExperiencesByCity,
   getExperiencesByCategory,
   getExperiencesBySubcategory,
+  getExperiencesWithDetails, // Import the new function
 } from "../controllers/experience-controller";
 
 const router = Router();
+
+// NEW ROUTE for fetching experiences with joined city data
+router.get("/with-details", getExperiencesWithDetails);
 
 // GET /api/experiences - list (paged)
 router.get("/", getAllExperiences);

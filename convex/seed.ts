@@ -1,100 +1,133 @@
 import { mutation } from "./_generated/server";
 
-// 👉 Replace with your uploaded image ID
-const demoImage = "kg20p1a9zjrs6hqmbc5hda7r4d7prv9j" as any;
-
 export const seedData = mutation({
   args: {},
   handler: async (ctx) => {
-    // Helper: insert one experience with related data
+    const tables: string[] = [
+      "experience",
+      "city",
+      "category",
+      "subcategory",
+      "faq",
+      "reviews",
+    ];
+    for (const table of tables) {
+      const docs = await ctx.db.query(table as any).collect();
+      await Promise.all(docs.map((doc) => ctx.db.delete(doc._id)));
+    }
+
     const createExperienceWithRelations = async (
-      cityName: string,
-      countryName: string,
-      title: string,
-      type: string,
-      categories: string[],
-      subcategories: string[],
+      expData: {
+        city: string;
+        country: string;
+        title: string;
+        description: string;
+        type: string;
+        categories: string[];
+        subcategories: string[];
+        price: number;
+        oldPrice?: number;
+        sale?: number;
+        image: string;
+        rating: number;
+        reviewsCount: number;
+        tag?: string;
+      },
       faqs: { q: string; a: string }[],
       reviews: { user: string; stars: number; text: string }[]
     ) => {
-      // 1) Create experience
       const expId = await ctx.db.insert("experience", {
-        type,
-        title,
-        price: "59",
-        sale: "49",
-        images: [demoImage],
-        mainImage: demoImage,
+        type: expData.type,
+        title: expData.title,
+        description: expData.description,
+        price: expData.price,
+        oldPrice: expData.oldPrice,
+        sale: expData.sale,
+        images: [
+          expData.image,
+          "/images/r2.jpg.avif",
+          "/images/r3.jpg.avif",
+          "/images/r4.jpg.avif",
+        ],
+        mainImage: expData.image,
         experienceType: "tour",
-        tagOnCards: "Bestseller",
-        features: ["A", "B", "C", "D", "E", "F"],
+        tagOnCards: expData.tag,
+        rating: expData.rating,
+        reviews: expData.reviewsCount,
+        features: [
+          "Feature A",
+          "Feature B",
+          "Feature C",
+          "Feature D",
+          "Feature E",
+          "Feature F",
+        ],
         featureText: "Highlights of the experience",
-        highlights: "Main attractions",
-        inclusions: "Guide, tickets",
-        exclusions: "Meals, transport",
-        cancellationPolicy: "Free cancellation up to 24h",
-        ticketValidity: "1 day",
-        exploreMore: "Explore more things",
-        knowBeforeYouGo: "Bring ID",
-        myTickets: "Show at entrance",
+        highlights: "Main attractions of this wonderful experience.",
+        inclusions: "Professional guide, entry tickets",
+        exclusions: "Meals, hotel pickup and drop-off",
+        cancellationPolicy:
+          "Free cancellation up to 24 hours before the experience starts.",
+        ticketValidity: "Valid for the selected date and time.",
+        exploreMore: "Explore more related things to do in the city.",
+        knowBeforeYouGo: "Please bring a valid photo ID.",
+        myTickets: "Your tickets will be sent to your email.",
         operatingHours: [
           {
             startDate: Date.now(),
-            endDate: Date.now() + 7 * 24 * 60 * 60 * 1000,
+            endDate: Date.now() + 365 * 24 * 60 * 60 * 1000,
             openTime: "09:00",
             closeTime: "18:00",
             lastEntryTime: "17:00",
-            title: "Regular",
+            title: "Regular Hours",
           },
         ],
         whereTo: {
-          address: `${cityName} Center`,
-          lat: 40.0,
-          lng: -73.0,
+          address: `${expData.city} Central Plaza`,
+          lat: 40.7128,
+          lng: -74.006,
         },
         datePriceRange: [
           {
             startDate: Date.now(),
             endDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
-            price: "49",
+            price: expData.price,
           },
         ],
         packageType: {
-          name: "Standard",
-          price: "49",
-          points: [{ title: "All access" }],
-          timePriceSlots: [{ openTime: "09:00", closeTime: "18:00", price: "49" }],
+          name: "Standard Admission",
+          price: expData.price,
+          points: [{ title: "All access pass" }],
+          timePriceSlots: [
+            { openTime: "09:00", closeTime: "18:00", price: expData.price },
+          ],
         },
-        adultPrice: "49",
-        childPrice: "29",
-        seniorPrice: "39",
-        totalLimit: "1000",
+        adultPrice: expData.price,
+        childPrice: expData.price * 0.7,
+        seniorPrice: expData.price * 0.9,
+        totalLimit: 1000,
       });
 
-      // 2) Create city
       await ctx.db.insert("city", {
         experienceId: expId,
-        cityName,
-        countryName,
+        cityName: expData.city,
+        countryName: expData.country,
       });
 
-      // 3) Categories
-      for (const cat of categories) {
+      for (const cat of expData.categories) {
         await ctx.db.insert("category", {
           experienceId: expId,
           categoryName: cat,
         });
       }
 
-      // 4) Subcategories
-      for (const sub of subcategories) {
+      for (const sub of expData.subcategories) {
         await ctx.db.insert("subcategory", {
           experienceId: expId,
           subcategoryName: sub,
         });
       }
 
-      // 5) FAQs
       for (const f of faqs) {
         await ctx.db.insert("faq", {
           experienceId: expId,
@@ -103,101 +136,224 @@ export const seedData = mutation({
         });
       }
 
-      // 6) Reviews
       for (const r of reviews) {
         await ctx.db.insert("reviews", {
           userId: r.user,
           experienceId: expId,
           stars: r.stars,
-          images: [demoImage],
+          images: [],
           text: r.text,
         });
       }
     };
 
-    // Seed dataset
     await createExperienceWithRelations(
-      "Paris",
-      "France",
-      "Eiffel Tower Tour",
-      "ticket",
-      ["Sightseeing", "Architecture"],
-      ["Tower", "City View"],
+      {
+        city: "London",
+        country: "United Kingdom",
+        title: "London Musicals Extravaganza",
+        description:
+          "Experience the magic of London's West End with tickets to a top musical.",
+        type: "ticket",
+        categories: ["Entertainment"],
+        subcategories: ["Musicals"],
+        price: 75,
+        image: "/images/d5.jpg.avif",
+        rating: 4.8,
+        reviewsCount: 1200,
+        tag: "Popular",
+      },
+      [{ q: "What is the duration?", a: "Approx. 2.5 hours." }],
+      [{ user: "jane_doe", stars: 5, text: "Absolutely stunning performance!" }]
+    );
+    await createExperienceWithRelations(
+      {
+        city: "London",
+        country: "United Kingdom",
+        title: "Historic Landmarks of London Tour",
+        description:
+          "Discover the rich history of London's most famous landmarks.",
+        type: "tour",
+        categories: ["Tours", "Tickets"],
+        subcategories: ["Landmarks", "Walking Tours"],
+        price: 50,
+        image: "/images/r1.jpg.avif",
+        rating: 4.6,
+        reviewsCount: 950,
+        tag: "Free cancellation",
+      },
       [
-        { q: "Is it skip-the-line?", a: "Yes, fast entry included." },
-        { q: "Is guide included?", a: "Yes, guided tour in English." },
+        {
+          q: "Is this a walking tour?",
+          a: "Yes, it involves a moderate amount of walking.",
+        },
+      ],
+      [{ user: "john_smith", stars: 4, text: "Very informative guide." }]
+    );
+    await createExperienceWithRelations(
+      {
+        city: "London",
+        country: "United Kingdom",
+        title: "Day Trip to Stonehenge & Bath",
+        description:
+          "Explore the ancient mystery of Stonehenge and the Roman Baths.",
+        type: "tour",
+        categories: ["Tours"],
+        subcategories: ["Day Trips"],
+        price: 120,
+        image: "/images/r2.jpg.avif",
+        rating: 4.9,
+        reviewsCount: 2500,
+        tag: "Best Seller",
+      },
+      [{ q: "Is lunch included?", a: "Lunch is not included." }],
+      [
+        {
+          user: "emily_jones",
+          stars: 5,
+          text: "A long but totally worthwhile day!",
+        },
+      ]
+    );
+    await createExperienceWithRelations(
+      {
+        city: "London",
+        country: "United Kingdom",
+        title: "Thames River Evening Cruise",
+        description:
+          "See London's skyline light up from the iconic River Thames.",
+        type: "cruise",
+        categories: ["Cruises"],
+        subcategories: ["Cruises"],
+        price: 45,
+        image: "/images/d3.jpg.avif",
+        rating: 4.7,
+        reviewsCount: 1800,
+      },
+      [{ q: "Are drinks available?", a: "Yes, there is a bar on board." }],
+      [{ user: "michael_brown", stars: 5, text: "So romantic and beautiful." }]
+    );
+
+    await createExperienceWithRelations(
+      {
+        city: "Paris",
+        country: "France",
+        title: "Eiffel Tower Summit Experience",
+        description:
+          "Skip the lines and head straight to the top of the iconic Eiffel Tower for breathtaking views.",
+        type: "ticket",
+        categories: ["Tickets", "Sightseeing"],
+        subcategories: ["Landmarks"],
+        price: 89,
+        image: "/images/d2.jpg.avif",
+        rating: 4.9,
+        reviewsCount: 3450,
+        tag: "Skip The Line",
+      },
+      [
+        {
+          q: "How long can I stay at the top?",
+          a: "You can stay as long as you like until closing time.",
+        },
       ],
       [
-        { user: "alice", stars: 5, text: "Amazing view!" },
-        { user: "bob", stars: 4, text: "Great but crowded." },
+        {
+          user: "sophie_martin",
+          stars: 5,
+          text: "The view is worth every penny. Unforgettable!",
+        },
       ]
     );
 
     await createExperienceWithRelations(
-      "London",
-      "UK",
-      "London Eye Experience",
-      "ticket",
-      ["Sightseeing", "Family"],
-      ["Wheel", "River"],
+      {
+        city: "Rome",
+        country: "Italy",
+        title: "Colosseum & Roman Forum Guided Tour",
+        description:
+          "Step back in time with a guided tour of ancient Rome's most important sites.",
+        type: "tour",
+        categories: ["Tours", "History"],
+        subcategories: ["Landmarks", "Guided Tours"],
+        price: 79,
+        image: "/images/d3.jpg.avif",
+        rating: 4.8,
+        reviewsCount: 4200,
+        tag: "Expert Guide",
+      },
       [
-        { q: "How long is the ride?", a: "About 30 minutes." },
-        { q: "Is it kid friendly?", a: "Yes, suitable for all ages." },
+        {
+          q: "Is this tour suitable for children?",
+          a: "Yes, it is engaging for all ages.",
+        },
       ],
       [
-        { user: "charlie", stars: 5, text: "Loved it with family!" },
-        { user: "david", stars: 3, text: "Good but overpriced." },
+        {
+          user: "luca_rossi",
+          stars: 5,
+          text: "Our guide was fantastic! So much history.",
+        },
       ]
     );
 
     await createExperienceWithRelations(
-      "New York",
-      "USA",
-      "Statue of Liberty Tour",
-      "ticket",
-      ["History", "Boat Tour"],
-      ["Statue", "Island"],
+      {
+        city: "Dubai",
+        country: "United Arab Emirates",
+        title: "Desert Safari with BBQ Dinner",
+        description:
+          "Experience dune bashing, camel rides, and a traditional BBQ dinner under the stars.",
+        type: "adventure",
+        categories: ["Adventure", "Tours"],
+        subcategories: ["Day Trips"],
+        price: 95,
+        image: "/images/d4.jpg.avif",
+        rating: 4.7,
+        reviewsCount: 5100,
+        tag: "Top Rated",
+      },
       [
-        { q: "Is ferry included?", a: "Yes, round-trip ferry ticket." },
-        { q: "Do we get crown access?", a: "Depends on ticket type." },
+        {
+          q: "Is hotel pickup included?",
+          a: "Yes, pickup from most central Dubai hotels is included.",
+        },
       ],
       [
-        { user: "emma", stars: 4, text: "Historic and beautiful." },
-        { user: "frank", stars: 5, text: "Lifetime memory." },
+        {
+          user: "fatima_ali",
+          stars: 5,
+          text: "So much fun! The food was delicious and the entertainment was great.",
+        },
       ]
     );
 
     await createExperienceWithRelations(
-      "Rome",
-      "Italy",
-      "Colosseum Guided Tour",
-      "ticket",
-      ["History", "Culture"],
-      ["Arena", "Gladiators"],
+      {
+        city: "New York",
+        country: "United States",
+        title: "Statue of Liberty & Ellis Island Ferry",
+        description:
+          "Visit two of America's most iconic landmarks with this convenient ferry ticket.",
+        type: "ticket",
+        categories: ["Tickets", "Sightseeing"],
+        subcategories: ["Landmarks"],
+        price: 45,
+        image: "/images/d6.jpeg.avif",
+        rating: 4.6,
+        reviewsCount: 6300,
+      },
       [
-        { q: "Is skip-the-line included?", a: "Yes, priority access." },
-        { q: "Are headsets included?", a: "Yes, for guided tours." },
+        {
+          q: "Does this include pedestal or crown access?",
+          a: "This ticket includes grounds access. Pedestal and crown access must be booked separately.",
+        },
       ],
       [
-        { user: "george", stars: 5, text: "Incredible history." },
-        { user: "hannah", stars: 4, text: "Amazing but long queues." },
-      ]
-    );
-
-    await createExperienceWithRelations(
-      "Dubai",
-      "UAE",
-      "Burj Khalifa Observation Deck",
-      "ticket",
-      ["Modern", "Luxury"],
-      ["Skyline", "Observation"],
-      [
-        { q: "Is sunset included?", a: "Yes, for evening slots." },
-        { q: "Is fast-track available?", a: "Yes, with premium tickets." },
-      ],
-      [
-        { user: "ivan", stars: 5, text: "Breathtaking views!" },
-        { user: "julia", stars: 5, text: "Best experience ever." },
+        {
+          user: "kevin_lee",
+          stars: 4,
+          text: "A must-do in NYC, but be prepared for crowds.",
+        },
       ]
     );
 

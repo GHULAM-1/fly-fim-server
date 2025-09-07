@@ -1,19 +1,20 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 export default defineSchema({
-  // ----------------------------
-  // Experience (parent)
-  // ----------------------------
   experience: defineTable({
     type: v.string(),
-    title: v.string(), // unique (enforce in code)
-    price: v.string(),
-    sale: v.string(),
-    images: v.array(v.id("_storage")),
-    mainImage: v.id("_storage"), // Required again since we have real data
+    title: v.string(),
+    description: v.string(),
+    price: v.number(),
+    oldPrice: v.optional(v.number()),
+    sale: v.optional(v.number()),
+    images: v.array(v.string()),
+    mainImage: v.string(),
     experienceType: v.string(),
-    tagOnCards: v.string(),
-    features: v.array(v.string()), // enforce length=6 in code
+    tagOnCards: v.optional(v.string()),
+    rating: v.number(),
+    reviews: v.number(),
+    features: v.array(v.string()),
     featureText: v.string(),
     highlights: v.string(),
     inclusions: v.string(),
@@ -25,9 +26,9 @@ export default defineSchema({
     myTickets: v.string(),
     operatingHours: v.array(
       v.object({
-        startDate: v.number(), // ms since epoch
+        startDate: v.number(),
         endDate: v.number(),
-        openTime: v.string(),  // "HH:mm"
+        openTime: v.string(),
         closeTime: v.string(),
         lastEntryTime: v.string(),
         title: v.string(),
@@ -42,91 +43,67 @@ export default defineSchema({
       v.object({
         startDate: v.number(),
         endDate: v.number(),
-        price: v.string(),
+        price: v.number(),
       })
     ),
     packageType: v.object({
-      name: v.string(),  // enum candidate
-      price: v.string(),
+      name: v.string(),
+      price: v.number(),
       points: v.array(
         v.object({
           title: v.string(),
           subpoints: v.optional(v.array(v.string())),
         })
       ),
-      // combo (openTime, closeTime, price) should be unique within this array – enforce in code
       timePriceSlots: v.array(
         v.object({
           openTime: v.string(),
           closeTime: v.string(),
-          price: v.string(),
+          price: v.number(),
         })
       ),
     }),
-    adultPrice: v.string(),
-    childPrice: v.string(),
-    seniorPrice: v.string(),
-    totalLimit: v.string(),
-  })
-    .index("byTitle", ["title"]),
-  // ----------------------------
-  // Category (child of Experience; sibling to City/Subcategory/FAQ)
-  // Uniqueness: (experienceId, categoryName) should be unique → enforce in code
-  // ----------------------------
+    adultPrice: v.number(),
+    childPrice: v.number(),
+    seniorPrice: v.number(),
+    totalLimit: v.number(),
+  }).index("byTitle", ["title"]),
+
   category: defineTable({
     experienceId: v.id("experience"),
-    categoryName: v.string(), // enum candidate
+    categoryName: v.string(),
   })
     .index("byExperience", ["experienceId"])
     .index("byExperienceAndCategoryName", ["experienceId", "categoryName"])
     .index("byCategoryName", ["categoryName"]),
-
-  // ----------------------------
-  // Subcategory (child of Experience; sibling)
-  // Uniqueness: (experienceId, subcategoryName) should be unique → enforce in code
-  // ----------------------------
   subcategory: defineTable({
     experienceId: v.id("experience"),
-    subcategoryName: v.string(), // enum candidate
+    subcategoryName: v.string(),
   })
     .index("byExperience", ["experienceId"])
-    .index("byExperienceAndSubcategoryName", ["experienceId", "subcategoryName"])
+    .index("byExperienceAndSubcategoryName", [
+      "experienceId",
+      "subcategoryName",
+    ])
     .index("bySubcategoryName", ["subcategoryName"]),
-
-  // ----------------------------
-  // City (child of Experience; sibling)
-  // You originally required cityName and countryName unique. We'll keep global lookups,
-  // AND add an experienceId so it sits under an experience as you requested.
-  // If you need uniqueness per experience instead of globally, check (experienceId, cityName, countryName).
-  // ----------------------------
   city: defineTable({
     experienceId: v.id("experience"),
-    cityName: v.string(),    // originally unique
-    countryName: v.string(), // originally unique
+    cityName: v.string(),
+    countryName: v.string(),
   })
     .index("byExperience", ["experienceId"])
     .index("byCityName", ["cityName"])
-    .index("byCountryName", ["countryName"])
-    // Optional per-experience uniqueness check in code using:
-    // .index("byExperienceCityCountry", ["experienceId", "cityName", "countryName"])
-  ,
-  // ----------------------------
-  // FAQ (child of Experience; sibling)
-  // ----------------------------
+    .index("byCountryName", ["countryName"]),
   faq: defineTable({
     experienceId: v.id("experience"),
     question: v.string(),
     answer: v.string(),
-  })
-    .index("byExperience", ["experienceId"]),
-  // ----------------------------
-  // Reviews (separate; linked to Experience)
-  // ----------------------------
+  }).index("byExperience", ["experienceId"]),
   reviews: defineTable({
-    userId: v.string(),                // keep string (no users table defined)
+    userId: v.string(),
     experienceId: v.id("experience"),
     stars: v.number(),
-    images: v.array(v.id("_storage")),
+    images: v.array(v.string()),
     text: v.string(),
   })
     .index("byExperience", ["experienceId"])
