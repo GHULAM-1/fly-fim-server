@@ -21,29 +21,20 @@ export const getSubcategoryById = query({
   handler: async (ctx, args) => ctx.db.get(args.id),
 });
 
-export const getSubcategoriesByExperience = query({
-  args: { experienceId: v.id("experience") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("subcategory")
-      .withIndex("byExperience", (q) => q.eq("experienceId", args.experienceId))
-      .collect();
-  },
-});
+
 
 // -------- Mutations with uniqueness --------
 
-// CREATE: (experienceId, subcategoryName) must be unique
+// CREATE: (subcategoryName) must be unique
 export const createSubcategory = mutation({
   args: {
-    experienceId: v.id("experience"),
     subcategoryName: v.string(),
   },
   handler: async (ctx, args) => {
     const dup = await ctx.db
       .query("subcategory")
-      .withIndex("byExperienceAndSubcategoryName", (q) =>
-        q.eq("experienceId", args.experienceId).eq("subcategoryName", args.subcategoryName)
+      .withIndex("bySubcategoryName", (q) =>
+        q.eq("subcategoryName", args.subcategoryName)
       )
       .first();
 
@@ -54,7 +45,6 @@ export const createSubcategory = mutation({
     }
 
     return await ctx.db.insert("subcategory", {
-      experienceId: args.experienceId,
       subcategoryName: args.subcategoryName,
     });
   },
@@ -72,8 +62,8 @@ export const updateSubcategory = mutation({
 
     const clash = await ctx.db
       .query("subcategory")
-      .withIndex("byExperienceAndSubcategoryName", (q) =>
-        q.eq("experienceId", current.experienceId).eq("subcategoryName", subcategoryName)
+      .withIndex("bySubcategoryName", (q) =>
+        q.eq("subcategoryName", subcategoryName)
       )
       .first();
 

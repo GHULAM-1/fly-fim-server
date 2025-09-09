@@ -24,15 +24,6 @@ export const getCityById = query({
   },
 });
 
-export const getCitiesByExperience = query({
-  args: { experienceId: v.id("experience") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("city")
-      .withIndex("byExperience", (q) => q.eq("experienceId", args.experienceId))
-      .collect();
-  },
-});
 
 export const getCitiesByCityName = query({
   args: { cityName: v.string() },
@@ -57,7 +48,6 @@ export const getCitiesByCountryName = query({
 // ---------------- Mutation Functions ----------------
 export const createCity = mutation({
   args: {
-    experienceId: v.id("experience"),
     cityName: v.string(),
     countryName: v.string(),
   },
@@ -75,7 +65,6 @@ export const createCity = mutation({
     }
 
     return await ctx.db.insert("city", {
-      experienceId: args.experienceId,
       cityName: normalized,
       countryName: args.countryName,
     });
@@ -125,3 +114,4 @@ export const deleteCity = mutation({
     await ctx.db.delete(args.id);
   },
 });
+

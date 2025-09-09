@@ -4,17 +4,13 @@ import {
   getCityById,
   createCity,
   updateCity,
-  deleteCity,
-  getCitiesByExperience
+  deleteCity
 } from '../controllers/cityController';
 
 const router = Router();
 
 // GET /api/cities - Get all cities (with optional filtering)
 router.get('/', getAllCities);
-
-// GET /api/cities/experience/:experienceId - Get cities by experience
-router.get('/experience/:experienceId', getCitiesByExperience);
 
 // GET /api/cities/:id - Get city by ID
 router.get('/:id', getCityById);

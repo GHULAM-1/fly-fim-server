@@ -56,13 +56,13 @@ export const getCategoryById = async (req: Request, res: Response) => {
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
-    const { experienceId, categoryName }: CreateCategoryRequest = req.body;
+    const { categoryName }: CreateCategoryRequest = req.body;
 
     // Validation
-    if (!experienceId || !categoryName) {
+    if (!categoryName) {
       const response: CategoryResponse = {
         success: false,
-        message: "experienceId and categoryName are required",
+        message: " categoryName are required",
       };
       return res.status(400).json(response);
     }
@@ -70,13 +70,12 @@ export const createCategory = async (req: Request, res: Response) => {
     const convex = convexService.getClient();
 
     const categoryId = await convex.mutation(api.categoryFunctions.createCategory, { 
-      experienceId: experienceId as any, 
       categoryName
     });
     res.status(201).json({ 
       success: true, 
       message: 'Category created successfully', 
-      data: { _id: categoryId, experienceId, categoryName } 
+      data: { _id: categoryId, categoryName } 
     });
   } catch (error) {
     console.error("Error creating category:", error);
@@ -138,20 +137,3 @@ export const deleteCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const getCategoriesByExperience = async (req: Request, res: Response) => {
-  try {
-    const { experienceId } = req.params;
-    const convex = convexService.getClient();
-
-    const categories = await convex.query(api.categoryFunctions.getCategoriesByExperience, { experienceId: experienceId as any });
-    res.json({ success: true, data: categories, message: `Categories for experience ${experienceId} retrieved successfully` });
-  } catch (error) {
-    console.error("Error fetching categories by experience:", error);
-    const response: CategoryResponse = {
-      success: false,
-      message: "Failed to fetch categories by experience",
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-    res.status(500).json(response);
-  }
-};

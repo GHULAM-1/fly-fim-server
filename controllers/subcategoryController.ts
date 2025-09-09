@@ -56,13 +56,13 @@ export const getSubcategoryById = async (req: Request, res: Response) => {
 
 export const createSubcategory = async (req: Request, res: Response) => {
   try {
-    const { experienceId, subcategoryName }: CreateSubcategoryRequest = req.body;
+    const { subcategoryName }: CreateSubcategoryRequest = req.body;
 
     // Validation
-    if (!experienceId || !subcategoryName) {
+    if (!subcategoryName) {
       const response: SubcategoryResponse = {
         success: false,
-        message: "experienceId and subcategoryName are required",
+        message: "subcategoryName are required",
       };
       return res.status(400).json(response);
     }
@@ -70,13 +70,12 @@ export const createSubcategory = async (req: Request, res: Response) => {
     const convex = convexService.getClient();
 
     const subcategoryId = await convex.mutation(api.subcategoryFunctions.createSubcategory, { 
-      experienceId: experienceId as any, 
       subcategoryName
     });
     res.status(201).json({ 
       success: true, 
       message: 'Subcategory created successfully', 
-      data: { _id: subcategoryId, experienceId, subcategoryName } 
+      data: { _id: subcategoryId, subcategoryName } 
     });
   } catch (error) {
     console.error("Error creating subcategory:", error);
@@ -138,20 +137,3 @@ export const deleteSubcategory = async (req: Request, res: Response) => {
   }
 };
 
-export const getSubcategoriesByExperience = async (req: Request, res: Response) => {
-  try {
-    const { experienceId } = req.params;
-    const convex = convexService.getClient();
-
-    const subcategories = await convex.query(api.subcategoryFunctions.getSubcategoriesByExperience, { experienceId: experienceId as any });
-    res.json({ success: true, data: subcategories, message: `Subcategories for experience ${experienceId} retrieved successfully` });
-  } catch (error) {
-    console.error("Error fetching subcategories by experience:", error);
-    const response: SubcategoryResponse = {
-      success: false,
-      message: "Failed to fetch subcategories by experience",
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-    res.status(500).json(response);
-  }
-};

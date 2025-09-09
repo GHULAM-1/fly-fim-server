@@ -2,13 +2,11 @@
 export interface Category {
   _id: string;
   _creationTime: number;
-  experienceId: string;
   categoryName: string;
 }
 
 // API Request/Response Types
 export interface CreateCategoryRequest {
-  experienceId: string;
   categoryName: string;
 }
 
@@ -25,7 +23,6 @@ export interface CategoryResponse {
 
 // Query Parameters
 export interface CategoryQueryParams {
-  experienceId?: string;
   categoryName?: string;
   limit?: number;
   offset?: number;

@@ -5,16 +5,12 @@ import {
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
-  getSubcategoriesByExperience
 } from '../controllers/subcategoryController';
 
 const router = Router();
 
 // GET /api/subcategories - Get all subcategories (with optional filtering)
 router.get('/', getAllSubcategories);
-
-// GET /api/subcategories/experience/:experienceId - Get subcategories by experience
-router.get('/experience/:experienceId', getSubcategoriesByExperience);
 
 // GET /api/subcategories/:id - Get subcategory by ID
 router.get('/:id', getSubcategoryById);

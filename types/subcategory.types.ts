@@ -2,13 +2,11 @@
 export interface Subcategory {
   _id: string;
   _creationTime: number;
-  experienceId: string;
   subcategoryName: string;
 }
 
 // API Request/Response Types
 export interface CreateSubcategoryRequest {
-  experienceId: string;
   subcategoryName: string;
 }
 
@@ -25,7 +23,6 @@ export interface SubcategoryResponse {
 
 // Query Parameters
 export interface SubcategoryQueryParams {
-  experienceId?: string;
   subcategoryName?: string;
   limit?: number;
   offset?: number;

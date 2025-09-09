@@ -55,21 +55,21 @@ export const getCityById = async (req: Request, res: Response) => {
 
 export const createCity = async (req: Request, res: Response) => {
   try {
-    const { experienceId, cityName, countryName }: CreateCityRequest = req.body;
+    const {  cityName, countryName }: CreateCityRequest = req.body;
 
     // Validation
-    if (!experienceId || !cityName || !countryName) {
+    if (!cityName || !countryName) {
       const response: CityResponse = {
         success: false,
-        message: "experienceId, cityName, and countryName are required",
+        message: " cityName, and countryName are required",
       };
       return res.status(400).json(response);
     }
 
     const convex = convexService.getClient();
 
-    const cityId = await convex.mutation(api.cityFunctions.createCity, { experienceId: experienceId as any, cityName, countryName });
-    res.status(201).json({ success: true, message: 'City created successfully', data: { _id: cityId, experienceId, cityName, countryName } });
+    const cityId = await convex.mutation(api.cityFunctions.createCity, { cityName, countryName });
+    res.status(201).json({ success: true, message: 'City created successfully', data: { _id: cityId, cityName, countryName } });
   } catch (error) {
     console.error("Error creating city:", error);
     const response: CityResponse = {
@@ -128,20 +128,3 @@ export const deleteCity = async (req: Request, res: Response) => {
   }
 };
 
-export const getCitiesByExperience = async (req: Request, res: Response) => {
-  try {
-    const { experienceId } = req.params;
-    const convex = convexService.getClient();
-
-    const cities = await convex.query(api.cityFunctions.getCitiesByExperience, { experienceId: experienceId as any });
-    res.json({ success: true, data: cities, message: `Cities for experience ${experienceId} retrieved successfully` });
-  } catch (error) {
-    console.error("Error fetching cities by experience:", error);
-    const response: CityResponse = {
-      success: false,
-      message: "Failed to fetch cities by experience",
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
-    res.status(500).json(response);
-  }
-};

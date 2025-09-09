@@ -2,14 +2,12 @@
 export interface City {
   _id: string;
   _creationTime: number;
-  experienceId: string;
   cityName: string;
   countryName: string;
 }
 
 // API Request/Response Types
 export interface CreateCityRequest {
-  experienceId: string;
   cityName: string;
   countryName: string;
 }
@@ -28,7 +26,6 @@ export interface CityResponse {
 
 // Query Parameters
 export interface CityQueryParams {
-  experienceId?: string;
   cityName?: string;
   countryName?: string;
   limit?: number;

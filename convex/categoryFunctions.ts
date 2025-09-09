@@ -21,40 +21,28 @@ export const getCategoryById = query({
   handler: async (ctx, args) => ctx.db.get(args.id),
 });
 
-export const getCategoriesByExperience = query({
-  args: { experienceId: v.id("experience") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("category")
-      .withIndex("byExperience", (q) => q.eq("experienceId", args.experienceId))
-      .collect();
-  },
-});
+// -------- Mutations --------
 
-// -------- Mutations with uniqueness --------
-
-// CREATE: (experienceId, categoryName) must be unique
+// CREATE: categoryName must be unique
 export const createCategory = mutation({
   args: {
-    experienceId: v.id("experience"),
     categoryName: v.string(),
   },
   handler: async (ctx, args) => {
     const dup = await ctx.db
       .query("category")
-      .withIndex("byExperienceAndCategoryName", (q) =>
-        q.eq("experienceId", args.experienceId).eq("categoryName", args.categoryName)
+      .withIndex("byCategoryName", (q) =>
+        q.eq("categoryName", args.categoryName)
       )
       .first();
 
     if (dup) {
       throw new Error(
-        `Category '${args.categoryName}' already exists for this experience`
+        `Category '${args.categoryName}' already exists`
       );
     }
 
     return await ctx.db.insert("category", {
-      experienceId: args.experienceId,
       categoryName: args.categoryName,
     });
   },
@@ -70,17 +58,17 @@ export const updateCategory = mutation({
     const current = await ctx.db.get(id);
     if (!current) throw new Error("Category not found");
 
-    // check if another category with same (experienceId, categoryName) exists
+    // check if another category with same categoryName exists
     const clash = await ctx.db
       .query("category")
-      .withIndex("byExperienceAndCategoryName", (q) =>
-        q.eq("experienceId", current.experienceId).eq("categoryName", categoryName)
+      .withIndex("byCategoryName", (q) =>
+        q.eq("categoryName", categoryName)
       )
       .first();
 
     if (clash && clash._id !== id) {
       throw new Error(
-        `Category '${categoryName}' already exists for this experience`
+        `Category '${categoryName}' already exists`
       );
     }
 
