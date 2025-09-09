@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import cityRoutes from './cityRoutes';
-import categoryRoutes from './categoryRoutes';
-import subcategoryRoutes from './subcategoryRoutes';
+import cityRoutes from './city-routes';
+import categoryRoutes from './category-routes';
+import subcategoryRoutes from './subcategory-routes';
 import experienceRoutes from './experience-routes';
 import thingsToDoRoutes from './things-to-do-routes';
 import categoryPageRoutes from './category-page-routes';
 import subcategoryPageRoutes from './subcategory-page-routes';
-import faqRoutes from './faq.routes';
-import reviewRoutes from './review.routes';
+import faqRoutes from './faq-routes';
+import reviewRoutes from './review-routes';
 
 const router = Router();
 

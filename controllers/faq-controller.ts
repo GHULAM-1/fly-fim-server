@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { convexService } from "../services/convexService";
+import { convexService } from "../services/convex-service";
 import { api } from "../convex/_generated/api";
 import {
   Faq,

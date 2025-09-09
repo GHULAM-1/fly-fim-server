@@ -3,8 +3,8 @@ import express from "express";
 import cors from "cors";
 import { ConvexHttpClient } from "convex/browser";
 import routes from "./routes";
-import { errorHandler, notFound } from "./middleware/errorHandler";
-import { convexService } from "./services/convexService";
+import { errorHandler, notFound } from "./middleware/error-handler";
+import { convexService } from "./services/convex-service";
 
 dotenv.config();
 const app = express();

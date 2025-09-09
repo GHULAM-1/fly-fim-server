@@ -6,7 +6,7 @@ import {
   createFaq,
   updateFaq,
   deleteFaq,
-} from "../controllers/faqController";
+} from "../controllers/faq-controller";
 
 const router = Router();
 

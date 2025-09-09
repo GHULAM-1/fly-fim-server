@@ -5,7 +5,7 @@ import {
   createSubcategory,
   updateSubcategory,
   deleteSubcategory,
-} from '../controllers/subcategoryController';
+} from '../controllers/subcategory-controller';
 
 const router = Router();
 

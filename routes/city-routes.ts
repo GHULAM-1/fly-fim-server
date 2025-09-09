@@ -5,7 +5,7 @@ import {
   createCity,
   updateCity,
   deleteCity
-} from '../controllers/cityController';
+} from '../controllers/city-controller';
 
 const router = Router();
 
