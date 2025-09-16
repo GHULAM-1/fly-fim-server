@@ -15,13 +15,6 @@ export const errorHandler = (
   const message = err.message || 'Internal Server Error';
 
   // Log error for debugging
-  console.error('Error:', {
-    message: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method,
-    timestamp: new Date().toISOString()
-  });
 
   res.status(statusCode).json({
     error: {

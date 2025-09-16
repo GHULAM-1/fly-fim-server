@@ -63,6 +63,126 @@ const structureExperience = (exp: any) => ({
   },
 });
 
+// Helper function to validate if a string is a valid Convex storage ID
+const isValidStorageId = (id: string): boolean => {
+  // Convex storage IDs are typically alphanumeric strings without special characters like '/' or '.'
+  // File paths like '/images/d5.jpg.avif' should be rejected
+  return !/[\/\.]/.test(id) && /^[a-z0-9]+$/i.test(id) && id.length > 20;
+};
+
+// Helper function to safely get image URL
+const safeGetImageUrl = async (ctx: any, imageId: string): Promise<string | null> => {
+  if (!isValidStorageId(imageId)) {
+    return imageId.startsWith('/') ? imageId : null; // Return file paths as-is, reject invalid IDs
+  }
+
+  try {
+    const url = await ctx.storage.getUrl(imageId);
+    return url;
+  } catch (error) {
+    return null;
+  }
+};
+
+// Helper function to structure experience attributes with resolved image URLs
+const structureExperienceWithImageUrls = async (ctx: any, exp: any) => {
+  // Resolve main image URLs (now an array)
+  let mainImageUrls: (string | null)[] = [];
+  if (exp.mainImage && Array.isArray(exp.mainImage)) {
+    mainImageUrls = await Promise.all(
+      exp.mainImage.map((imageId: string) => safeGetImageUrl(ctx, imageId))
+    );
+  }
+
+  // Resolve images array URLs
+  let imageUrls: (string | null)[] = [];
+  if (exp.images && Array.isArray(exp.images)) {
+    imageUrls = await Promise.all(
+      exp.images.map((imageId: string) => safeGetImageUrl(ctx, imageId))
+    );
+  }
+
+  return {
+    _id: exp._id,
+    basicInfo: {
+      title: exp.title,
+      description: exp.description,
+      tagOnCards: exp.tagOnCards,
+      price: exp.price,
+      oldPrice: exp.oldPrice,
+      sale: exp.sale,
+      images: imageUrls,
+      mainImage: mainImageUrls,
+    },
+
+    features: {
+      features: exp.features,
+      featureText: exp.featureText,
+    },
+
+   information:{
+    highlights: exp.highlights,
+    inclusions: exp.inclusions,
+    exclusions: exp.exclusions,
+    cancellationPolicy: exp.cancellationPolicy,
+    ticketValidity: exp.ticketValidity,
+    operatingHours: exp.operatingHours,
+    yourExperience: exp.yourExperience,
+    knowBeforeYouGo: exp.knowBeforeYouGo,
+    myTickets: exp.myTickets,
+    whereTo: exp.whereTo,
+    exploreMore: exp.exploreMore,
+    },
+
+    calendar: {
+      datePriceRange: exp.datePriceRange,
+    },
+
+    packages: {
+      packageType: exp.packageType,
+    },
+
+    ticketPrice: {
+      adultPrice: exp.adultPrice,
+      childPrice: exp.childPrice,
+      seniorPrice: exp.seniorPrice,
+      totalLimit: exp.totalLimit,
+    },
+
+    flags: {
+      isMainCard: exp.isMainCard,
+      isTopExperience: exp.isTopExperience,
+      isMustDo: exp.isMustDo,
+      isPopular: exp.isPopular,
+      blogSlug: exp.blogSlug,
+    },
+    relationships: {
+      categoryId: exp.categoryId,
+      subcategoryId: exp.subcategoryId,
+      cityId: exp.cityId,
+      categoryName: (await ctx.db.get(exp.categoryId))?.categoryName || null,
+      subcategoryName: (await ctx.db.get(exp.subcategoryId))?.subcategoryName || null,
+      cityName: (await ctx.db.get(exp.cityId))?.cityName || null,
+    },
+  };
+};
+
+// Helper function to structure review with resolved image URLs
+const structureReviewWithImageUrls = async (ctx: any, review: any) => {
+  // Resolve images array URLs
+  let imageUrls: (string | null)[] = [];
+  if (review.images && Array.isArray(review.images)) {
+    imageUrls = await Promise.all(
+      review.images.map((imageId: string) => safeGetImageUrl(ctx, imageId))
+    );
+  }
+
+  return {
+    ...review,
+    imageUrls
+  };
+};
+
 export const getAllExperiences = query({
   args: { limit: v.optional(v.number()), offset: v.optional(v.number()) },
   handler: async (ctx, args) => {
@@ -90,7 +210,7 @@ export const createExperience = mutation({
     oldPrice: v.optional(v.float64()),
     sale: v.optional(v.float64()),
     images: v.array(v.string()),
-    mainImage: v.string(),
+    mainImage: v.array(v.string()),
     tagOnCards: v.optional(v.string()),
     features: v.array(v.string()),
     featureText: v.string(),
@@ -187,7 +307,7 @@ export const updateExperience = mutation({
       oldPrice: v.optional(v.number()),
       sale: v.optional(v.number()),
       images: v.optional(v.array(v.string())),
-      mainImage: v.optional(v.string()),
+      mainImage: v.optional(v.array(v.string())),
       tagOnCards: v.optional(v.string()),
       features: v.optional(v.array(v.string())),
       featureText: v.optional(v.string()),
@@ -421,27 +541,37 @@ export const getThingsToDoPageData = query({
       reviews.push(...expReviews);
     }
 
-    // 7) Convert Map to Array and structure response
-    const categories = Array.from(categoryMap.values()).map((category) => ({
-      categoryName: category.categoryName,
-      subcategories: Array.from(category.subcategories.values()).map(
-        (sub: any) => ({
-          subcategoryName: sub.subcategoryName,
-          experiences: sub.experiences.map((exp: any) =>
-            structureExperience(exp)
-          ),
-        })
-      ),
-    }));
+    // 7) Convert Map to Array and structure response with image URLs
+    const categories = await Promise.all(
+      Array.from(categoryMap.values()).map(async (category) => ({
+        categoryName: category.categoryName,
+        subcategories: await Promise.all(
+          Array.from(category.subcategories.values()).map(async (sub: any) => ({
+            subcategoryName: sub.subcategoryName,
+            experiences: await Promise.all(
+              sub.experiences.map((exp: any) =>
+                structureExperienceWithImageUrls(ctx, exp)
+              )
+            ),
+          }))
+        ),
+      }))
+    );
 
     return {
       categories,
-      topExperiences: topExperiences.map((exp) => structureExperience(exp)),
-      mustDoExperiences: mustDoExperiences.map((exp) =>
-        structureExperience(exp)
+      topExperiences: await Promise.all(
+        topExperiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))
       ),
-      mainCards: mainCards.map((exp) => structureExperience(exp)),
-      reviews,
+      mustDoExperiences: await Promise.all(
+        mustDoExperiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))
+      ),
+      mainCards: await Promise.all(
+        mainCards.map((exp) => structureExperienceWithImageUrls(ctx, exp))
+      ),
+      reviews: await Promise.all(
+        reviews.map((review) => structureReviewWithImageUrls(ctx, review))
+      ),
     };
   },
 });
@@ -480,33 +610,6 @@ export const getCategoryPageData = query({
       (exp) => exp.categoryId === args.categoryId
     );
 
-    if (allCityExperiences.length > 0) {
-      console.log("All city experiences:");
-      allCityExperiences.forEach((exp) => {
-        console.log(
-          "- Experience:",
-          exp.title,
-          "CategoryId:",
-          exp.categoryId,
-          "CityId:",
-          exp.cityId
-        );
-      });
-    }
-
-    if (experiences.length > 0) {
-      console.log("Filtered experiences:");
-      experiences.forEach((exp) => {
-        console.log(
-          "- Experience:",
-          exp.title,
-          "isTopExperience:",
-          (exp as any).isTopExperience,
-          "isPopular:",
-          (exp as any).isPopular
-        );
-      });
-    }
 
     // 3) Filter experiences by hierarchy flags
     const topExperiences = experiences.filter(
@@ -543,14 +646,16 @@ export const getCategoryPageData = query({
       subcategoryMap.get(subcategory.subcategoryName).experiences.push(exp);
     }
 
-    // 7) Convert Map to Array
-    const subcategories = Array.from(subcategoryMap.values()).map(
-      (sub: any) => ({
+    // 7) Convert Map to Array with image URLs
+    const subcategories = await Promise.all(
+      Array.from(subcategoryMap.values()).map(async (sub: any) => ({
         subcategoryName: sub.subcategoryName,
-        experiences: sub.experiences.map((exp: any) =>
-          structureExperience(exp)
+        experiences: await Promise.all(
+          sub.experiences.map((exp: any) =>
+            structureExperienceWithImageUrls(ctx, exp)
+          )
         ),
-      })
+      }))
     );
 
     // 8) Get reviews for all experiences in this category
@@ -563,16 +668,103 @@ export const getCategoryPageData = query({
       reviews.push(...expReviews);
     }
 
+    // Get all categories and subcategories in this city with top experiences (max 15 per subcategory)
+    const allCategoriesMap = new Map();
+
+    // Create a map of category -> subcategories based on experiences in this city
+    for (const exp of allCityExperiences) {
+      const category = await ctx.db.get(exp.categoryId);
+      const subcategory = await ctx.db.get(exp.subcategoryId);
+
+      if (!category || !subcategory) continue;
+
+      const categoryName = category.categoryName;
+      const subcategoryName = subcategory.subcategoryName;
+
+      // Initialize category if it doesn't exist
+      if (!allCategoriesMap.has(categoryName)) {
+        allCategoriesMap.set(categoryName, new Map());
+      }
+
+      // Initialize subcategory if it doesn't exist
+      const categoryData = allCategoriesMap.get(categoryName);
+      if (!categoryData.has(subcategoryName)) {
+        categoryData.set(subcategoryName, []);
+      }
+    }
+
+    // Now add top experiences to each subcategory (max 15 per subcategory)
+    const allCityTopExperiences = allCityExperiences.filter(
+      (exp) => (exp as any).isTopExperience === true
+    );
+
+    for (const exp of allCityTopExperiences) {
+      const category = await ctx.db.get(exp.categoryId);
+      const subcategory = await ctx.db.get(exp.subcategoryId);
+
+      if (!category || !subcategory) continue;
+
+      const categoryName = category.categoryName;
+      const subcategoryName = subcategory.subcategoryName;
+
+      // Add to the appropriate subcategory if it exists and hasn't reached limit
+      if (allCategoriesMap.has(categoryName)) {
+        const categoryData = allCategoriesMap.get(categoryName);
+        if (categoryData.has(subcategoryName)) {
+          const subcategoryExperiences = categoryData.get(subcategoryName);
+          if (subcategoryExperiences.length < 15) {
+            subcategoryExperiences.push(exp);
+          }
+        }
+      }
+    }
+
+    // Convert to desired structure and limit experiences to 15 per subcategory
+    const allCategoriesResult: any[] = [];
+    for (const [categoryName, subcategoryMap] of allCategoriesMap.entries()) {
+      const subcategories: any[] = [];
+      for (const [subcategoryName, experiences] of subcategoryMap.entries()) {
+        subcategories.push({
+          subcategoryName,
+          experiences: experiences.slice(0, 15) // Ensure max 15 experiences
+        });
+      }
+      allCategoriesResult.push({
+        categoryName,
+        subcategories
+      });
+    }
+
+    // Structure experiences with image URLs for allCategories
+    const structuredAllCategories = await Promise.all(
+      allCategoriesResult.map(async (category) => ({
+        categoryName: category.categoryName,
+        subcategories: await Promise.all(
+          category.subcategories.map(async (subcategory: any) => ({
+            subcategoryName: subcategory.subcategoryName,
+            experiences: await Promise.all(
+              subcategory.experiences.map((exp: any) => structureExperienceWithImageUrls(ctx, exp))
+            )
+          }))
+        )
+      }))
+    );
+
     return {
       category: {
         categoryName: categoryDoc.categoryName,
         subcategories,
       },
-      topExperiences: topExperiences.map((exp) => structureExperience(exp)),
-      popularExperiences: popularExperiences.map((exp) =>
-        structureExperience(exp)
+      topExperiences: await Promise.all(
+        topExperiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))
       ),
-      reviews,
+      popularExperiences: await Promise.all(
+        popularExperiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))
+      ),
+      reviews: await Promise.all(
+        reviews.map((review) => structureReviewWithImageUrls(ctx, review))
+      ),
+      allCategories: structuredAllCategories,
     };
   },
 });
@@ -670,14 +862,16 @@ export const getCategoryPageDataFiltered = query({
       subcategoryMap.get(subcategory.subcategoryName).experiences.push(exp);
     }
 
-    // 4) Convert Map to Array
-    const subcategories = Array.from(subcategoryMap.values()).map(
-      (sub: any) => ({
+    // 4) Convert Map to Array with image URLs
+    const subcategories = await Promise.all(
+      Array.from(subcategoryMap.values()).map(async (sub: any) => ({
         subcategoryName: sub.subcategoryName,
-        experiences: sub.experiences.map((exp: any) =>
-          structureExperience(exp)
+        experiences: await Promise.all(
+          sub.experiences.map((exp: any) =>
+            structureExperienceWithImageUrls(ctx, exp)
+          )
         ),
-      })
+      }))
     );
 
     // 5) Get reviews for all experiences in this category
@@ -690,13 +884,100 @@ export const getCategoryPageDataFiltered = query({
       reviews.push(...expReviews);
     }
 
+    // Get all categories and subcategories in this city with top experiences (max 15 per subcategory)
+    const allCategoriesMap = new Map();
+
+    // Create a map of category -> subcategories based on experiences in this city
+    for (const exp of allCityExperiences) {
+      const category = await ctx.db.get(exp.categoryId);
+      const subcategory = await ctx.db.get(exp.subcategoryId);
+
+      if (!category || !subcategory) continue;
+
+      const categoryName = category.categoryName;
+      const subcategoryName = subcategory.subcategoryName;
+
+      // Initialize category if it doesn't exist
+      if (!allCategoriesMap.has(categoryName)) {
+        allCategoriesMap.set(categoryName, new Map());
+      }
+
+      // Initialize subcategory if it doesn't exist
+      const categoryData = allCategoriesMap.get(categoryName);
+      if (!categoryData.has(subcategoryName)) {
+        categoryData.set(subcategoryName, []);
+      }
+    }
+
+    // Now add top experiences to each subcategory (max 15 per subcategory)
+    const allCityTopExperiences = allCityExperiences.filter(
+      (exp) => (exp as any).isTopExperience === true
+    );
+
+    for (const exp of allCityTopExperiences) {
+      const category = await ctx.db.get(exp.categoryId);
+      const subcategory = await ctx.db.get(exp.subcategoryId);
+
+      if (!category || !subcategory) continue;
+
+      const categoryName = category.categoryName;
+      const subcategoryName = subcategory.subcategoryName;
+
+      // Add to the appropriate subcategory if it exists and hasn't reached limit
+      if (allCategoriesMap.has(categoryName)) {
+        const categoryData = allCategoriesMap.get(categoryName);
+        if (categoryData.has(subcategoryName)) {
+          const subcategoryExperiences = categoryData.get(subcategoryName);
+          if (subcategoryExperiences.length < 15) {
+            subcategoryExperiences.push(exp);
+          }
+        }
+      }
+    }
+
+    // Convert to desired structure and limit experiences to 15 per subcategory
+    const allCategoriesResult: any[] = [];
+    for (const [categoryName, subcategoryMap] of allCategoriesMap.entries()) {
+      const subcategories: any[] = [];
+      for (const [subcategoryName, experiences] of subcategoryMap.entries()) {
+        subcategories.push({
+          subcategoryName,
+          experiences: experiences.slice(0, 15) // Ensure max 15 experiences
+        });
+      }
+      allCategoriesResult.push({
+        categoryName,
+        subcategories
+      });
+    }
+
+    // Structure experiences with image URLs for allCategories
+    const structuredAllCategories = await Promise.all(
+      allCategoriesResult.map(async (category) => ({
+        categoryName: category.categoryName,
+        subcategories: await Promise.all(
+          category.subcategories.map(async (subcategory: any) => ({
+            subcategoryName: subcategory.subcategoryName,
+            experiences: await Promise.all(
+              subcategory.experiences.map((exp: any) => structureExperienceWithImageUrls(ctx, exp))
+            )
+          }))
+        )
+      }))
+    );
+
     return {
       category: {
         categoryName: categoryDoc.categoryName,
         subcategories,
       },
-      experiences: experiences.map((exp) => structureExperience(exp)),
-      reviews,
+      experiences: await Promise.all(
+        experiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))
+      ),
+      reviews: await Promise.all(
+        reviews.map((review) => structureReviewWithImageUrls(ctx, review))
+      ),
+      allCategories: structuredAllCategories,
     };
   },
 });
@@ -715,11 +996,19 @@ export const getSubcategoryPageData = query({
     const cityDoc = await ctx.db.get(args.cityId);
     const categoryDoc = await ctx.db.get(args.categoryId);
     
-    // Find subcategory by name
-    const subcategoryDoc = await ctx.db
+    // Find subcategory by name (case-insensitive with dash handling)
+    const allSubcategories = await ctx.db
       .query("subcategory")
-      .withIndex("bySubcategoryName", (q) => q.eq("subcategoryName", args.subcategoryName))
-      .first();
+      .collect();
+
+    // Normalize the received subcategory name: replace dashes with spaces and convert to lowercase
+    const normalizedInputName = args.subcategoryName.replace(/-/g, ' ').toLowerCase().trim();
+
+    const subcategoryDoc = allSubcategories.find(sub => {
+      // Also normalize the database subcategory name for comparison
+      const normalizedDbName = sub.subcategoryName.replace(/-/g, ' ').toLowerCase().trim();
+      return normalizedDbName === normalizedInputName;
+    });
 
     if (!cityDoc || !categoryDoc || !subcategoryDoc) {
       return {
@@ -777,6 +1066,88 @@ export const getSubcategoryPageData = query({
       totalReviews: reviews.length,
     };
 
+    // 6) Get all categories and subcategories in this city with top experiences (max 15 per subcategory)
+    const allCategoriesMap = new Map();
+
+    // Create a map of category -> subcategories based on experiences in this city
+    for (const exp of allCityExperiences) {
+      const category = await ctx.db.get(exp.categoryId);
+      const subcategory = await ctx.db.get(exp.subcategoryId);
+
+      if (!category || !subcategory) continue;
+
+      const categoryName = category.categoryName;
+      const subcategoryName = subcategory.subcategoryName;
+
+      // Initialize category if it doesn't exist
+      if (!allCategoriesMap.has(categoryName)) {
+        allCategoriesMap.set(categoryName, new Map());
+      }
+
+      // Initialize subcategory if it doesn't exist
+      const categoryData = allCategoriesMap.get(categoryName);
+      if (!categoryData.has(subcategoryName)) {
+        categoryData.set(subcategoryName, []);
+      }
+    }
+
+    // Now add top experiences to each subcategory (max 15 per subcategory)
+    const allCityTopExperiences = allCityExperiences.filter(
+      (exp) => (exp as any).isTopExperience === true
+    );
+
+    for (const exp of allCityTopExperiences) {
+      const category = await ctx.db.get(exp.categoryId);
+      const subcategory = await ctx.db.get(exp.subcategoryId);
+
+      if (!category || !subcategory) continue;
+
+      const categoryName = category.categoryName;
+      const subcategoryName = subcategory.subcategoryName;
+
+      // Add to the appropriate subcategory if it exists and hasn't reached limit
+      if (allCategoriesMap.has(categoryName)) {
+        const categoryData = allCategoriesMap.get(categoryName);
+        if (categoryData.has(subcategoryName)) {
+          const subcategoryExperiences = categoryData.get(subcategoryName);
+          if (subcategoryExperiences.length < 15) {
+            subcategoryExperiences.push(exp);
+          }
+        }
+      }
+    }
+
+    // Convert to desired structure and limit experiences to 15 per subcategory
+    const allCategoriesResult: any[] = [];
+    for (const [categoryName, subcategoryMap] of allCategoriesMap.entries()) {
+      const subcategories: any[] = [];
+      for (const [subcategoryName, experiences] of subcategoryMap.entries()) {
+        subcategories.push({
+          subcategoryName,
+          experiences: experiences.slice(0, 15) // Ensure max 15 experiences
+        });
+      }
+      allCategoriesResult.push({
+        categoryName,
+        subcategories
+      });
+    }
+
+    // Structure experiences with image URLs for allCategories
+    const structuredAllCategories = await Promise.all(
+      allCategoriesResult.map(async (category) => ({
+        categoryName: category.categoryName,
+        subcategories: await Promise.all(
+          category.subcategories.map(async (subcategory: any) => ({
+            subcategoryName: subcategory.subcategoryName,
+            experiences: await Promise.all(
+              subcategory.experiences.map((exp: any) => structureExperienceWithImageUrls(ctx, exp))
+            )
+          }))
+        )
+      }))
+    );
+
     return {
       category: {
         categoryName: categoryDoc.categoryName,
@@ -785,7 +1156,10 @@ export const getSubcategoryPageData = query({
       subcategory: {
         subcategoryName: subcategoryDoc.subcategoryName,
       },
-      experiences: specificExperiences.map((exp) => structureExperience(exp)),
+      experiences: await Promise.all(
+        specificExperiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))
+      ),
+      allCategories: structuredAllCategories,
       reviewStats,
     };
   },

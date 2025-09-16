@@ -21,6 +21,23 @@ export const getCategoryById = query({
   handler: async (ctx, args) => ctx.db.get(args.id),
 });
 
+export const getCategoriesByCategoryName = query({
+  args: { categoryName: v.string() },
+  handler: async (ctx, args) => {
+    // Get all categories and filter case-insensitively
+    const allCategories = await ctx.db
+      .query("category")
+      .collect();
+    
+    // Filter categories with case-insensitive matching
+    const categories = allCategories.filter(category => 
+      category.categoryName.toLowerCase() === args.categoryName.toLowerCase()
+    );
+
+    return categories;
+  },
+});
+
 // -------- Mutations --------
 
 // CREATE: categoryName must be unique

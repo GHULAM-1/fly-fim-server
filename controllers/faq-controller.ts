@@ -30,7 +30,7 @@ export const getAllFaqs = async (req: Request, res: Response) => {
       message: "FAQs retrieved successfully",
     } as PaginatedFaqResponse);
   } catch (error) {
-    console.error("Error fetching FAQs:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch FAQs",
@@ -47,7 +47,7 @@ export const getFaqById = async (req: Request, res: Response) => {
     if (!faq) return res.status(404).json({ success: false, message: "FAQ not found" });
     res.json({ success: true, data: faq, message: "FAQ retrieved successfully" });
   } catch (error) {
-    console.error("Error fetching FAQ:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch FAQ",
@@ -65,7 +65,7 @@ export const getFaqsByExperience = async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: faqs, message: "FAQs by experience retrieved successfully" });
   } catch (error) {
-    console.error("Error fetching FAQs by experience:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch FAQs by experience",
@@ -92,7 +92,7 @@ export const createFaq = async (req: Request, res: Response) => {
       message: "FAQ created successfully",
     });
   } catch (error) {
-    console.error("Error creating FAQ:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to create FAQ",
@@ -116,7 +116,7 @@ export const updateFaq = async (req: Request, res: Response) => {
     });
     res.json({ success: true, message: "FAQ updated successfully" });
   } catch (error) {
-    console.error("Error updating FAQ:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to update FAQ",
@@ -132,7 +132,7 @@ export const deleteFaq = async (req: Request, res: Response) => {
     await convex.mutation(api.faqFunctions.deleteFaq, { id: req.params.id as any });
     res.json({ success: true, message: "FAQ deleted successfully" });
   } catch (error) {
-    console.error("Error deleting FAQ:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to delete FAQ",

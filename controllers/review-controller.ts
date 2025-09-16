@@ -29,7 +29,7 @@ export const getAllReviews = async (req: Request, res: Response) => {
       message: "Reviews retrieved successfully",
     } as PaginatedReviewResponse);
   } catch (error) {
-    console.error("Error fetching reviews:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch reviews",
@@ -45,7 +45,7 @@ export const getReviewById = async (req: Request, res: Response) => {
     if (!review) return res.status(404).json({ success: false, message: "Review not found" });
     res.json({ success: true, data: review, message: "Review retrieved successfully" });
   } catch (error) {
-    console.error("Error fetching review:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch review",
@@ -62,7 +62,7 @@ export const getReviewsByExperience = async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: reviews, message: "Reviews by experience retrieved successfully" });
   } catch (error) {
-    console.error("Error fetching reviews by experience:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch reviews by experience",
@@ -79,7 +79,7 @@ export const getReviewsByUser = async (req: Request, res: Response) => {
     });
     res.json({ success: true, data: reviews, message: "Reviews by user retrieved successfully" });
   } catch (error) {
-    console.error("Error fetching reviews by user:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch reviews by user",
@@ -105,7 +105,7 @@ export const createReview = async (req: Request, res: Response) => {
       message: "Review created successfully",
     });
   } catch (error) {
-    console.error("Error creating review:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to create review",
@@ -127,7 +127,7 @@ export const createReview = async (req: Request, res: Response) => {
 //     });
 //     res.json({ success: true, message: "Review updated successfully" });
 //   } catch (error) {
-//     console.error("Error updating review:", error);
+
 //     res.status(500).json({
 //       success: false,
 //       message: "Failed to update review",
@@ -142,7 +142,7 @@ export const deleteReview = async (req: Request, res: Response) => {
     await convex.mutation(api.reviewFunctions.deleteReview, { id: req.params.id as any });
     res.json({ success: true, message: "Review deleted successfully" });
   } catch (error) {
-    console.error("Error deleting review:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to delete review",

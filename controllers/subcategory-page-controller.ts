@@ -29,7 +29,7 @@ export const getSubcategoryPageData = async (req: Request, res: Response) => {
       message: "Subcategory page data retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching subcategory page data:", error);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch subcategory page data",

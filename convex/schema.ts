@@ -8,7 +8,7 @@ export default defineSchema({
     oldPrice: v.optional(v.number()),
     sale: v.optional(v.number()),
     images: v.array(v.string()),
-    mainImage: v.string(),
+    mainImage: v.optional(v.union(v.string(), v.array(v.string()))),
     tagOnCards: v.optional(v.string()),
     features: v.array(v.string()),
     featureText: v.string(),
@@ -95,6 +95,7 @@ export default defineSchema({
   })
     .index("bySubcategoryName", ["subcategoryName"]),
   city: defineTable({
+    image: v.optional(v.string()),
     cityName: v.string(),
     countryName: v.string(),
   })
@@ -114,4 +115,26 @@ export default defineSchema({
   })
     .index("byExperience", ["experienceId"])
     .index("byUser", ["userId"]),
+
+  users: defineTable({
+    name: v.optional(v.string()),
+    email: v.string(),
+    image: v.optional(v.string()),
+    provider: v.string(),
+    providerId: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("byEmail", ["email"])
+    .index("byProvider", ["provider", "providerId"]),
+
+  authSessions: defineTable({
+    userId: v.id("users"),
+    sessionToken: v.string(),
+    expires: v.number(),
+    createdAt: v.number(),
+  })
+    .index("bySessionToken", ["sessionToken"])
+    .index("byUserId", ["userId"])
+    .index("byExpiry", ["expires"]),
 });

@@ -7,6 +7,7 @@ import {
   UpdateExperienceRequest,
   ExperienceListWithFacetsResponse,
 } from "../types/experience.types";
+import { parseExperienceData } from "../utils/parse-utils";
 
 
 export const getAllExperiences = async (_req: Request, res: Response) => {
@@ -25,7 +26,7 @@ export const getAllExperiences = async (_req: Request, res: Response) => {
       message: "Experiences retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching experiences:", error);
+
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to fetch experiences",
@@ -53,7 +54,7 @@ export const getExperienceById = async (req: Request, res: Response) => {
       message: "Experience retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching experience:", error);
+
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to fetch experience",
@@ -73,18 +74,21 @@ export const createExperience = async (req: Request, res: Response) => {
       };
       return res.status(400).json(response);
     }
+    // Parse numeric fields from form data (form-data always sends strings)
+    const parsedBody = parseExperienceData(body);
+    
     const convex = convexService.getClient();
     const newId = await convex.mutation(
       api.experienceFunctions.createExperience,
-      body as any
+      parsedBody as any
     );
     res.status(201).json({
       success: true,
       message: "Experience created successfully",
-      data: { _id: newId, ...body },
+      data: { _id: newId, ...parsedBody },
     });
   } catch (error) {
-    console.error("Error creating experience:", error);
+
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to create experience",
@@ -112,7 +116,7 @@ export const updateExperience = async (req: Request, res: Response) => {
     });
     res.json({ success: true, message: "Experience updated successfully" });
   } catch (error) {
-    console.error("Error updating experience:", error);
+
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to update experience",
@@ -131,7 +135,7 @@ export const deleteExperience = async (req: Request, res: Response) => {
     });
     res.json({ success: true, message: "Experience deleted successfully" });
   } catch (error) {
-    console.error("Error deleting experience:", error);
+
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to delete experience",

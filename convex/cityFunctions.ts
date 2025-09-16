@@ -10,17 +10,82 @@ export const getAllCities = query({
   handler: async (ctx, args) => {
     const { limit = 50, offset = 0 } = args;
     
-    return await ctx.db
+    const result = await ctx.db
       .query("city")
       .order("desc")
       .paginate({ numItems: limit, cursor: offset > 0 ? offset.toString() : null });
+    
+    // Helper function to validate if a string is a valid Convex storage ID
+    const isValidStorageId = (id: string): boolean => {
+      return !/[\/\.]/.test(id) && /^[a-z0-9]+$/i.test(id) && id.length > 20;
+    };
+
+    // Helper function to safely get image URL
+    const safeGetImageUrl = async (imageId: string): Promise<string | null> => {
+      if (!isValidStorageId(imageId)) {
+        return imageId.startsWith('/') ? imageId : null;
+      }
+      try {
+        const url = await ctx.storage.getUrl(imageId);
+        return url;
+      } catch (error) {
+        return null;
+      }
+    };
+
+    // Get image URLs for all cities
+    const citiesWithUrls = await Promise.all(
+      result.page.map(async (city) => {
+        let imageUrl = null;
+        if (city.image) {
+          imageUrl = await safeGetImageUrl(city.image);
+        }
+        return {
+          ...city,
+          imageUrl
+        };
+      })
+    );
+    
+    return {
+      ...result,
+      page: citiesWithUrls
+    };
   },
 });
 
 export const getCityById = query({
   args: { id: v.id("city") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    const city = await ctx.db.get(args.id);
+    if (!city) return null;
+
+    // Helper functions (same as above)
+    const isValidStorageId = (id: string): boolean => {
+      return !/[\/\.]/.test(id) && /^[a-z0-9]+$/i.test(id) && id.length > 20;
+    };
+
+    const safeGetImageUrl = async (imageId: string): Promise<string | null> => {
+      if (!isValidStorageId(imageId)) {
+        return imageId.startsWith('/') ? imageId : null;
+      }
+      try {
+        return await ctx.storage.getUrl(imageId);
+      } catch (error) {
+        return null;
+      }
+    };
+
+    // Get image URL if image exists
+    let imageUrl = null;
+    if (city.image) {
+      imageUrl = await safeGetImageUrl(city.image);
+    }
+
+    return {
+      ...city,
+      imageUrl
+    };
   },
 });
 
@@ -28,26 +93,97 @@ export const getCityById = query({
 export const getCitiesByCityName = query({
   args: { cityName: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    // Get all cities and filter case-insensitively
+    const allCities = await ctx.db
       .query("city")
-      .withIndex("byCityName", (q) => q.eq("cityName", args.cityName))
       .collect();
+    
+    // Filter cities with case-insensitive matching
+    const cities = allCities.filter(city => 
+      city.cityName.toLowerCase() === args.cityName.toLowerCase()
+    );
+    
+    // Helper functions
+    const isValidStorageId = (id: string): boolean => {
+      return !/[\/\.]/.test(id) && /^[a-z0-9]+$/i.test(id) && id.length > 20;
+    };
+
+    const safeGetImageUrl = async (imageId: string): Promise<string | null> => {
+      if (!isValidStorageId(imageId)) {
+        return imageId.startsWith('/') ? imageId : null;
+      }
+      try {
+        return await ctx.storage.getUrl(imageId);
+      } catch (error) {
+        return null;
+      }
+    };
+
+    // Get image URLs for all cities
+    const citiesWithUrls = await Promise.all(
+      cities.map(async (city) => {
+        let imageUrl = null;
+        if (city.image) {
+          imageUrl = await safeGetImageUrl(city.image);
+        }
+        return {
+          ...city,
+          imageUrl
+        };
+      })
+    );
+    
+    return citiesWithUrls;
   },
 });
 
 export const getCitiesByCountryName = query({
   args: { countryName: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const cities = await ctx.db
       .query("city")
       .withIndex("byCountryName", (q) => q.eq("countryName", args.countryName))
       .collect();
+    
+    // Helper functions
+    const isValidStorageId = (id: string): boolean => {
+      return !/[\/\.]/.test(id) && /^[a-z0-9]+$/i.test(id) && id.length > 20;
+    };
+
+    const safeGetImageUrl = async (imageId: string): Promise<string | null> => {
+      if (!isValidStorageId(imageId)) {
+        return imageId.startsWith('/') ? imageId : null;
+      }
+      try {
+        return await ctx.storage.getUrl(imageId);
+      } catch (error) {
+        return null;
+      }
+    };
+
+    // Get image URLs for all cities
+    const citiesWithUrls = await Promise.all(
+      cities.map(async (city) => {
+        let imageUrl = null;
+        if (city.image) {
+          imageUrl = await safeGetImageUrl(city.image);
+        }
+        return {
+          ...city,
+          imageUrl
+        };
+      })
+    );
+    
+    return citiesWithUrls;
   },
 });
+
 
 // ---------------- Mutation Functions ----------------
 export const createCity = mutation({
   args: {
+    image: v.optional(v.string()),
     cityName: v.string(),
     countryName: v.string(),
   },
@@ -65,6 +201,7 @@ export const createCity = mutation({
     }
 
     return await ctx.db.insert("city", {
+      image: args.image,
       cityName: normalized,
       countryName: args.countryName,
     });
@@ -74,13 +211,18 @@ export const createCity = mutation({
 export const updateCity = mutation({
   args: {
     id: v.id("city"),
+    image: v.optional(v.string()),
     cityName: v.optional(v.string()),
     countryName: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const { id, cityName, countryName } = args;
+    const { id, image, cityName, countryName } = args;
 
     const updateData: any = {};
+
+    if (image !== undefined) {
+      updateData.image = image;
+    }
 
     if (cityName !== undefined) {
       const normalized = cityName.trim().toLowerCase();

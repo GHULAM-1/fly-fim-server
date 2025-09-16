@@ -25,7 +25,7 @@ export const getAllCategories = async (req: Request, res: Response) => {
       message: "Categories retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching categories:", error);
+
     const response: CategoryResponse = {
       success: false,
       message: "Failed to fetch categories",
@@ -44,10 +44,45 @@ export const getCategoryById = async (req: Request, res: Response) => {
     if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
     res.json({ success: true, data: category, message: 'Category retrieved successfully' });
   } catch (error) {
-    console.error("Error fetching category:", error);
+
     const response: CategoryResponse = {
       success: false,
       message: "Failed to fetch category",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+    res.status(500).json(response);
+  }
+};
+
+export const getCategoriesByCategoryName = async (req: Request, res: Response) => {
+  try {
+    const { categoryName } = req.params;
+    const convex = convexService.getClient();
+
+    if (!categoryName) {
+      const response: CategoryResponse = {
+        success: false,
+        message: "categoryName parameter is required",
+      };
+      return res.status(400).json(response);
+    }
+
+    const categories = await convex.query(api.categoryFunctions.getCategoriesByCategoryName, {
+      categoryName: categoryName.trim()
+    });
+
+    const response: CategoryResponse = {
+      success: true,
+      data: categories,
+      message: `Found ${categories.length} categories matching "${categoryName}"`,
+    };
+
+    res.json(response);
+  } catch (error) {
+
+    const response: CategoryResponse = {
+      success: false,
+      message: "Failed to fetch categories by name",
       error: error instanceof Error ? error.message : "Unknown error",
     };
     res.status(500).json(response);
@@ -78,7 +113,7 @@ export const createCategory = async (req: Request, res: Response) => {
       data: { _id: categoryId, categoryName } 
     });
   } catch (error) {
-    console.error("Error creating category:", error);
+
     const response: CategoryResponse = {
       success: false,
       message: "Failed to create category",
@@ -109,7 +144,7 @@ export const updateCategory = async (req: Request, res: Response) => {
     });
     res.json({ success: true, message: 'Category updated successfully' });
   } catch (error) {
-    console.error("Error updating category:", error);
+
     const response: CategoryResponse = {
       success: false,
       message: "Failed to update category",
@@ -127,7 +162,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
     await convex.mutation(api.categoryFunctions.deleteCategory, { id: id as any });
     res.json({ success: true, message: 'Category deleted successfully' });
   } catch (error) {
-    console.error("Error deleting category:", error);
+
     const response: CategoryResponse = {
       success: false,
       message: "Failed to delete category",

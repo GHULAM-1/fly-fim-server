@@ -7,6 +7,7 @@ import {
   createReview,
   deleteReview,
 } from "../controllers/review-controller";
+import { createImageMiddleware } from "../middleware/image-interceptor";
 
 const router = Router();
 
@@ -22,8 +23,8 @@ router.get("/experience/:experienceId", getReviewsByExperience);
 // // GET /api/reviews/user/:userId
 // router.get("/user/:userId", getReviewsByUser);
 
-// POST /api/reviews
-router.post("/", createReview);
+// POST /api/reviews (with image upload)
+router.post("/", ...createImageMiddleware('review'), createReview);
 
 // // PUT /api/reviews/:id
 // router.put("/:id", updateReview);

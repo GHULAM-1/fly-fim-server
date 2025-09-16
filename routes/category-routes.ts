@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getAllCategories,
   getCategoryById,
+  getCategoriesByCategoryName,
   createCategory,
   updateCategory,
   deleteCategory,
@@ -11,6 +12,9 @@ const router = Router();
 
 // GET /api/categories - Get all categories (with optional filtering)
 router.get('/', getAllCategories);
+
+// GET /api/categories/name/:categoryName - Get categories by category name (case-insensitive)
+router.get('/name/:categoryName', getCategoriesByCategoryName);
 
 // GET /api/categories/:id - Get category by ID
 router.get('/:id', getCategoryById);

@@ -1,0 +1,142 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.createImageMiddleware = exports.getMulterMiddleware = exports.imageInterceptor = void 0;
+const multer_1 = __importDefault(require("multer"));
+const convex_service_1 = require("../services/convex-service");
+const api_1 = require("../convex/_generated/api");
+// Configure multer for memory storage
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB limit
+    },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        }
+        else {
+            cb(null, false);
+        }
+    }
+});
+// Image field configurations for different entities
+const IMAGE_FIELD_CONFIG = {
+    city: {
+        single: ['image'],
+        array: []
+    },
+    experience: {
+        single: [],
+        array: ['mainImage', 'images']
+    },
+    review: {
+        single: [],
+        array: ['images']
+    }
+};
+// Upload single image to Convex storage
+const uploadSingleImage = async (file) => {
+    const convex = convex_service_1.convexService.getClient();
+    // Convert buffer to base64 string
+    const base64Data = file.buffer.toString('base64');
+    const result = await convex.action(api_1.api.storage.uploadImage, {
+        imageData: base64Data,
+        mimeType: file.mimetype
+    });
+    if (!result.success) {
+        throw new Error(result.message || 'Failed to upload image');
+    }
+    return result.storageId;
+};
+// Upload multiple images to Convex storage
+const uploadMultipleImages = async (files) => {
+    const convex = convex_service_1.convexService.getClient();
+    const uploadPromises = files.map(file => {
+        // Convert buffer to base64 string
+        const base64Data = file.buffer.toString('base64');
+        return convex.action(api_1.api.storage.uploadImage, {
+            imageData: base64Data,
+            mimeType: file.mimetype
+        });
+    });
+    const results = await Promise.all(uploadPromises);
+    const failedUploads = results.filter(result => !result.success);
+    if (failedUploads.length > 0) {
+        throw new Error(`Failed to upload ${failedUploads.length} images`);
+    }
+    return results.map(result => result.storageId);
+};
+// Main image interceptor middleware
+const imageInterceptor = (entityType) => {
+    const config = IMAGE_FIELD_CONFIG[entityType];
+    return async (req, res, next) => {
+        try {
+            // Check if request has files
+            if (!req.files || (Array.isArray(req.files) && req.files.length === 0)) {
+                return next();
+            }
+            const files = Array.isArray(req.files) ? req.files : Object.values(req.files).flat();
+            if (files.length === 0) {
+                return next();
+            }
+            // Process single image fields
+            for (const fieldName of config.single) {
+                const fieldFiles = files.filter(file => file.fieldname === fieldName);
+                if (fieldFiles.length > 0) {
+                    if (fieldFiles.length > 1) {
+                        return res.status(400).json({
+                            success: false,
+                            message: `Only one image allowed for field: ${fieldName}`
+                        });
+                    }
+                    const storageId = await uploadSingleImage(fieldFiles[0]);
+                    req.body[fieldName] = storageId;
+                }
+            }
+            // Process array image fields
+            for (const fieldName of config.array) {
+                const fieldFiles = files.filter(file => file.fieldname === fieldName);
+                if (fieldFiles.length > 0) {
+                    const storageIds = await uploadMultipleImages(fieldFiles);
+                    req.body[fieldName] = storageIds;
+                }
+            }
+            next();
+        }
+        catch (error) {
+            res.status(500).json({
+                success: false,
+                message: 'Failed to process images',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    };
+};
+exports.imageInterceptor = imageInterceptor;
+// Multer middleware for different entity types
+const getMulterMiddleware = (entityType) => {
+    const config = IMAGE_FIELD_CONFIG[entityType];
+    const fields = [];
+    // Add single image fields
+    config.single.forEach(fieldName => {
+        fields.push({ name: fieldName, maxCount: 1 });
+    });
+    // Add array image fields
+    config.array.forEach(fieldName => {
+        fields.push({ name: fieldName, maxCount: 10 }); // Max 10 images per array field
+    });
+    return upload.fields(fields);
+};
+exports.getMulterMiddleware = getMulterMiddleware;
+// Combined middleware that handles both multer and image processing
+const createImageMiddleware = (entityType) => {
+    return [
+        (0, exports.getMulterMiddleware)(entityType),
+        (0, exports.imageInterceptor)(entityType)
+    ];
+};
+exports.createImageMiddleware = createImageMiddleware;
+//# sourceMappingURL=image-interceptor.js.map

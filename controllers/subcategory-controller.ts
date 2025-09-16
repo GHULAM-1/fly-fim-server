@@ -25,7 +25,7 @@ export const getAllSubcategories = async (req: Request, res: Response) => {
       message: "Subcategories retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching subcategories:", error);
+
     const response: SubcategoryResponse = {
       success: false,
       message: "Failed to fetch subcategories",
@@ -44,7 +44,7 @@ export const getSubcategoryById = async (req: Request, res: Response) => {
     if (!subcategory) return res.status(404).json({ success: false, message: 'Subcategory not found' });
     res.json({ success: true, data: subcategory, message: 'Subcategory retrieved successfully' });
   } catch (error) {
-    console.error("Error fetching subcategory:", error);
+
     const response: SubcategoryResponse = {
       success: false,
       message: "Failed to fetch subcategory",
@@ -78,7 +78,7 @@ export const createSubcategory = async (req: Request, res: Response) => {
       data: { _id: subcategoryId, subcategoryName } 
     });
   } catch (error) {
-    console.error("Error creating subcategory:", error);
+
     const response: SubcategoryResponse = {
       success: false,
       message: "Failed to create subcategory",
@@ -109,7 +109,7 @@ export const updateSubcategory = async (req: Request, res: Response) => {
     });
     res.json({ success: true, message: 'Subcategory updated successfully' });
   } catch (error) {
-    console.error("Error updating subcategory:", error);
+
     const response: SubcategoryResponse = {
       success: false,
       message: "Failed to update subcategory",
@@ -127,7 +127,7 @@ export const deleteSubcategory = async (req: Request, res: Response) => {
     await convex.mutation(api.subcategoryFunctions.deleteSubcategory, { id: id as any });
     res.json({ success: true, message: 'Subcategory deleted successfully' });
   } catch (error) {
-    console.error("Error deleting subcategory:", error);
+
     const response: SubcategoryResponse = {
       success: false,
       message: "Failed to delete subcategory",

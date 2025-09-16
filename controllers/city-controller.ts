@@ -24,7 +24,6 @@ export const getAllCities = async (req: Request, res: Response) => {
       message: "Cities retrieved successfully",
     });
   } catch (error) {
-    console.error("Error fetching cities:", error);
     const response: CityResponse = {
       success: false,
       message: "Failed to fetch cities",
@@ -43,7 +42,6 @@ export const getCityById = async (req: Request, res: Response) => {
     if (!city) return res.status(404).json({ success: false, message: 'City not found' });
     res.json({ success: true, data: city, message: 'City retrieved successfully' });
   } catch (error) {
-    console.error("Error fetching city:", error);
     const response: CityResponse = {
       success: false,
       message: "Failed to fetch city",
@@ -55,23 +53,22 @@ export const getCityById = async (req: Request, res: Response) => {
 
 export const createCity = async (req: Request, res: Response) => {
   try {
-    const {  cityName, countryName }: CreateCityRequest = req.body;
+    const { image, cityName, countryName }: CreateCityRequest = req.body;
 
     // Validation
     if (!cityName || !countryName) {
       const response: CityResponse = {
         success: false,
-        message: " cityName, and countryName are required",
+        message: "cityName and countryName are required",
       };
       return res.status(400).json(response);
     }
 
     const convex = convexService.getClient();
 
-    const cityId = await convex.mutation(api.cityFunctions.createCity, { cityName, countryName });
-    res.status(201).json({ success: true, message: 'City created successfully', data: { _id: cityId, cityName, countryName } });
+    const cityId = await convex.mutation(api.cityFunctions.createCity, { image, cityName, countryName });
+    res.status(201).json({ success: true, message: 'City created successfully', data: { _id: cityId, image, cityName, countryName } });
   } catch (error) {
-    console.error("Error creating city:", error);
     const response: CityResponse = {
       success: false,
       message: "Failed to create city",
@@ -86,11 +83,11 @@ export const updateCity = async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates: UpdateCityRequest = req.body;
 
-    if (!updates.cityName && !updates.countryName) {
+    if (!updates.image && !updates.cityName && !updates.countryName) {
       const response: CityResponse = {
         success: false,
         message:
-          "At least one field (cityName or countryName) is required for update",
+          "At least one field (image, cityName, or countryName) is required for update",
       };
       return res.status(400).json(response);
     }
@@ -100,10 +97,43 @@ export const updateCity = async (req: Request, res: Response) => {
     await convex.mutation(api.cityFunctions.updateCity, { id: id as any, ...updates });
     res.json({ success: true, message: 'City updated successfully' });
   } catch (error) {
-    console.error("Error updating city:", error);
     const response: CityResponse = {
       success: false,
       message: "Failed to update city",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+    res.status(500).json(response);
+  }
+};
+
+export const getCitiesByCityName = async (req: Request, res: Response) => {
+  try {
+    const { cityName } = req.params;
+    const convex = convexService.getClient();
+
+    if (!cityName) {
+      const response: CityResponse = {
+        success: false,
+        message: "cityName parameter is required",
+      };
+      return res.status(400).json(response);
+    }
+
+    const cities = await convex.query(api.cityFunctions.getCitiesByCityName, { 
+      cityName: cityName.trim() 
+    });
+    
+    const response: CityResponse = {
+      success: true,
+      data: cities,
+      message: `Found ${cities.length} cities matching "${cityName}"`,
+    };
+    
+    res.json(response);
+  } catch (error) {
+    const response: CityResponse = {
+      success: false,
+      message: "Failed to fetch cities by name",
       error: error instanceof Error ? error.message : "Unknown error",
     };
     res.status(500).json(response);
@@ -118,7 +148,6 @@ export const deleteCity = async (req: Request, res: Response) => {
     await convex.mutation(api.cityFunctions.deleteCity, { id: id as any });
     res.json({ success: true, message: 'City deleted successfully' });
   } catch (error) {
-    console.error("Error deleting city:", error);
     const response: CityResponse = {
       success: false,
       message: "Failed to delete city",
