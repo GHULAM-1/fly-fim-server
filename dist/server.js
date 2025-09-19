@@ -43,7 +43,9 @@ const getAllowedOrigins = () => {
 const allowedOrigins = getAllowedOrigins();
 const corsOptions = {
     origin: allowedOrigins,
-    credentials: true, // This is crucial for cookies!
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 app.use((0, cors_1.default)(corsOptions));
 app.use((0, cookie_parser_1.default)());
