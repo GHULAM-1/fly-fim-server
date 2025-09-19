@@ -28,12 +28,12 @@ exports.createSubcategory = (0, server_1.mutation)({
         subcategoryName: values_1.v.string(),
     },
     handler: async (ctx, args) => {
-        const dup = await ctx.db
-            .query("subcategory")
-            .withIndex("bySubcategoryName", (q) => q.eq("subcategoryName", args.subcategoryName))
-            .first();
-        if (dup) {
-            throw new Error(`Subcategory '${args.subcategoryName}' already exists for this experience`);
+        // Check for duplicates using case-insensitive comparison
+        const allSubcategories = await ctx.db.query("subcategory").collect();
+        const normalizedForCheck = args.subcategoryName.trim().toLowerCase();
+        const existing = allSubcategories.find(subcategory => subcategory.subcategoryName.toLowerCase() === normalizedForCheck);
+        if (existing) {
+            throw new Error(`Subcategory '${args.subcategoryName}' already exists`);
         }
         return await ctx.db.insert("subcategory", {
             subcategoryName: args.subcategoryName,
@@ -50,12 +50,12 @@ exports.updateSubcategory = (0, server_1.mutation)({
         const current = await ctx.db.get(id);
         if (!current)
             throw new Error("Subcategory not found");
-        const clash = await ctx.db
-            .query("subcategory")
-            .withIndex("bySubcategoryName", (q) => q.eq("subcategoryName", subcategoryName))
-            .first();
-        if (clash && clash._id !== id) {
-            throw new Error(`Subcategory '${subcategoryName}' already exists for this experience`);
+        // Check for duplicates using case-insensitive comparison
+        const allSubcategories = await ctx.db.query("subcategory").collect();
+        const normalizedForCheck = subcategoryName.trim().toLowerCase();
+        const existing = allSubcategories.find(subcategory => subcategory.subcategoryName.toLowerCase() === normalizedForCheck && subcategory._id !== id);
+        if (existing) {
+            throw new Error(`Subcategory '${subcategoryName}' already exists`);
         }
         await ctx.db.patch(id, { subcategoryName });
     },

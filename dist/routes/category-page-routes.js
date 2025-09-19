@@ -5,6 +5,5 @@ const category_page_controller_1 = require("../controllers/category-page-control
 const router = (0, express_1.Router)();
 // ===== CATEGORY PAGE ROUTES =====
 router.get("/:cityId/:categoryId", category_page_controller_1.getCategoryPageData);
-router.get("/filtered/:cityId/:categoryId", category_page_controller_1.getCategoryPageDataFiltered);
 exports.default = router;
 //# sourceMappingURL=category-page-routes.js.map

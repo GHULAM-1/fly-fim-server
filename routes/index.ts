@@ -9,6 +9,7 @@ import subcategoryPageRoutes from './subcategory-page-routes';
 import faqRoutes from './faq-routes';
 import reviewRoutes from './review-routes';
 import authRoutes from './auth-routes';
+import notFoundRoutes from './not-found-routes';
 
 const router = Router();
 
@@ -23,6 +24,7 @@ router.use('/api/v1/subcategory-page', subcategoryPageRoutes);
 router.use('/api/v1/faqs', faqRoutes);
 router.use('/api/v1/reviews', reviewRoutes);
 router.use('/api/v1/auth', authRoutes);
+router.use('/api/v1/not-found-page', notFoundRoutes);
 
 // Health check route
 router.get('/api/health', (req, res) => {

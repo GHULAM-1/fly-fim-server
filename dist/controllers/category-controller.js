@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCategory = exports.updateCategory = exports.createCategory = exports.getCategoriesByCategoryName = exports.getCategoryById = exports.getAllCategories = void 0;
 const convex_service_1 = require("../services/convex-service");
 const api_1 = require("../convex/_generated/api");
+const category_enum_1 = require("../types/enums/category.enum");
+const text_transform_1 = require("../utils/text-transform");
 const getAllCategories = async (req, res) => {
     try {
         const convex = convex_service_1.convexService.getClient();
@@ -58,8 +60,18 @@ const getCategoriesByCategoryName = async (req, res) => {
             };
             return res.status(400).json(response);
         }
+        // Normalize the category name to proper case
+        const normalizedCategoryName = (0, text_transform_1.normalizeCategoryName)(categoryName);
+        // Validate enum value after normalization
+        if (!(0, category_enum_1.isCategoryType)(normalizedCategoryName)) {
+            const response = {
+                success: false,
+                message: "Invalid category type. Must be one of: Tickets, Tours, Transportation, Travel Services, Cruises, Food & Drink, Entertainment, Adventure, Water Sports, Wellness, Specials",
+            };
+            return res.status(400).json(response);
+        }
         const categories = await convex.query(api_1.api.categoryFunctions.getCategoriesByCategoryName, {
-            categoryName: categoryName.trim()
+            categoryName: normalizedCategoryName
         });
         const response = {
             success: true,
@@ -85,18 +97,28 @@ const createCategory = async (req, res) => {
         if (!categoryName) {
             const response = {
                 success: false,
-                message: " categoryName are required",
+                message: "categoryName is required",
+            };
+            return res.status(400).json(response);
+        }
+        // Normalize the category name to proper case
+        const normalizedCategoryName = (0, text_transform_1.normalizeCategoryName)(categoryName);
+        // Validate enum value after normalization
+        if (!(0, category_enum_1.isCategoryType)(normalizedCategoryName)) {
+            const response = {
+                success: false,
+                message: "Invalid category type. Must be one of: Tickets, Tours, Transportation, Travel Services, Cruises, Food & Drink, Entertainment, Adventure, Water Sports, Wellness, Specials",
             };
             return res.status(400).json(response);
         }
         const convex = convex_service_1.convexService.getClient();
         const categoryId = await convex.mutation(api_1.api.categoryFunctions.createCategory, {
-            categoryName
+            categoryName: normalizedCategoryName
         });
         res.status(201).json({
             success: true,
             message: 'Category created successfully',
-            data: { _id: categoryId, categoryName }
+            data: { _id: categoryId, categoryName: normalizedCategoryName }
         });
     }
     catch (error) {
@@ -120,10 +142,20 @@ const updateCategory = async (req, res) => {
             };
             return res.status(400).json(response);
         }
+        // Normalize the category name to proper case
+        const normalizedCategoryName = (0, text_transform_1.normalizeCategoryName)(updates.categoryName);
+        // Validate enum value after normalization
+        if (!(0, category_enum_1.isCategoryType)(normalizedCategoryName)) {
+            const response = {
+                success: false,
+                message: "Invalid category type. Must be one of: Tickets, Tours, Transportation, Travel Services, Cruises, Food & Drink, Entertainment, Adventure, Water Sports, Wellness, Specials",
+            };
+            return res.status(400).json(response);
+        }
         const convex = convex_service_1.convexService.getClient();
         await convex.mutation(api_1.api.categoryFunctions.updateCategory, {
             id: id,
-            categoryName: updates.categoryName
+            categoryName: normalizedCategoryName
         });
         res.json({ success: true, message: 'Category updated successfully' });
     }

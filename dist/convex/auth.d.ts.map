@@ -1,1 +1,1 @@
-{"version":3,"file":"auth.d.ts","sourceRoot":"","sources":["../../convex/auth.ts"],"names":[],"mappings":"AAIA,eAAO,MAAQ,IAAI,OAAE,MAAM,OAAE,OAAO,OAAE,KAAK,KAWzC,CAAC"}
+{"version":3,"file":"auth.d.ts","sourceRoot":"","sources":["../../convex/auth.ts"],"names":[],"mappings":"AAGA,eAAO,MAAM,eAAe;;;;8DAe1B,CAAC;AAEH,eAAO,MAAM,aAAa;;;;;;;;;;;;;;;;;;;;;;UAexB,CAAC;AAEH,eAAO,MAAM,WAAW;;oBActB,CAAC"}

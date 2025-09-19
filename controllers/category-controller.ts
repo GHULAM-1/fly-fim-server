@@ -6,6 +6,8 @@ import {
   CreateCategoryRequest,
   UpdateCategoryRequest,
 } from "../types/category.types";
+import { isCategoryType } from "../types/enums/category.enum";
+import { normalizeCategoryName } from "../utils/text-transform";
 
 export const getAllCategories = async (req: Request, res: Response) => {
   try {
@@ -21,7 +23,7 @@ export const getAllCategories = async (req: Request, res: Response) => {
     
     res.json({
       success: true,
-      data: categories,
+      data: categories as any,
       message: "Categories retrieved successfully",
     });
   } catch (error) {
@@ -42,7 +44,7 @@ export const getCategoryById = async (req: Request, res: Response) => {
 
     const category = await convex.query(api.categoryFunctions.getCategoryById, { id: id as any });
     if (!category) return res.status(404).json({ success: false, message: 'Category not found' });
-    res.json({ success: true, data: category, message: 'Category retrieved successfully' });
+    res.json({ success: true, data: category as any, message: 'Category retrieved successfully' });
   } catch (error) {
 
     const response: CategoryResponse = {
@@ -67,13 +69,25 @@ export const getCategoriesByCategoryName = async (req: Request, res: Response) =
       return res.status(400).json(response);
     }
 
+    // Normalize the category name to proper case
+    const normalizedCategoryName = normalizeCategoryName(categoryName);
+
+    // Validate enum value after normalization
+    if (!isCategoryType(normalizedCategoryName)) {
+      const response: CategoryResponse = {
+        success: false,
+        message: "Invalid category type. Must be one of: Tickets, Tours, Transportation, Travel Services, Cruises, Food & Drink, Entertainment, Adventure, Water Sports, Wellness, Specials",
+      };
+      return res.status(400).json(response);
+    }
+
     const categories = await convex.query(api.categoryFunctions.getCategoriesByCategoryName, {
-      categoryName: categoryName.trim()
+      categoryName: normalizedCategoryName as any
     });
 
     const response: CategoryResponse = {
       success: true,
-      data: categories,
+      data: categories as any,
       message: `Found ${categories.length} categories matching "${categoryName}"`,
     };
 
@@ -97,20 +111,32 @@ export const createCategory = async (req: Request, res: Response) => {
     if (!categoryName) {
       const response: CategoryResponse = {
         success: false,
-        message: " categoryName are required",
+        message: "categoryName is required",
+      };
+      return res.status(400).json(response);
+    }
+
+    // Normalize the category name to proper case
+    const normalizedCategoryName = normalizeCategoryName(categoryName);
+
+    // Validate enum value after normalization
+    if (!isCategoryType(normalizedCategoryName)) {
+      const response: CategoryResponse = {
+        success: false,
+        message: "Invalid category type. Must be one of: Tickets, Tours, Transportation, Travel Services, Cruises, Food & Drink, Entertainment, Adventure, Water Sports, Wellness, Specials",
       };
       return res.status(400).json(response);
     }
 
     const convex = convexService.getClient();
 
-    const categoryId = await convex.mutation(api.categoryFunctions.createCategory, { 
-      categoryName
+    const categoryId = await convex.mutation(api.categoryFunctions.createCategory, {
+      categoryName: normalizedCategoryName
     });
-    res.status(201).json({ 
-      success: true, 
-      message: 'Category created successfully', 
-      data: { _id: categoryId, categoryName } 
+    res.status(201).json({
+      success: true,
+      message: 'Category created successfully',
+      data: { _id: categoryId, categoryName: normalizedCategoryName }
     });
   } catch (error) {
 
@@ -136,11 +162,23 @@ export const updateCategory = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    // Normalize the category name to proper case
+    const normalizedCategoryName = normalizeCategoryName(updates.categoryName);
+
+    // Validate enum value after normalization
+    if (!isCategoryType(normalizedCategoryName)) {
+      const response: CategoryResponse = {
+        success: false,
+        message: "Invalid category type. Must be one of: Tickets, Tours, Transportation, Travel Services, Cruises, Food & Drink, Entertainment, Adventure, Water Sports, Wellness, Specials",
+      };
+      return res.status(400).json(response);
+    }
+
     const convex = convexService.getClient();
 
-    await convex.mutation(api.categoryFunctions.updateCategory, { 
-      id: id as any, 
-      categoryName: updates.categoryName! 
+    await convex.mutation(api.categoryFunctions.updateCategory, {
+      id: id as any,
+      categoryName: normalizedCategoryName
     });
     res.json({ success: true, message: 'Category updated successfully' });
   } catch (error) {

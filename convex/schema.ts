@@ -23,8 +23,8 @@ export default defineSchema({
     myTickets: v.optional(v.string()),
     operatingHours: v.array(
       v.object({
-        startDate: v.number(),
-        endDate: v.number(),
+        startDate: v.string(),
+        endDate: v.string(),
         openTime: v.string(),
         closeTime: v.string(),
         lastEntryTime: v.string(),
@@ -38,8 +38,8 @@ export default defineSchema({
     }),
     datePriceRange: v.array(
       v.object({
-        startDate: v.number(),
-        endDate: v.number(),
+        startDate: v.string(),
+        endDate: v.string(),
         price: v.number(),
       })
     ),
@@ -64,7 +64,65 @@ export default defineSchema({
     childPrice: v.number(),
     seniorPrice: v.number(),
     totalLimit: v.number(),
-    
+
+    // Itinerary (Optional)
+    itinerary: v.optional(v.object({
+      title: v.string(),
+      totalDuration: v.optional(v.string()),
+      modeOfTransport: v.optional(v.string()),
+      startPoint: v.object({
+        name: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()),
+        duration: v.optional(v.string()),
+        location: v.optional(v.object({
+          address: v.optional(v.string()),
+          lat: v.optional(v.number()),
+          lng: v.optional(v.number()),
+        })),
+        highlights: v.optional(v.array(v.string())),
+        thingsToDo: v.optional(v.array(v.string())),
+        nearbyThingsToDo: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+      }),
+      points: v.array(v.object({
+        order: v.number(),
+        name: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()),
+        duration: v.optional(v.string()),
+        distance: v.optional(v.string()),
+        travelTime: v.optional(v.string()),
+        location: v.optional(v.object({
+          address: v.optional(v.string()),
+          lat: v.optional(v.number()),
+          lng: v.optional(v.number()),
+        })),
+        highlights: v.optional(v.array(v.string())),
+        thingsToDo: v.optional(v.array(v.string())),
+        attractions: v.optional(v.number()),
+        ticketsIncluded: v.optional(v.boolean()),
+        nearbyThingsToDo: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+      })),
+      endPoint: v.object({
+        name: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()),
+        location: v.optional(v.object({
+          address: v.optional(v.string()),
+          lat: v.optional(v.number()),
+          lng: v.optional(v.number()),
+        })),
+      }),
+    })),
+
     // UI Hierarchy Fields
     isMainCard: v.optional(v.boolean()),
     isTopExperience: v.optional(v.boolean()),
@@ -122,19 +180,9 @@ export default defineSchema({
     image: v.optional(v.string()),
     provider: v.string(),
     providerId: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
+    createdAt: v.string(),
+    updatedAt: v.string(),
   })
     .index("byEmail", ["email"])
     .index("byProvider", ["provider", "providerId"]),
-
-  authSessions: defineTable({
-    userId: v.id("users"),
-    sessionToken: v.string(),
-    expires: v.number(),
-    createdAt: v.number(),
-  })
-    .index("bySessionToken", ["sessionToken"])
-    .index("byUserId", ["userId"])
-    .index("byExpiry", ["expires"]),
 });

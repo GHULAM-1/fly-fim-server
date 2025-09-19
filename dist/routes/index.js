@@ -14,6 +14,7 @@ const subcategory_page_routes_1 = __importDefault(require("./subcategory-page-ro
 const faq_routes_1 = __importDefault(require("./faq-routes"));
 const review_routes_1 = __importDefault(require("./review-routes"));
 const auth_routes_1 = __importDefault(require("./auth-routes"));
+const not_found_routes_1 = __importDefault(require("./not-found-routes"));
 const router = (0, express_1.Router)();
 // API routes
 router.use('/api/v1/cities', city_routes_1.default);
@@ -26,6 +27,7 @@ router.use('/api/v1/subcategory-page', subcategory_page_routes_1.default);
 router.use('/api/v1/faqs', faq_routes_1.default);
 router.use('/api/v1/reviews', review_routes_1.default);
 router.use('/api/v1/auth', auth_routes_1.default);
+router.use('/api/v1/not-found-page', not_found_routes_1.default);
 // Health check route
 router.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });

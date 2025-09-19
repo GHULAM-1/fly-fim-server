@@ -1,23 +1,50 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.store = exports.signOut = exports.signIn = exports.auth = void 0;
-const server_1 = require("@convex-dev/auth/server");
-const google_1 = __importDefault(require("@auth/core/providers/google"));
-const github_1 = __importDefault(require("@auth/core/providers/github"));
-_a = (0, server_1.convexAuth)({
-    providers: [
-        (0, google_1.default)({
-            clientId: process.env.AUTH_GOOGLE_ID,
-            clientSecret: process.env.AUTH_GOOGLE_SECRET,
-        }),
-        (0, github_1.default)({
-            clientId: process.env.AUTH_GITHUB_ID,
-            clientSecret: process.env.AUTH_GITHUB_SECRET,
-        }),
-    ],
-}), exports.auth = _a.auth, exports.signIn = _a.signIn, exports.signOut = _a.signOut, exports.store = _a.store;
+exports.revokeToken = exports.validateToken = exports.createAuthToken = void 0;
+const values_1 = require("convex/values");
+const server_1 = require("./_generated/server");
+exports.createAuthToken = (0, server_1.mutation)({
+    args: {
+        userId: values_1.v.id("users"),
+        sessionToken: values_1.v.string(),
+        expires: values_1.v.number(),
+    },
+    handler: async (ctx, args) => {
+        const sessionId = await ctx.db.insert("authSessions", {
+            userId: args.userId,
+            sessionToken: args.sessionToken,
+            expires: args.expires,
+            createdAt: Date.now(),
+        });
+        return sessionId;
+    },
+});
+exports.validateToken = (0, server_1.query)({
+    args: { sessionToken: values_1.v.string() },
+    handler: async (ctx, args) => {
+        const session = await ctx.db
+            .query("authSessions")
+            .withIndex("bySessionToken", (q) => q.eq("sessionToken", args.sessionToken))
+            .first();
+        if (!session || session.expires < Date.now()) {
+            return null;
+        }
+        const user = await ctx.db.get(session.userId);
+        return { session, user };
+    },
+});
+exports.revokeToken = (0, server_1.mutation)({
+    args: { sessionToken: values_1.v.string() },
+    handler: async (ctx, args) => {
+        const session = await ctx.db
+            .query("authSessions")
+            .withIndex("bySessionToken", (q) => q.eq("sessionToken", args.sessionToken))
+            .first();
+        if (session) {
+            await ctx.db.delete(session._id);
+            return true;
+        }
+        return false;
+    },
+});
 //# sourceMappingURL=auth.js.map

@@ -6,6 +6,7 @@ import {
   CreateCityRequest,
   UpdateCityRequest,
 } from "../types/city.types";
+import { transformCityCountryData } from "../utils/text-transform";
 
 export const getAllCities = async (req: Request, res: Response) => {
   try {
@@ -56,18 +57,37 @@ export const createCity = async (req: Request, res: Response) => {
     const { image, cityName, countryName }: CreateCityRequest = req.body;
 
     // Validation
-    if (!cityName || !countryName) {
+    if (!cityName || !countryName || !image) {
       const response: CityResponse = {
         success: false,
-        message: "cityName and countryName are required",
+        message: "cityName, countryName and image are required",
       };
       return res.status(400).json(response);
     }
 
+    // Transform city and country names to proper case
+    const transformedData = transformCityCountryData({
+      city: cityName,
+      country: countryName
+    });
+
     const convex = convexService.getClient();
 
-    const cityId = await convex.mutation(api.cityFunctions.createCity, { image, cityName, countryName });
-    res.status(201).json({ success: true, message: 'City created successfully', data: { _id: cityId, image, cityName, countryName } });
+    const cityId = await convex.mutation(api.cityFunctions.createCity, {
+      image,
+      cityName: transformedData.city!,
+      countryName: transformedData.country!
+    });
+    res.status(201).json({
+      success: true,
+      message: 'City created successfully',
+      data: {
+        _id: cityId,
+        image,
+        cityName: transformedData.city!,
+        countryName: transformedData.country!
+      }
+    });
   } catch (error) {
     const response: CityResponse = {
       success: false,
@@ -92,9 +112,18 @@ export const updateCity = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    // Transform city and country names if provided
+    const transformedUpdates = { ...updates };
+    if (updates.cityName) {
+      transformedUpdates.cityName = transformCityCountryData({ city: updates.cityName }).city!;
+    }
+    if (updates.countryName) {
+      transformedUpdates.countryName = transformCityCountryData({ country: updates.countryName }).country!;
+    }
+
     const convex = convexService.getClient();
 
-    await convex.mutation(api.cityFunctions.updateCity, { id: id as any, ...updates });
+    await convex.mutation(api.cityFunctions.updateCity, { id: id as any, ...transformedUpdates });
     res.json({ success: true, message: 'City updated successfully' });
   } catch (error) {
     const response: CityResponse = {

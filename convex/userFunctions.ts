@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { auth } from "./auth";
+import { getCurrentCustomDate } from "./dateHelpers";
 
 export const createUser = mutation({
   args: {
@@ -19,18 +19,23 @@ export const createUser = mutation({
       .first();
 
     if (existingUser) {
+      await ctx.db.patch(existingUser._id, {
+        updatedAt: getCurrentCustomDate(),
+        name: args.name || existingUser.name,
+        image: args.image || existingUser.image,
+      });
       return existingUser._id;
     }
 
-    const now = Date.now();
+    const currentDate = getCurrentCustomDate();
     const userId = await ctx.db.insert("users", {
       email: args.email,
       name: args.name,
       image: args.image,
       provider: args.provider,
       providerId: args.providerId,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: currentDate,
+      updatedAt: currentDate,
     });
 
     return userId;
@@ -54,88 +59,18 @@ export const getUserByEmail = query({
   },
 });
 
-export const getCurrentUser = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await auth.getUserIdentity(ctx);
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
+export const getUserByProvider = query({
+  args: {
+    provider: v.string(),
+    providerId: v.string()
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db
       .query("users")
       .withIndex("byProvider", (q) =>
-        q.eq("provider", identity.tokenIdentifier.split("|")[0])
-         .eq("providerId", identity.tokenIdentifier.split("|")[1])
+        q.eq("provider", args.provider).eq("providerId", args.providerId)
       )
       .first();
-
-    return user;
   },
 });
 
-export const createSession = mutation({
-  args: {
-    userId: v.id("users"),
-    sessionToken: v.string(),
-    expires: v.number(),
-  },
-  handler: async (ctx, args) => {
-    const sessionId = await ctx.db.insert("authSessions", {
-      userId: args.userId,
-      sessionToken: args.sessionToken,
-      expires: args.expires,
-      createdAt: Date.now(),
-    });
-
-    return sessionId;
-  },
-});
-
-export const getSessionByToken = query({
-  args: { sessionToken: v.string() },
-  handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("authSessions")
-      .withIndex("bySessionToken", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (!session || session.expires < Date.now()) {
-      return null;
-    }
-
-    const user = await ctx.db.get(session.userId);
-    return { session, user };
-  },
-});
-
-export const deleteSession = mutation({
-  args: { sessionToken: v.string() },
-  handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("authSessions")
-      .withIndex("bySessionToken", (q) => q.eq("sessionToken", args.sessionToken))
-      .first();
-
-    if (session) {
-      await ctx.db.delete(session._id);
-    }
-  },
-});
-
-export const cleanupExpiredSessions = mutation({
-  args: {},
-  handler: async (ctx) => {
-    const now = Date.now();
-    const expiredSessions = await ctx.db
-      .query("authSessions")
-      .withIndex("byExpiry", (q) => q.lt("expires", now))
-      .collect();
-
-    for (const session of expiredSessions) {
-      await ctx.db.delete(session._id);
-    }
-
-    return expiredSessions.length;
-  },
-});
