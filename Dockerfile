@@ -13,8 +13,8 @@ RUN npm ci
 # Copy source code (including convex/_generated files)
 COPY . .
 
-# Build the project (skip type checking for production build)
-RUN npx tsc --skipLibCheck
+# Build the project
+RUN npm run build
 
 # Remove dev dependencies
 RUN npm prune --production
