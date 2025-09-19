@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { convexService } from "../services/convex-service";
-import { api } from "../convex/_generated/api";
 import {
   CityResponse,
   CreateCityRequest,
@@ -10,9 +9,7 @@ import { transformCityCountryData } from "../utils/text-transform";
 
 export const getAllCities = async (req: Request, res: Response) => {
   try {
-    const convex = convexService.getClient();
-    
-    const result = await convex.query(api.cityFunctions.getAllCities, {
+    const result = await convexService.query("cityFunctions:getAllCities", {
       limit: 50,
       offset: 0,
     });
@@ -37,9 +34,7 @@ export const getAllCities = async (req: Request, res: Response) => {
 export const getCityById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const convex = convexService.getClient();
-
-    const city = await convex.query(api.cityFunctions.getCityById, { id: id as any });
+    const city = await convexService.query("cityFunctions:getCityById", { id: id as any });
     if (!city) return res.status(404).json({ success: false, message: 'City not found' });
     res.json({ success: true, data: city, message: 'City retrieved successfully' });
   } catch (error) {
@@ -71,9 +66,7 @@ export const createCity = async (req: Request, res: Response) => {
       country: countryName
     });
 
-    const convex = convexService.getClient();
-
-    const cityId = await convex.mutation(api.cityFunctions.createCity, {
+    const cityId = await convexService.mutation("cityFunctions:createCity", {
       image,
       cityName: transformedData.city!,
       countryName: transformedData.country!
@@ -121,9 +114,7 @@ export const updateCity = async (req: Request, res: Response) => {
       transformedUpdates.countryName = transformCityCountryData({ country: updates.countryName }).country!;
     }
 
-    const convex = convexService.getClient();
-
-    await convex.mutation(api.cityFunctions.updateCity, { id: id as any, ...transformedUpdates });
+    await convexService.mutation("cityFunctions:updateCity", { id: id as any, ...transformedUpdates });
     res.json({ success: true, message: 'City updated successfully' });
   } catch (error) {
     const response: CityResponse = {
@@ -138,8 +129,6 @@ export const updateCity = async (req: Request, res: Response) => {
 export const getCitiesByCityName = async (req: Request, res: Response) => {
   try {
     const { cityName } = req.params;
-    const convex = convexService.getClient();
-
     if (!cityName) {
       const response: CityResponse = {
         success: false,
@@ -148,7 +137,7 @@ export const getCitiesByCityName = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
-    const cities = await convex.query(api.cityFunctions.getCitiesByCityName, { 
+    const cities = await convexService.query("cityFunctions:getCitiesByCityName", { 
       cityName: cityName.trim() 
     });
     
@@ -172,9 +161,7 @@ export const getCitiesByCityName = async (req: Request, res: Response) => {
 export const deleteCity = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const convex = convexService.getClient();
-
-    await convex.mutation(api.cityFunctions.deleteCity, { id: id as any });
+    await convexService.mutation("cityFunctions:deleteCity", { id: id as any });
     res.json({ success: true, message: 'City deleted successfully' });
   } catch (error) {
     const response: CityResponse = {

@@ -4,9 +4,9 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
 }, Promise<import("convex/server").PaginationResult<{
     _id: import("convex/values").GenericId<"experience">;
     _creationTime: number;
+    mainImage?: string | string[];
     oldPrice?: number;
     sale?: number;
-    mainImage?: string | string[];
     tagOnCards?: string;
     highlights?: string;
     inclusions?: string;
@@ -15,16 +15,21 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
     ticketValidity?: string;
     exploreMore?: string;
     knowBeforeYouGo?: string;
-    youExperience?: string;
     myTickets?: string;
+    isMainCard?: boolean;
+    isTopExperience?: boolean;
+    isMustDo?: boolean;
+    isPopular?: boolean;
+    blogSlug?: string;
+    youExperience?: string;
     itinerary?: {
         totalDuration?: string;
         modeOfTransport?: string;
         title: string;
         points: {
+            image?: string;
             description?: string;
             highlights?: string[];
-            image?: string;
             duration?: string;
             location?: {
                 address?: string;
@@ -33,8 +38,8 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
             };
             thingsToDo?: string[];
             nearbyThingsToDo?: {
-                description?: string;
                 image?: string;
+                description?: string;
                 name: string;
             }[];
             distance?: string;
@@ -45,9 +50,9 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
             order: number;
         }[];
         startPoint: {
+            image?: string;
             description?: string;
             highlights?: string[];
-            image?: string;
             duration?: string;
             location?: {
                 address?: string;
@@ -56,15 +61,15 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
             };
             thingsToDo?: string[];
             nearbyThingsToDo?: {
-                description?: string;
                 image?: string;
+                description?: string;
                 name: string;
             }[];
             name: string;
         };
         endPoint: {
-            description?: string;
             image?: string;
+            description?: string;
             location?: {
                 address?: string;
                 lat?: number;
@@ -73,15 +78,10 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
             name: string;
         };
     };
-    isMainCard?: boolean;
-    isTopExperience?: boolean;
-    isMustDo?: boolean;
-    isPopular?: boolean;
-    blogSlug?: string;
+    images: string[];
     title: string;
     description: string;
     price: number;
-    images: string[];
     features: string[];
     featureText: string;
     operatingHours: {
@@ -133,9 +133,9 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
         modeOfTransport?: string;
         title: string;
         points: {
+            image?: string;
             description?: string;
             highlights?: string[];
-            image?: string;
             duration?: string;
             location?: {
                 address?: string;
@@ -144,8 +144,8 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
             };
             thingsToDo?: string[];
             nearbyThingsToDo?: {
-                description?: string;
                 image?: string;
+                description?: string;
                 name: string;
             }[];
             distance?: string;
@@ -156,9 +156,9 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
             order: number;
         }[];
         startPoint: {
+            image?: string;
             description?: string;
             highlights?: string[];
-            image?: string;
             duration?: string;
             location?: {
                 address?: string;
@@ -167,15 +167,15 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
             };
             thingsToDo?: string[];
             nearbyThingsToDo?: {
-                description?: string;
                 image?: string;
+                description?: string;
                 name: string;
             }[];
             name: string;
         };
         endPoint: {
-            description?: string;
             image?: string;
+            description?: string;
             location?: {
                 address?: string;
                 lat?: number;
@@ -199,13 +199,13 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
     ticketValidity?: string;
     exploreMore?: string;
     knowBeforeYouGo?: string;
-    youExperience?: string;
     myTickets?: string;
     isMainCard?: boolean;
     isTopExperience?: boolean;
     isMustDo?: boolean;
     isPopular?: boolean;
     blogSlug?: string;
+    youExperience?: string;
     title: string;
     description: string;
     price: number;
@@ -259,11 +259,11 @@ export declare const createExperience: import("convex/server").RegisteredMutatio
     isMustDo?: boolean;
     isPopular?: boolean;
     blogSlug?: string;
+    mainImage: string[];
+    images: string[];
     title: string;
     description: string;
     price: number;
-    images: string[];
-    mainImage: string[];
     features: string[];
     featureText: string;
     highlights: string;
@@ -316,13 +316,13 @@ export declare const createExperience: import("convex/server").RegisteredMutatio
 export declare const updateExperience: import("convex/server").RegisteredMutation<"public", {
     id: import("convex/values").GenericId<"experience">;
     patch: {
+        mainImage?: string[];
+        images?: string[];
         title?: string;
         description?: string;
         price?: number;
         oldPrice?: number;
         sale?: number;
-        images?: string[];
-        mainImage?: string[];
         tagOnCards?: string;
         features?: string[];
         featureText?: string;

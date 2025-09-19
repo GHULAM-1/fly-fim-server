@@ -2,12 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCity = exports.getCitiesByCityName = exports.updateCity = exports.createCity = exports.getCityById = exports.getAllCities = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 const text_transform_1 = require("../utils/text-transform");
 const getAllCities = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const result = await convex.query(api_1.api.cityFunctions.getAllCities, {
+        const result = await convex_service_1.convexService.query("cityFunctions:getAllCities", {
             limit: 50,
             offset: 0,
         });
@@ -31,8 +29,7 @@ exports.getAllCities = getAllCities;
 const getCityById = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        const city = await convex.query(api_1.api.cityFunctions.getCityById, { id: id });
+        const city = await convex_service_1.convexService.query("cityFunctions:getCityById", { id: id });
         if (!city)
             return res.status(404).json({ success: false, message: 'City not found' });
         res.json({ success: true, data: city, message: 'City retrieved successfully' });
@@ -63,8 +60,7 @@ const createCity = async (req, res) => {
             city: cityName,
             country: countryName
         });
-        const convex = convex_service_1.convexService.getClient();
-        const cityId = await convex.mutation(api_1.api.cityFunctions.createCity, {
+        const cityId = await convex_service_1.convexService.mutation("cityFunctions:createCity", {
             image,
             cityName: transformedData.city,
             countryName: transformedData.country
@@ -109,8 +105,7 @@ const updateCity = async (req, res) => {
         if (updates.countryName) {
             transformedUpdates.countryName = (0, text_transform_1.transformCityCountryData)({ country: updates.countryName }).country;
         }
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.cityFunctions.updateCity, { id: id, ...transformedUpdates });
+        await convex_service_1.convexService.mutation("cityFunctions:updateCity", { id: id, ...transformedUpdates });
         res.json({ success: true, message: 'City updated successfully' });
     }
     catch (error) {
@@ -126,7 +121,6 @@ exports.updateCity = updateCity;
 const getCitiesByCityName = async (req, res) => {
     try {
         const { cityName } = req.params;
-        const convex = convex_service_1.convexService.getClient();
         if (!cityName) {
             const response = {
                 success: false,
@@ -134,7 +128,7 @@ const getCitiesByCityName = async (req, res) => {
             };
             return res.status(400).json(response);
         }
-        const cities = await convex.query(api_1.api.cityFunctions.getCitiesByCityName, {
+        const cities = await convex_service_1.convexService.query("cityFunctions:getCitiesByCityName", {
             cityName: cityName.trim()
         });
         const response = {
@@ -157,8 +151,7 @@ exports.getCitiesByCityName = getCitiesByCityName;
 const deleteCity = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.cityFunctions.deleteCity, { id: id });
+        await convex_service_1.convexService.mutation("cityFunctions:deleteCity", { id: id });
         res.json({ success: true, message: 'City deleted successfully' });
     }
     catch (error) {

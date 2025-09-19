@@ -20,14 +20,14 @@ export declare const getReviewsByUser: import("convex/server").RegisteredQuery<"
 export declare const createReview: import("convex/server").RegisteredMutation<"public", {
     images: import("convex/values").GenericId<"_storage">[];
     experienceId: import("convex/values").GenericId<"experience">;
+    text: string;
     userId: string;
     stars: number;
-    text: string;
 }, Promise<import("convex/values").GenericId<"reviews">>>;
 export declare const updateReview: import("convex/server").RegisteredMutation<"public", {
     images?: import("convex/values").GenericId<"_storage">[];
-    stars?: number;
     text?: string;
+    stars?: number;
     id: import("convex/values").GenericId<"reviews">;
 }, Promise<void>>;
 export declare const deleteReview: import("convex/server").RegisteredMutation<"public", {

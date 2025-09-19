@@ -2,12 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteExperience = exports.updateExperience = exports.createExperience = exports.getExperienceById = exports.getAllExperiences = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 const parse_utils_1 = require("../utils/parse-utils");
 const getAllExperiences = async (_req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const result = await convex.query(api_1.api.experienceFunctions.getAllExperiences, {
+        const result = await convex_service_1.convexService.query("experienceFunctions:getAllExperiences", {
             limit: 50,
             offset: 0,
         });
@@ -20,7 +18,7 @@ const getAllExperiences = async (_req, res) => {
     catch (error) {
         const response = {
             success: false,
-            message: "Failed to fetch experiences",
+            message: "Failed to retrieve experiences",
             error: error instanceof Error ? error.message : "Unknown error",
         };
         res.status(500).json(response);
@@ -30,8 +28,9 @@ exports.getAllExperiences = getAllExperiences;
 const getExperienceById = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        const experience = await convex.query(api_1.api.experienceFunctions.getExperienceById, { id: id });
+        const experience = await convex_service_1.convexService.query("experienceFunctions:getExperienceById", {
+            id: id
+        });
         if (!experience)
             return res
                 .status(404)
@@ -45,7 +44,7 @@ const getExperienceById = async (req, res) => {
     catch (error) {
         const response = {
             success: false,
-            message: "Failed to fetch experience",
+            message: "Failed to retrieve experience",
             error: error instanceof Error ? error.message : "Unknown error",
         };
         res.status(500).json(response);
@@ -55,7 +54,7 @@ exports.getExperienceById = getExperienceById;
 const createExperience = async (req, res) => {
     try {
         const body = req.body;
-        if (!body?.title) {
+        if (!body.title) {
             const response = {
                 success: false,
                 message: "title is required",
@@ -64,8 +63,7 @@ const createExperience = async (req, res) => {
         }
         // Parse numeric fields from form data (form-data always sends strings)
         const parsedBody = (0, parse_utils_1.parseExperienceData)(body);
-        const convex = convex_service_1.convexService.getClient();
-        const newId = await convex.mutation(api_1.api.experienceFunctions.createExperience, parsedBody);
+        const newId = await convex_service_1.convexService.mutation("experienceFunctions:createExperience", parsedBody);
         res.status(201).json({
             success: true,
             message: "Experience created successfully",
@@ -93,8 +91,7 @@ const updateExperience = async (req, res) => {
             };
             return res.status(400).json(response);
         }
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.experienceFunctions.updateExperience, {
+        await convex_service_1.convexService.mutation("experienceFunctions:updateExperience", {
             id: id,
             patch: patch,
         });
@@ -113,8 +110,7 @@ exports.updateExperience = updateExperience;
 const deleteExperience = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.experienceFunctions.deleteExperience, {
+        await convex_service_1.convexService.mutation("experienceFunctions:deleteExperience", {
             id: id,
         });
         res.json({ success: true, message: "Experience deleted successfully" });

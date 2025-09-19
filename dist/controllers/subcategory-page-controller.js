@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSubcategoryPageDataFiltered = exports.getSubcategoryPageData = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 const getSubcategoryPageData = async (req, res) => {
     try {
         const { cityId, categoryId, subcategoryName } = req.params;
@@ -12,8 +11,7 @@ const getSubcategoryPageData = async (req, res) => {
                 message: "City ID, Category ID, and Subcategory Name are required",
             });
         }
-        const convex = convex_service_1.convexService.getClient();
-        const pageData = await convex.query(api_1.api.experienceFunctions.getSubcategoryPageData, {
+        const pageData = await convex_service_1.convexService.query("experienceFunctions:getSubcategoryPageData", {
             cityId: cityId,
             categoryId: categoryId,
             subcategoryName: subcategoryName
@@ -43,8 +41,7 @@ const getSubcategoryPageDataFiltered = async (req, res) => {
                 message: "City ID, Category ID, and Subcategory Name are required",
             });
         }
-        const convex = convex_service_1.convexService.getClient();
-        const pageData = await convex.query(api_1.api.experienceFunctions.getSubcategoryPageDataFiltered, {
+        const pageData = await convex_service_1.convexService.query("experienceFunctions:getSubcategoryPageDataFiltered", {
             cityId: cityId,
             categoryId: categoryId,
             subcategoryName: subcategoryName,

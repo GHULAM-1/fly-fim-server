@@ -2,8 +2,7 @@ import { Router } from "express";
 import {
   getAllReviews,
   getReviewById,
-  getReviewsByExperience,
-  getReviewsByUser,
+  getReviewsByExperienceId,
   createReview,
   deleteReview,
 } from "../controllers/review-controller";
@@ -18,7 +17,7 @@ const router = Router();
 // router.get("/:id", getReviewById);
 
 // GET /api/reviews/experience/:experienceId
-router.get("/experience/:experienceId", getReviewsByExperience);
+router.get("/experience/:experienceId", getReviewsByExperienceId);
 
 // // GET /api/reviews/user/:userId
 // router.get("/user/:userId", getReviewsByUser);

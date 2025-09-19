@@ -1,146 +1,151 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReview = exports.createReview = exports.getReviewsByUser = exports.getReviewsByExperience = exports.getReviewById = exports.getAllReviews = void 0;
+exports.deleteReview = exports.updateReview = exports.createReview = exports.getReviewsByExperienceId = exports.getReviewById = exports.getAllReviews = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
+// GET /api/reviews
 const getAllReviews = async (req, res) => {
     try {
         const { limit, offset } = req.query;
-        const convex = convex_service_1.convexService.getClient();
-        const result = await convex.query(api_1.api.reviewFunctions.getAllReviews, {
+        const result = await convex_service_1.convexService.query("reviewFunctions:getAllReviews", {
             limit: limit ? Number(limit) : 50,
             offset: offset ? Number(offset) : 0,
         });
-        res.json({
+        const response = {
             success: true,
             data: result.page,
-            pagination: {
-                limit: Number(limit ?? 50),
-                offset: Number(offset ?? 0),
-                hasMore: !result.isDone,
-                nextOffset: Number(result.continueCursor ?? 0),
-            },
             message: "Reviews retrieved successfully",
-        });
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
-            message: "Failed to fetch reviews",
+            message: "Failed to retrieve reviews",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.getAllReviews = getAllReviews;
+// GET /api/reviews/:id
 const getReviewById = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const review = await convex.query(api_1.api.reviewFunctions.getReviewById, { id: req.params.id });
-        if (!review)
-            return res.status(404).json({ success: false, message: "Review not found" });
-        res.json({ success: true, data: review, message: "Review retrieved successfully" });
+        const { id } = req.params;
+        const review = await convex_service_1.convexService.query("reviewFunctions:getReviewById", { id: id });
+        if (!review) {
+            const response = {
+                success: false,
+                message: "Review not found",
+            };
+            return res.status(404).json(response);
+        }
+        const response = {
+            success: true,
+            data: review,
+            message: "Review retrieved successfully",
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
-            message: "Failed to fetch review",
+            message: "Failed to retrieve review",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.getReviewById = getReviewById;
-const getReviewsByExperience = async (req, res) => {
+// GET /api/reviews/experience/:experienceId
+const getReviewsByExperienceId = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const reviews = await convex.query(api_1.api.reviewFunctions.getReviewsByExperience, {
-            experienceId: req.params.experienceId,
+        const { experienceId } = req.params;
+        const reviews = await convex_service_1.convexService.query("reviewFunctions:getReviewsByExperienceId", {
+            experienceId: experienceId,
         });
-        res.json({ success: true, data: reviews, message: "Reviews by experience retrieved successfully" });
+        const response = {
+            success: true,
+            data: reviews,
+            message: "Reviews retrieved successfully",
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
-            message: "Failed to fetch reviews by experience",
+            message: "Failed to retrieve reviews",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
-exports.getReviewsByExperience = getReviewsByExperience;
-const getReviewsByUser = async (req, res) => {
-    try {
-        const convex = convex_service_1.convexService.getClient();
-        const reviews = await convex.query(api_1.api.reviewFunctions.getReviewsByUser, {
-            userId: req.params.userId,
-        });
-        res.json({ success: true, data: reviews, message: "Reviews by user retrieved successfully" });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch reviews by user",
-            error: error instanceof Error ? error.message : "Unknown error",
-        });
-    }
-};
-exports.getReviewsByUser = getReviewsByUser;
+exports.getReviewsByExperienceId = getReviewsByExperienceId;
+// POST /api/reviews
 const createReview = async (req, res) => {
     try {
         const body = req.body;
-        if (!body?.userId || !body?.experienceId || body.stars === undefined) {
-            return res.status(400).json({
-                success: false,
-                message: "userId, experienceId, and stars are required",
-            });
-        }
-        const convex = convex_service_1.convexService.getClient();
-        const id = await convex.mutation(api_1.api.reviewFunctions.createReview, body);
-        res.status(201).json({
+        const newId = await convex_service_1.convexService.mutation("reviewFunctions:createReview", body);
+        const createdReview = await convex_service_1.convexService.query("reviewFunctions:getReviewById", { id: newId });
+        const response = {
             success: true,
-            data: { _id: id, ...body },
+            data: createdReview,
             message: "Review created successfully",
-        });
+        };
+        res.status(201).json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
             message: "Failed to create review",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.createReview = createReview;
-// export const updateReview = async (req: Request, res: Response) => {
-//   try {
-//     const patch: UpdateReviewRequest = req.body;
-//     if (!patch || Object.keys(patch).length === 0) {
-//       return res.status(400).json({ success: false, message: "No fields provided to update" });
-//     }
-//     const convex = convexService.getClient();
-//     await convex.mutation(api.reviewFunctions.updateReview, {
-//       id: req.params.id as any,
-//       ...patch,
-//     });
-//     res.json({ success: true, message: "Review updated successfully" });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: "Failed to update review",
-//       error: error instanceof Error ? error.message : "Unknown error",
-//     });
-//   }
-// };
-const deleteReview = async (req, res) => {
+// PATCH /api/reviews/:id
+const updateReview = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.reviewFunctions.deleteReview, { id: req.params.id });
-        res.json({ success: true, message: "Review deleted successfully" });
+        const { id } = req.params;
+        const patch = req.body;
+        await convex_service_1.convexService.mutation("reviewFunctions:updateReview", {
+            id: id,
+            patch,
+        });
+        const response = {
+            success: true,
+            message: "Review updated successfully",
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
+            success: false,
+            message: "Failed to update review",
+            error: error instanceof Error ? error.message : "Unknown error",
+        };
+        res.status(500).json(response);
+    }
+};
+exports.updateReview = updateReview;
+// DELETE /api/reviews/:id
+const deleteReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await convex_service_1.convexService.mutation("reviewFunctions:deleteReview", { id: id });
+        const response = {
+            success: true,
+            message: "Review deleted successfully",
+        };
+        res.json(response);
+    }
+    catch (error) {
+        const response = {
             success: false,
             message: "Failed to delete review",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.deleteReview = deleteReview;

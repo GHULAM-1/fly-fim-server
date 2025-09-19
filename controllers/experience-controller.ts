@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { convexService } from "../services/convex-service";
-import { api } from "../convex/_generated/api";
 import {
   ExperienceResponse,
   CreateExperienceRequest,
@@ -9,27 +8,21 @@ import {
 } from "../types/experience.types";
 import { parseExperienceData } from "../utils/parse-utils";
 
-
 export const getAllExperiences = async (_req: Request, res: Response) => {
   try {
-    const convex = convexService.getClient();
-    const result = await convex.query(
-      api.experienceFunctions.getAllExperiences,
-      {
-        limit: 50,
-        offset: 0,
-      }
-    );
+    const result = await convexService.query("experienceFunctions:getAllExperiences", {
+      limit: 50,
+      offset: 0,
+    });
     res.json({
       success: true,
       data: result.page,
       message: "Experiences retrieved successfully",
     });
   } catch (error) {
-
     const response: ExperienceResponse = {
       success: false,
-      message: "Failed to fetch experiences",
+      message: "Failed to retrieve experiences",
       error: error instanceof Error ? error.message : "Unknown error",
     };
     res.status(500).json(response);
@@ -39,11 +32,9 @@ export const getAllExperiences = async (_req: Request, res: Response) => {
 export const getExperienceById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const convex = convexService.getClient();
-    const experience = await convex.query(
-      api.experienceFunctions.getExperienceById,
-      { id: id as any }
-    );
+    const experience = await convexService.query("experienceFunctions:getExperienceById", {
+      id: id as any
+    });
     if (!experience)
       return res
         .status(404)
@@ -54,10 +45,9 @@ export const getExperienceById = async (req: Request, res: Response) => {
       message: "Experience retrieved successfully",
     });
   } catch (error) {
-
     const response: ExperienceResponse = {
       success: false,
-      message: "Failed to fetch experience",
+      message: "Failed to retrieve experience",
       error: error instanceof Error ? error.message : "Unknown error",
     };
     res.status(500).json(response);
@@ -67,7 +57,7 @@ export const getExperienceById = async (req: Request, res: Response) => {
 export const createExperience = async (req: Request, res: Response) => {
   try {
     const body: CreateExperienceRequest = req.body;
-    if (!body?.title) {
+    if (!body.title) {
       const response: ExperienceResponse = {
         success: false,
         message: "title is required",
@@ -76,19 +66,14 @@ export const createExperience = async (req: Request, res: Response) => {
     }
     // Parse numeric fields from form data (form-data always sends strings)
     const parsedBody = parseExperienceData(body);
-    
-    const convex = convexService.getClient();
-    const newId = await convex.mutation(
-      api.experienceFunctions.createExperience,
-      parsedBody as any
-    );
+
+    const newId = await convexService.mutation("experienceFunctions:createExperience", parsedBody as any);
     res.status(201).json({
       success: true,
       message: "Experience created successfully",
       data: { _id: newId, ...parsedBody },
     });
   } catch (error) {
-
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to create experience",
@@ -109,14 +94,12 @@ export const updateExperience = async (req: Request, res: Response) => {
       };
       return res.status(400).json(response);
     }
-    const convex = convexService.getClient();
-    await convex.mutation(api.experienceFunctions.updateExperience, {
+    await convexService.mutation("experienceFunctions:updateExperience", {
       id: id as any,
       patch: patch as any,
     });
     res.json({ success: true, message: "Experience updated successfully" });
   } catch (error) {
-
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to update experience",
@@ -129,13 +112,11 @@ export const updateExperience = async (req: Request, res: Response) => {
 export const deleteExperience = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const convex = convexService.getClient();
-    await convex.mutation(api.experienceFunctions.deleteExperience, {
+    await convexService.mutation("experienceFunctions:deleteExperience", {
       id: id as any,
     });
     res.json({ success: true, message: "Experience deleted successfully" });
   } catch (error) {
-
     const response: ExperienceResponse = {
       success: false,
       message: "Failed to delete experience",
@@ -144,4 +125,3 @@ export const deleteExperience = async (req: Request, res: Response) => {
     res.status(500).json(response);
   }
 };
-

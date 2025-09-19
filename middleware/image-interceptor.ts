@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { convexService } from '../services/convex-service';
-import { api } from '../convex/_generated/api';
 
 // Configure multer for memory storage
 const upload = multer({
@@ -41,7 +40,7 @@ const uploadSingleImage = async (file: Express.Multer.File): Promise<string> => 
   // Convert buffer to base64 string
   const base64Data = file.buffer.toString('base64');
   
-  const result = await convex.action(api.storage.uploadImage, {
+  const result = await convex.action("storage:uploadImage" as any, {
     imageData: base64Data,
     mimeType: file.mimetype
   });
@@ -61,7 +60,7 @@ const uploadMultipleImages = async (files: Express.Multer.File[]): Promise<strin
     // Convert buffer to base64 string
     const base64Data = file.buffer.toString('base64');
     
-    return convex.action(api.storage.uploadImage, {
+    return convex.action("storage:uploadImage" as any, {
       imageData: base64Data,
       mimeType: file.mimetype
     });

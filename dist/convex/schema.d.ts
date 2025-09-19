@@ -1,8 +1,8 @@
 declare const _default: import("convex/server").SchemaDefinition<{
     experience: import("convex/server").TableDefinition<import("convex/values").VObject<{
+        mainImage?: string | string[];
         oldPrice?: number;
         sale?: number;
-        mainImage?: string | string[];
         tagOnCards?: string;
         highlights?: string;
         inclusions?: string;
@@ -11,16 +11,21 @@ declare const _default: import("convex/server").SchemaDefinition<{
         ticketValidity?: string;
         exploreMore?: string;
         knowBeforeYouGo?: string;
-        youExperience?: string;
         myTickets?: string;
+        isMainCard?: boolean;
+        isTopExperience?: boolean;
+        isMustDo?: boolean;
+        isPopular?: boolean;
+        blogSlug?: string;
+        youExperience?: string;
         itinerary?: {
             totalDuration?: string;
             modeOfTransport?: string;
             title: string;
             points: {
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -29,8 +34,8 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 distance?: string;
@@ -41,9 +46,9 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 order: number;
             }[];
             startPoint: {
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -52,15 +57,15 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 name: string;
             };
             endPoint: {
-                description?: string;
                 image?: string;
+                description?: string;
                 location?: {
                     address?: string;
                     lat?: number;
@@ -69,15 +74,10 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 name: string;
             };
         };
-        isMainCard?: boolean;
-        isTopExperience?: boolean;
-        isMustDo?: boolean;
-        isPopular?: boolean;
-        blogSlug?: string;
+        images: string[];
         title: string;
         description: string;
         price: number;
-        images: string[];
         features: string[];
         featureText: string;
         operatingHours: {
@@ -230,9 +230,9 @@ declare const _default: import("convex/server").SchemaDefinition<{
             modeOfTransport?: string;
             title: string;
             points: {
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -241,8 +241,8 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 distance?: string;
@@ -253,9 +253,9 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 order: number;
             }[];
             startPoint: {
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -264,15 +264,15 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 name: string;
             };
             endPoint: {
-                description?: string;
                 image?: string;
+                description?: string;
                 location?: {
                     address?: string;
                     lat?: number;
@@ -285,9 +285,9 @@ declare const _default: import("convex/server").SchemaDefinition<{
             totalDuration: import("convex/values").VString<string, "optional">;
             modeOfTransport: import("convex/values").VString<string, "optional">;
             startPoint: import("convex/values").VObject<{
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -296,8 +296,8 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 name: string;
@@ -318,23 +318,23 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 highlights: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
                 thingsToDo: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
                 nearbyThingsToDo: import("convex/values").VArray<{
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[], import("convex/values").VObject<{
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }, {
                     name: import("convex/values").VString<string, "required">;
                     image: import("convex/values").VString<string, "optional">;
                     description: import("convex/values").VString<string, "optional">;
-                }, "required", "description" | "name" | "image">, "optional">;
-            }, "required", "description" | "highlights" | "name" | "image" | "duration" | "location" | "thingsToDo" | "nearbyThingsToDo" | "location.address" | "location.lat" | "location.lng">;
+                }, "required", "image" | "description" | "name">, "optional">;
+            }, "required", "image" | "description" | "highlights" | "name" | "duration" | "location" | "thingsToDo" | "nearbyThingsToDo" | "location.address" | "location.lat" | "location.lng">;
             points: import("convex/values").VArray<{
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -343,8 +343,8 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 distance?: string;
@@ -354,9 +354,9 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 name: string;
                 order: number;
             }[], import("convex/values").VObject<{
+                image?: string;
                 description?: string;
                 highlights?: string[];
-                image?: string;
                 duration?: string;
                 location?: {
                     address?: string;
@@ -365,8 +365,8 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 };
                 thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[];
                 distance?: string;
@@ -397,22 +397,22 @@ declare const _default: import("convex/server").SchemaDefinition<{
                 attractions: import("convex/values").VFloat64<number, "optional">;
                 ticketsIncluded: import("convex/values").VBoolean<boolean, "optional">;
                 nearbyThingsToDo: import("convex/values").VArray<{
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }[], import("convex/values").VObject<{
-                    description?: string;
                     image?: string;
+                    description?: string;
                     name: string;
                 }, {
                     name: import("convex/values").VString<string, "required">;
                     image: import("convex/values").VString<string, "optional">;
                     description: import("convex/values").VString<string, "optional">;
-                }, "required", "description" | "name" | "image">, "optional">;
-            }, "required", "description" | "highlights" | "name" | "image" | "duration" | "location" | "thingsToDo" | "nearbyThingsToDo" | "location.address" | "location.lat" | "location.lng" | "order" | "distance" | "travelTime" | "attractions" | "ticketsIncluded">, "required">;
+                }, "required", "image" | "description" | "name">, "optional">;
+            }, "required", "image" | "description" | "highlights" | "name" | "duration" | "location" | "thingsToDo" | "nearbyThingsToDo" | "location.address" | "location.lat" | "location.lng" | "order" | "distance" | "travelTime" | "attractions" | "ticketsIncluded">, "required">;
             endPoint: import("convex/values").VObject<{
-                description?: string;
                 image?: string;
+                description?: string;
                 location?: {
                     address?: string;
                     lat?: number;
@@ -432,8 +432,8 @@ declare const _default: import("convex/server").SchemaDefinition<{
                     lat: import("convex/values").VFloat64<number, "optional">;
                     lng: import("convex/values").VFloat64<number, "optional">;
                 }, "optional", "address" | "lat" | "lng">;
-            }, "required", "description" | "name" | "image" | "location" | "location.address" | "location.lat" | "location.lng">;
-        }, "optional", "title" | "points" | "totalDuration" | "modeOfTransport" | "startPoint" | "endPoint" | "startPoint.description" | "startPoint.highlights" | "startPoint.name" | "startPoint.image" | "startPoint.duration" | "startPoint.location" | "startPoint.thingsToDo" | "startPoint.nearbyThingsToDo" | "startPoint.location.address" | "startPoint.location.lat" | "startPoint.location.lng" | "endPoint.description" | "endPoint.name" | "endPoint.image" | "endPoint.location" | "endPoint.location.address" | "endPoint.location.lat" | "endPoint.location.lng">;
+            }, "required", "image" | "description" | "name" | "location" | "location.address" | "location.lat" | "location.lng">;
+        }, "optional", "title" | "points" | "totalDuration" | "modeOfTransport" | "startPoint" | "endPoint" | "startPoint.image" | "startPoint.description" | "startPoint.highlights" | "startPoint.name" | "startPoint.duration" | "startPoint.location" | "startPoint.thingsToDo" | "startPoint.nearbyThingsToDo" | "startPoint.location.address" | "startPoint.location.lat" | "startPoint.location.lng" | "endPoint.image" | "endPoint.description" | "endPoint.name" | "endPoint.location" | "endPoint.location.address" | "endPoint.location.lat" | "endPoint.location.lng">;
         isMainCard: import("convex/values").VBoolean<boolean, "optional">;
         isTopExperience: import("convex/values").VBoolean<boolean, "optional">;
         isMustDo: import("convex/values").VBoolean<boolean, "optional">;
@@ -442,7 +442,7 @@ declare const _default: import("convex/server").SchemaDefinition<{
         categoryId: import("convex/values").VId<import("convex/values").GenericId<"category">, "required">;
         subcategoryId: import("convex/values").VId<import("convex/values").GenericId<"subcategory">, "required">;
         cityId: import("convex/values").VId<import("convex/values").GenericId<"city">, "required">;
-    }, "required", "title" | "description" | "price" | "oldPrice" | "sale" | "images" | "mainImage" | "tagOnCards" | "features" | "featureText" | "highlights" | "inclusions" | "exclusions" | "cancellationPolicy" | "ticketValidity" | "exploreMore" | "knowBeforeYouGo" | "youExperience" | "myTickets" | "operatingHours" | "whereTo" | "datePriceRange" | "packageType" | "adultPrice" | "childPrice" | "seniorPrice" | "totalLimit" | "itinerary" | "isMainCard" | "isTopExperience" | "isMustDo" | "isPopular" | "blogSlug" | "categoryId" | "subcategoryId" | "cityId" | "whereTo.address" | "whereTo.lat" | "whereTo.lng" | "packageType.price" | "packageType.name" | "packageType.points" | "packageType.timePriceSlots" | "itinerary.title" | "itinerary.points" | "itinerary.totalDuration" | "itinerary.modeOfTransport" | "itinerary.startPoint" | "itinerary.endPoint" | "itinerary.startPoint.description" | "itinerary.startPoint.highlights" | "itinerary.startPoint.name" | "itinerary.startPoint.image" | "itinerary.startPoint.duration" | "itinerary.startPoint.location" | "itinerary.startPoint.thingsToDo" | "itinerary.startPoint.nearbyThingsToDo" | "itinerary.startPoint.location.address" | "itinerary.startPoint.location.lat" | "itinerary.startPoint.location.lng" | "itinerary.endPoint.description" | "itinerary.endPoint.name" | "itinerary.endPoint.image" | "itinerary.endPoint.location" | "itinerary.endPoint.location.address" | "itinerary.endPoint.location.lat" | "itinerary.endPoint.location.lng">, {
+    }, "required", "mainImage" | "images" | "title" | "description" | "price" | "oldPrice" | "sale" | "tagOnCards" | "features" | "featureText" | "highlights" | "inclusions" | "exclusions" | "cancellationPolicy" | "ticketValidity" | "exploreMore" | "knowBeforeYouGo" | "myTickets" | "operatingHours" | "whereTo" | "datePriceRange" | "packageType" | "adultPrice" | "childPrice" | "seniorPrice" | "totalLimit" | "isMainCard" | "isTopExperience" | "isMustDo" | "isPopular" | "blogSlug" | "categoryId" | "subcategoryId" | "cityId" | "youExperience" | "itinerary" | "whereTo.address" | "whereTo.lat" | "whereTo.lng" | "packageType.price" | "packageType.name" | "packageType.points" | "packageType.timePriceSlots" | "itinerary.title" | "itinerary.points" | "itinerary.totalDuration" | "itinerary.modeOfTransport" | "itinerary.startPoint" | "itinerary.endPoint" | "itinerary.startPoint.image" | "itinerary.startPoint.description" | "itinerary.startPoint.highlights" | "itinerary.startPoint.name" | "itinerary.startPoint.duration" | "itinerary.startPoint.location" | "itinerary.startPoint.thingsToDo" | "itinerary.startPoint.nearbyThingsToDo" | "itinerary.startPoint.location.address" | "itinerary.startPoint.location.lat" | "itinerary.startPoint.location.lng" | "itinerary.endPoint.image" | "itinerary.endPoint.description" | "itinerary.endPoint.name" | "itinerary.endPoint.location" | "itinerary.endPoint.location.address" | "itinerary.endPoint.location.lat" | "itinerary.endPoint.location.lng">, {
         byTitle: ["title", "_creationTime"];
         byTopExperience: ["isTopExperience", "_creationTime"];
         byMustDo: ["isMustDo", "_creationTime"];
@@ -492,24 +492,24 @@ declare const _default: import("convex/server").SchemaDefinition<{
     reviews: import("convex/server").TableDefinition<import("convex/values").VObject<{
         images: string[];
         experienceId: import("convex/values").GenericId<"experience">;
+        text: string;
         userId: string;
         stars: number;
-        text: string;
     }, {
         userId: import("convex/values").VString<string, "required">;
         experienceId: import("convex/values").VId<import("convex/values").GenericId<"experience">, "required">;
         stars: import("convex/values").VFloat64<number, "required">;
         images: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">;
         text: import("convex/values").VString<string, "required">;
-    }, "required", "images" | "experienceId" | "userId" | "stars" | "text">, {
+    }, "required", "images" | "experienceId" | "text" | "userId" | "stars">, {
         byExperience: ["experienceId", "_creationTime"];
         byUser: ["userId", "_creationTime"];
     }, {}, {}>;
     users: import("convex/server").TableDefinition<import("convex/values").VObject<{
-        name?: string;
         image?: string;
-        email: string;
+        name?: string;
         provider: string;
+        email: string;
         providerId: string;
         createdAt: string;
         updatedAt: string;
@@ -521,7 +521,7 @@ declare const _default: import("convex/server").SchemaDefinition<{
         providerId: import("convex/values").VString<string, "required">;
         createdAt: import("convex/values").VString<string, "required">;
         updatedAt: import("convex/values").VString<string, "required">;
-    }, "required", "name" | "image" | "email" | "provider" | "providerId" | "createdAt" | "updatedAt">, {
+    }, "required", "image" | "name" | "provider" | "email" | "providerId" | "createdAt" | "updatedAt">, {
         byEmail: ["email", "_creationTime"];
         byProvider: ["provider", "providerId", "_creationTime"];
     }, {}, {}>;

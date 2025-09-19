@@ -7,6 +7,8 @@
     "rootDir": "./",
     "strict": false,
     "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noPropertyAccessFromIndexSignature": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

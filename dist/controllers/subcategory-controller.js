@@ -2,74 +2,72 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteSubcategory = exports.updateSubcategory = exports.createSubcategory = exports.getSubcategoryById = exports.getAllSubcategories = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
-const text_transform_1 = require("../utils/text-transform");
+// GET /api/subcategories
 const getAllSubcategories = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const result = await convex.query(api_1.api.subcategoryFunctions.getAllSubcategories, {
-            limit: 50,
-            offset: 0,
+        const { limit, offset } = req.query;
+        const result = await convex_service_1.convexService.query("subcategoryFunctions:getAllSubcategories", {
+            limit: limit ? Number(limit) : 50,
+            offset: offset ? Number(offset) : 0,
         });
-        // Extract only the subcategories array from the paginated result
-        const subcategories = result.page;
-        res.json({
+        const response = {
             success: true,
-            data: subcategories,
+            data: result.page,
             message: "Subcategories retrieved successfully",
-        });
+        };
+        res.json(response);
     }
     catch (error) {
         const response = {
             success: false,
-            message: "Failed to fetch subcategories",
+            message: "Failed to retrieve subcategories",
             error: error instanceof Error ? error.message : "Unknown error",
         };
         res.status(500).json(response);
     }
 };
 exports.getAllSubcategories = getAllSubcategories;
+// GET /api/subcategories/:id
 const getSubcategoryById = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        const subcategory = await convex.query(api_1.api.subcategoryFunctions.getSubcategoryById, { id: id });
-        if (!subcategory)
-            return res.status(404).json({ success: false, message: 'Subcategory not found' });
-        res.json({ success: true, data: subcategory, message: 'Subcategory retrieved successfully' });
+        const subcategory = await convex_service_1.convexService.query("subcategoryFunctions:getSubcategoryById", { id: id });
+        if (!subcategory) {
+            const response = {
+                success: false,
+                message: "Subcategory not found",
+            };
+            return res.status(404).json(response);
+        }
+        const response = {
+            success: true,
+            data: subcategory,
+            message: "Subcategory retrieved successfully",
+        };
+        res.json(response);
     }
     catch (error) {
         const response = {
             success: false,
-            message: "Failed to fetch subcategory",
+            message: "Failed to retrieve subcategory",
             error: error instanceof Error ? error.message : "Unknown error",
         };
         res.status(500).json(response);
     }
 };
 exports.getSubcategoryById = getSubcategoryById;
+// POST /api/subcategories
 const createSubcategory = async (req, res) => {
     try {
-        const { subcategoryName } = req.body;
-        // Validation
-        if (!subcategoryName) {
-            const response = {
-                success: false,
-                message: "subcategoryName is required",
-            };
-            return res.status(400).json(response);
-        }
-        // Normalize and validate subcategory name
-        const normalizedSubcategoryName = (0, text_transform_1.normalizeSubcategoryName)(subcategoryName);
-        const convex = convex_service_1.convexService.getClient();
-        const subcategoryId = await convex.mutation(api_1.api.subcategoryFunctions.createSubcategory, {
-            subcategoryName: normalizedSubcategoryName
-        });
-        res.status(201).json({
+        const body = req.body;
+        const newId = await convex_service_1.convexService.mutation("subcategoryFunctions:createSubcategory", body);
+        const createdSubcategory = await convex_service_1.convexService.query("subcategoryFunctions:getSubcategoryById", { id: newId });
+        const response = {
             success: true,
-            message: 'Subcategory created successfully',
-            data: { _id: subcategoryId, subcategoryName: normalizedSubcategoryName }
-        });
+            data: createdSubcategory,
+            message: "Subcategory created successfully",
+        };
+        res.status(201).json(response);
     }
     catch (error) {
         const response = {
@@ -81,25 +79,20 @@ const createSubcategory = async (req, res) => {
     }
 };
 exports.createSubcategory = createSubcategory;
+// PATCH /api/subcategories/:id
 const updateSubcategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const updates = req.body;
-        if (!updates.subcategoryName) {
-            const response = {
-                success: false,
-                message: "subcategoryName is required for update",
-            };
-            return res.status(400).json(response);
-        }
-        // Normalize and validate subcategory name
-        const normalizedSubcategoryName = (0, text_transform_1.normalizeSubcategoryName)(updates.subcategoryName);
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.subcategoryFunctions.updateSubcategory, {
+        const patch = req.body;
+        await convex_service_1.convexService.mutation("subcategoryFunctions:updateSubcategory", {
             id: id,
-            subcategoryName: normalizedSubcategoryName
+            patch,
         });
-        res.json({ success: true, message: 'Subcategory updated successfully' });
+        const response = {
+            success: true,
+            message: "Subcategory updated successfully",
+        };
+        res.json(response);
     }
     catch (error) {
         const response = {
@@ -111,12 +104,16 @@ const updateSubcategory = async (req, res) => {
     }
 };
 exports.updateSubcategory = updateSubcategory;
+// DELETE /api/subcategories/:id
 const deleteSubcategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.subcategoryFunctions.deleteSubcategory, { id: id });
-        res.json({ success: true, message: 'Subcategory deleted successfully' });
+        await convex_service_1.convexService.mutation("subcategoryFunctions:deleteSubcategory", { id: id });
+        const response = {
+            success: true,
+            message: "Subcategory deleted successfully",
+        };
+        res.json(response);
     }
     catch (error) {
         const response = {

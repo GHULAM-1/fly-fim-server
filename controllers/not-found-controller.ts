@@ -1,23 +1,19 @@
 import { Request, Response } from "express";
 import { convexService } from "../services/convex-service";
-import { api } from "../convex/_generated/api";
 
-export const getNotFoundPageData = async (req: Request, res: Response) => {
+export const getCategoriesWithSubcategories = async (req: Request, res: Response) => {
   try {
-    const convex = convexService.getClient();
-
-    // Get categories with their associated subcategories
-    const categoriesWithSubcategories = await convex.query(api.notFoundFunctions.getCategoriesWithSubcategories, {});
+    const result = await convexService.query("notFoundFunctions:getCategoriesWithSubcategories", {});
 
     res.json({
       success: true,
-      data: categoriesWithSubcategories as any,
-      message: "Not found page data retrieved successfully",
+      data: result,
+      message: "Categories with subcategories retrieved successfully",
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Failed to fetch not found page data",
+      message: "Failed to retrieve categories with subcategories",
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }

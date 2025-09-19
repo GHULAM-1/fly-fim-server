@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { convexService } from "../services/convex-service";
-import { api } from "../convex/_generated/api";
+
 
 export const getSubcategoryPageData = async (req: Request, res: Response) => {
   try {
@@ -13,9 +13,9 @@ export const getSubcategoryPageData = async (req: Request, res: Response) => {
       });
     }
 
-    const convex = convexService.getClient();
-    const pageData = await convex.query(
-      api.experienceFunctions.getSubcategoryPageData,
+    
+    const pageData = await convexService.query(
+      "experienceFunctions:getSubcategoryPageData",
       {
         cityId: cityId as any,
         categoryId: categoryId as any,
@@ -50,9 +50,9 @@ export const getSubcategoryPageDataFiltered = async (req: Request, res: Response
       });
     }
 
-    const convex = convexService.getClient();
-    const pageData = await convex.query(
-      api.experienceFunctions.getSubcategoryPageDataFiltered,
+    
+    const pageData = await convexService.query(
+      "experienceFunctions:getSubcategoryPageDataFiltered",
       {
         cityId: cityId as any,
         categoryId: categoryId as any,

@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createImageMiddleware = exports.getMulterMiddleware = exports.imageInterceptor = void 0;
 const multer_1 = __importDefault(require("multer"));
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 // Configure multer for memory storage
 const upload = (0, multer_1.default)({
     storage: multer_1.default.memoryStorage(),
@@ -42,7 +41,7 @@ const uploadSingleImage = async (file) => {
     const convex = convex_service_1.convexService.getClient();
     // Convert buffer to base64 string
     const base64Data = file.buffer.toString('base64');
-    const result = await convex.action(api_1.api.storage.uploadImage, {
+    const result = await convex.action("storage:uploadImage", {
         imageData: base64Data,
         mimeType: file.mimetype
     });
@@ -57,7 +56,7 @@ const uploadMultipleImages = async (files) => {
     const uploadPromises = files.map(file => {
         // Convert buffer to base64 string
         const base64Data = file.buffer.toString('base64');
-        return convex.action(api_1.api.storage.uploadImage, {
+        return convex.action("storage:uploadImage", {
             imageData: base64Data,
             mimeType: file.mimetype
         });

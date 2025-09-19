@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getCategoryPageData = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 const getCategoryPageData = async (req, res) => {
     try {
         const { cityId, categoryId } = req.params;
@@ -12,8 +11,7 @@ const getCategoryPageData = async (req, res) => {
                 message: "City ID and Category ID are required",
             });
         }
-        const convex = convex_service_1.convexService.getClient();
-        const pageData = await convex.query(api_1.api.experienceFunctions.getCategoryPageData, {
+        const pageData = await convex_service_1.convexService.query("experienceFunctions:getCategoryPageData", {
             cityId: cityId,
             categoryId: categoryId
         });

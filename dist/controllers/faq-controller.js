@@ -1,138 +1,153 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteFaq = exports.updateFaq = exports.createFaq = exports.getFaqsByExperience = exports.getFaqById = exports.getAllFaqs = void 0;
+exports.deleteFaq = exports.getFaqsByExperience = exports.updateFaq = exports.createFaq = exports.getFaqById = exports.getAllFaqs = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 // GET /api/faqs
 const getAllFaqs = async (req, res) => {
     try {
         const { limit, offset } = req.query;
-        const convex = convex_service_1.convexService.getClient();
-        const result = await convex.query(api_1.api.faqFunctions.getAllFaqs, {
+        const result = await convex_service_1.convexService.query("faqFunctions:getAllFaqs", {
             limit: limit ? Number(limit) : 50,
             offset: offset ? Number(offset) : 0,
         });
-        res.json({
+        const response = {
             success: true,
             data: result.page,
-            pagination: {
-                limit: Number(limit ?? 50),
-                offset: Number(offset ?? 0),
-                hasMore: !result.isDone,
-                nextOffset: Number(result.continueCursor ?? 0),
-            },
             message: "FAQs retrieved successfully",
-        });
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
-            message: "Failed to fetch FAQs",
+            message: "Failed to retrieve FAQs",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.getAllFaqs = getAllFaqs;
 // GET /api/faqs/:id
 const getFaqById = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const faq = await convex.query(api_1.api.faqFunctions.getFaqById, { id: req.params.id });
-        if (!faq)
-            return res.status(404).json({ success: false, message: "FAQ not found" });
-        res.json({ success: true, data: faq, message: "FAQ retrieved successfully" });
+        const { id } = req.params;
+        const faq = await convex_service_1.convexService.query("faqFunctions:getFaqById", {
+            id: id,
+        });
+        if (!faq) {
+            const response = {
+                success: false,
+                message: "FAQ not found",
+            };
+            return res.status(404).json(response);
+        }
+        const response = {
+            success: true,
+            data: faq,
+            message: "FAQ retrieved successfully",
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
-            message: "Failed to fetch FAQ",
+            message: "Failed to retrieve FAQ",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.getFaqById = getFaqById;
-// GET /api/faqs/experience/:experienceId
-const getFaqsByExperience = async (req, res) => {
-    try {
-        const convex = convex_service_1.convexService.getClient();
-        const faqs = await convex.query(api_1.api.faqFunctions.getFaqsByExperience, {
-            experienceId: req.params.experienceId,
-        });
-        res.json({ success: true, data: faqs, message: "FAQs by experience retrieved successfully" });
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            message: "Failed to fetch FAQs by experience",
-            error: error instanceof Error ? error.message : "Unknown error",
-        });
-    }
-};
-exports.getFaqsByExperience = getFaqsByExperience;
 // POST /api/faqs
 const createFaq = async (req, res) => {
     try {
         const body = req.body;
-        if (!body?.experienceId || !body?.question || !body?.answer) {
-            return res.status(400).json({
-                success: false,
-                message: "experienceId, question and answer are required",
-            });
-        }
-        const convex = convex_service_1.convexService.getClient();
-        const id = await convex.mutation(api_1.api.faqFunctions.createFaq, body);
-        res.status(201).json({
+        const newId = await convex_service_1.convexService.mutation("faqFunctions:createFaq", body);
+        const createdFaq = await convex_service_1.convexService.query("faqFunctions:getFaqById", { id: newId });
+        const response = {
             success: true,
-            data: { _id: id, ...body },
+            data: createdFaq,
             message: "FAQ created successfully",
-        });
+        };
+        res.status(201).json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
             message: "Failed to create FAQ",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.createFaq = createFaq;
-// PUT /api/faqs/:id
+// PATCH /api/faqs/:id
 const updateFaq = async (req, res) => {
     try {
+        const { id } = req.params;
         const patch = req.body;
-        if (!patch || (patch.question === undefined && patch.answer === undefined)) {
-            return res.status(400).json({ success: false, message: "No fields provided to update" });
-        }
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.faqFunctions.updateFaq, {
-            id: req.params.id,
-            question: patch.question,
-            answer: patch.answer,
+        await convex_service_1.convexService.mutation("faqFunctions:updateFaq", {
+            id: id,
+            patch,
         });
-        res.json({ success: true, message: "FAQ updated successfully" });
+        const response = {
+            success: true,
+            message: "FAQ updated successfully",
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
             message: "Failed to update FAQ",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.updateFaq = updateFaq;
+// GET /api/faqs/experience/:experienceId
+const getFaqsByExperience = async (req, res) => {
+    try {
+        const { experienceId } = req.params;
+        const faqs = await convex_service_1.convexService.query("faqFunctions:getFaqsByExperienceId", {
+            experienceId: experienceId,
+        });
+        const response = {
+            success: true,
+            data: faqs,
+            message: "FAQs retrieved successfully",
+        };
+        res.json(response);
+    }
+    catch (error) {
+        const response = {
+            success: false,
+            message: "Failed to retrieve FAQs",
+            error: error instanceof Error ? error.message : "Unknown error",
+        };
+        res.status(500).json(response);
+    }
+};
+exports.getFaqsByExperience = getFaqsByExperience;
 // DELETE /api/faqs/:id
 const deleteFaq = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.faqFunctions.deleteFaq, { id: req.params.id });
-        res.json({ success: true, message: "FAQ deleted successfully" });
+        const { id } = req.params;
+        await convex_service_1.convexService.mutation("faqFunctions:deleteFaq", { id: id });
+        const response = {
+            success: true,
+            message: "FAQ deleted successfully",
+        };
+        res.json(response);
     }
     catch (error) {
-        res.status(500).json({
+        const response = {
             success: false,
             message: "Failed to delete FAQ",
             error: error instanceof Error ? error.message : "Unknown error",
-        });
+        };
+        res.status(500).json(response);
     }
 };
 exports.deleteFaq = deleteFaq;

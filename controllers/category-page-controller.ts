@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { convexService } from "../services/convex-service";
-import { api } from "../convex/_generated/api";
+
 
 export const getCategoryPageData = async (req: Request, res: Response) => {
   try {
@@ -13,9 +13,9 @@ export const getCategoryPageData = async (req: Request, res: Response) => {
       });
     }
 
-    const convex = convexService.getClient();
-    const pageData = await convex.query(
-      api.experienceFunctions.getCategoryPageData,
+    
+    const pageData = await convexService.query(
+      "experienceFunctions:getCategoryPageData",
       {
         cityId: cityId as any,
         categoryId: categoryId as any

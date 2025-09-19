@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { getNotFoundPageData } from "../controllers/not-found-controller";
+import { getCategoriesWithSubcategories } from "../controllers/not-found-controller";
 
 const router = Router();
 
-router.get("/", getNotFoundPageData);
+router.get("/", getCategoriesWithSubcategories);
 
 export default router;

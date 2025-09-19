@@ -1,5 +1,4 @@
 import { ConvexHttpClient } from 'convex/browser';
-import { api } from '../convex/_generated/api';
 
 class ConvexService {
   private static instance: ConvexService;
@@ -30,14 +29,7 @@ class ConvexService {
       throw new Error('ConvexDB client not initialized. Call setClient() first.');
     }
 
-    const [module, func] = functionName.split(':');
-    const functionReference = (api as any)[module][func];
-
-    if (!functionReference) {
-      throw new Error(`Function ${functionName} not found in API`);
-    }
-
-    return await this.convex.query(functionReference, args);
+    return await this.convex.query(functionName as any, args);
   }
 
   public async mutation(functionName: string, args: any = {}): Promise<any> {
@@ -45,14 +37,7 @@ class ConvexService {
       throw new Error('ConvexDB client not initialized. Call setClient() first.');
     }
 
-    const [module, func] = functionName.split(':');
-    const functionReference = (api as any)[module][func];
-
-    if (!functionReference) {
-      throw new Error(`Function ${functionName} not found in API`);
-    }
-
-    return await this.convex.mutation(functionReference, args);
+    return await this.convex.mutation(functionName as any, args);
   }
 }
 

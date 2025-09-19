@@ -2,13 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCategory = exports.updateCategory = exports.createCategory = exports.getCategoriesByCategoryName = exports.getCategoryById = exports.getAllCategories = void 0;
 const convex_service_1 = require("../services/convex-service");
-const api_1 = require("../convex/_generated/api");
 const category_enum_1 = require("../types/enums/category.enum");
 const text_transform_1 = require("../utils/text-transform");
 const getAllCategories = async (req, res) => {
     try {
-        const convex = convex_service_1.convexService.getClient();
-        const result = await convex.query(api_1.api.categoryFunctions.getAllCategories, {
+        const result = await convex_service_1.convexService.query("categoryFunctions:getAllCategories", {
             limit: 50,
             offset: 0,
         });
@@ -33,8 +31,7 @@ exports.getAllCategories = getAllCategories;
 const getCategoryById = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        const category = await convex.query(api_1.api.categoryFunctions.getCategoryById, { id: id });
+        const category = await convex_service_1.convexService.query("categoryFunctions:getCategoryById", { id: id });
         if (!category)
             return res.status(404).json({ success: false, message: 'Category not found' });
         res.json({ success: true, data: category, message: 'Category retrieved successfully' });
@@ -52,7 +49,6 @@ exports.getCategoryById = getCategoryById;
 const getCategoriesByCategoryName = async (req, res) => {
     try {
         const { categoryName } = req.params;
-        const convex = convex_service_1.convexService.getClient();
         if (!categoryName) {
             const response = {
                 success: false,
@@ -70,7 +66,7 @@ const getCategoriesByCategoryName = async (req, res) => {
             };
             return res.status(400).json(response);
         }
-        const categories = await convex.query(api_1.api.categoryFunctions.getCategoriesByCategoryName, {
+        const categories = await convex_service_1.convexService.query("categoryFunctions:getCategoriesByCategoryName", {
             categoryName: normalizedCategoryName
         });
         const response = {
@@ -111,8 +107,7 @@ const createCategory = async (req, res) => {
             };
             return res.status(400).json(response);
         }
-        const convex = convex_service_1.convexService.getClient();
-        const categoryId = await convex.mutation(api_1.api.categoryFunctions.createCategory, {
+        const categoryId = await convex_service_1.convexService.mutation("categoryFunctions:createCategory", {
             categoryName: normalizedCategoryName
         });
         res.status(201).json({
@@ -152,8 +147,7 @@ const updateCategory = async (req, res) => {
             };
             return res.status(400).json(response);
         }
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.categoryFunctions.updateCategory, {
+        await convex_service_1.convexService.mutation("categoryFunctions:updateCategory", {
             id: id,
             categoryName: normalizedCategoryName
         });
@@ -172,8 +166,7 @@ exports.updateCategory = updateCategory;
 const deleteCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const convex = convex_service_1.convexService.getClient();
-        await convex.mutation(api_1.api.categoryFunctions.deleteCategory, { id: id });
+        await convex_service_1.convexService.mutation("categoryFunctions:deleteCategory", { id: id });
         res.json({ success: true, message: 'Category deleted successfully' });
     }
     catch (error) {
