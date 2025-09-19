@@ -16,6 +16,9 @@ COPY . .
 # Build the project
 RUN npm run build
 
+# Ensure convex/_generated files are accessible to the dist folder
+RUN mkdir -p dist/convex && cp -r convex/_generated dist/convex/
+
 # Remove dev dependencies
 RUN npm prune --production
 
