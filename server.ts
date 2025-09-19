@@ -43,13 +43,27 @@ const getAllowedOrigins = (): string[] => {
 const allowedOrigins = getAllowedOrigins();
 
 const corsOptions: cors.CorsOptions = {
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    console.log('CORS Request from origin:', origin);
+    console.log('Allowed origins:', allowedOrigins);
+
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
 };
 
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
