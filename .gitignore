@@ -61,4 +61,4 @@ ehthumbs.db
 Thumbs.db
 
 # ConvexDB generated files
-convex/_generated/
+# convex/_generated/

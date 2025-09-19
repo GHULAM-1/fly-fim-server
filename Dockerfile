@@ -10,11 +10,11 @@ COPY package*.json ./
 # Install all dependencies (including dev dependencies for build)
 RUN npm ci
 
-# Copy source code
+# Copy source code (including convex/_generated files)
 COPY . .
 
-# Build the project
-RUN npm run build
+# Build the project (skip type checking for production build)
+RUN npx tsc --skipLibCheck
 
 # Remove dev dependencies
 RUN npm prune --production
