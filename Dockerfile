@@ -16,11 +16,8 @@ COPY . .
 # Build the project
 RUN npm run build
 
-# Ensure convex/_generated files are accessible to the dist folder
-RUN mkdir -p dist/convex && cp -r convex/_generated dist/convex/
-
-# Remove dev dependencies
-RUN npm prune --production
+# Keep convex files in original location for runtime access
+# Keep all dependencies (including dev) since we need TypeScript types at runtime
 
 # Expose port
 EXPOSE $PORT
