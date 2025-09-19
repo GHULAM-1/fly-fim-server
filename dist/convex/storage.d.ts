@@ -7,7 +7,7 @@ export declare const uploadImage: import("convex/server").RegisteredAction<"publ
 }, Promise<{
     success: boolean;
     storageId: import("convex/values").GenericId<"_storage">;
-    imageUrl: string | null;
+    imageUrl: string;
     message: string;
     error?: undefined;
 } | {

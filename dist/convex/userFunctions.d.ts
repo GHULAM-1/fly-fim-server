@@ -1,6 +1,6 @@
 export declare const createUser: import("convex/server").RegisteredMutation<"public", {
-    name?: string | undefined;
-    image?: string | undefined;
+    name?: string;
+    image?: string;
     email: string;
     provider: string;
     providerId: string;
@@ -10,39 +10,39 @@ export declare const getUserById: import("convex/server").RegisteredQuery<"publi
 }, Promise<{
     _id: import("convex/values").GenericId<"users">;
     _creationTime: number;
-    name?: string | undefined;
-    image?: string | undefined;
+    name?: string;
+    image?: string;
     email: string;
     provider: string;
     providerId: string;
     createdAt: string;
     updatedAt: string;
-} | null>>;
+}>>;
 export declare const getUserByEmail: import("convex/server").RegisteredQuery<"public", {
     email: string;
 }, Promise<{
     _id: import("convex/values").GenericId<"users">;
     _creationTime: number;
-    name?: string | undefined;
-    image?: string | undefined;
+    name?: string;
+    image?: string;
     email: string;
     provider: string;
     providerId: string;
     createdAt: string;
     updatedAt: string;
-} | null>>;
+}>>;
 export declare const getUserByProvider: import("convex/server").RegisteredQuery<"public", {
     provider: string;
     providerId: string;
 }, Promise<{
     _id: import("convex/values").GenericId<"users">;
     _creationTime: number;
-    name?: string | undefined;
-    image?: string | undefined;
+    name?: string;
+    image?: string;
     email: string;
     provider: string;
     providerId: string;
     createdAt: string;
     updatedAt: string;
-} | null>>;
+}>>;
 //# sourceMappingURL=userFunctions.d.ts.map

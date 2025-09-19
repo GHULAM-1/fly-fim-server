@@ -1,79 +1,79 @@
 declare const _default: import("convex/server").SchemaDefinition<{
     experience: import("convex/server").TableDefinition<import("convex/values").VObject<{
-        oldPrice?: number | undefined;
-        sale?: number | undefined;
-        mainImage?: string | string[] | undefined;
-        tagOnCards?: string | undefined;
-        highlights?: string | undefined;
-        inclusions?: string | undefined;
-        exclusions?: string | undefined;
-        cancellationPolicy?: string | undefined;
-        ticketValidity?: string | undefined;
-        exploreMore?: string | undefined;
-        knowBeforeYouGo?: string | undefined;
-        youExperience?: string | undefined;
-        myTickets?: string | undefined;
+        oldPrice?: number;
+        sale?: number;
+        mainImage?: string | string[];
+        tagOnCards?: string;
+        highlights?: string;
+        inclusions?: string;
+        exclusions?: string;
+        cancellationPolicy?: string;
+        ticketValidity?: string;
+        exploreMore?: string;
+        knowBeforeYouGo?: string;
+        youExperience?: string;
+        myTickets?: string;
         itinerary?: {
-            totalDuration?: string | undefined;
-            modeOfTransport?: string | undefined;
+            totalDuration?: string;
+            modeOfTransport?: string;
             title: string;
             points: {
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
-                distance?: string | undefined;
-                travelTime?: string | undefined;
-                attractions?: number | undefined;
-                ticketsIncluded?: boolean | undefined;
+                }[];
+                distance?: string;
+                travelTime?: string;
+                attractions?: number;
+                ticketsIncluded?: boolean;
                 name: string;
                 order: number;
             }[];
             startPoint: {
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
+                }[];
                 name: string;
             };
             endPoint: {
-                description?: string | undefined;
-                image?: string | undefined;
+                description?: string;
+                image?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
                 name: string;
             };
-        } | undefined;
-        isMainCard?: boolean | undefined;
-        isTopExperience?: boolean | undefined;
-        isMustDo?: boolean | undefined;
-        isPopular?: boolean | undefined;
-        blogSlug?: string | undefined;
+        };
+        isMainCard?: boolean;
+        isTopExperience?: boolean;
+        isMustDo?: boolean;
+        isPopular?: boolean;
+        blogSlug?: string;
         title: string;
         description: string;
         price: number;
@@ -102,7 +102,7 @@ declare const _default: import("convex/server").SchemaDefinition<{
             price: number;
             name: string;
             points: {
-                subpoints?: string[] | undefined;
+                subpoints?: string[];
                 title: string;
             }[];
             timePriceSlots: {
@@ -122,22 +122,22 @@ declare const _default: import("convex/server").SchemaDefinition<{
         title: import("convex/values").VString<string, "required">;
         description: import("convex/values").VString<string, "required">;
         price: import("convex/values").VFloat64<number, "required">;
-        oldPrice: import("convex/values").VFloat64<number | undefined, "optional">;
-        sale: import("convex/values").VFloat64<number | undefined, "optional">;
+        oldPrice: import("convex/values").VFloat64<number, "optional">;
+        sale: import("convex/values").VFloat64<number, "optional">;
         images: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">;
-        mainImage: import("convex/values").VUnion<string | string[] | undefined, [import("convex/values").VString<string, "required">, import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">], "optional", never>;
-        tagOnCards: import("convex/values").VString<string | undefined, "optional">;
+        mainImage: import("convex/values").VUnion<string | string[], [import("convex/values").VString<string, "required">, import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">], "optional", never>;
+        tagOnCards: import("convex/values").VString<string, "optional">;
         features: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">;
         featureText: import("convex/values").VString<string, "required">;
-        highlights: import("convex/values").VString<string | undefined, "optional">;
-        inclusions: import("convex/values").VString<string | undefined, "optional">;
-        exclusions: import("convex/values").VString<string | undefined, "optional">;
-        cancellationPolicy: import("convex/values").VString<string | undefined, "optional">;
-        ticketValidity: import("convex/values").VString<string | undefined, "optional">;
-        exploreMore: import("convex/values").VString<string | undefined, "optional">;
-        knowBeforeYouGo: import("convex/values").VString<string | undefined, "optional">;
-        youExperience: import("convex/values").VString<string | undefined, "optional">;
-        myTickets: import("convex/values").VString<string | undefined, "optional">;
+        highlights: import("convex/values").VString<string, "optional">;
+        inclusions: import("convex/values").VString<string, "optional">;
+        exclusions: import("convex/values").VString<string, "optional">;
+        cancellationPolicy: import("convex/values").VString<string, "optional">;
+        ticketValidity: import("convex/values").VString<string, "optional">;
+        exploreMore: import("convex/values").VString<string, "optional">;
+        knowBeforeYouGo: import("convex/values").VString<string, "optional">;
+        youExperience: import("convex/values").VString<string, "optional">;
+        myTickets: import("convex/values").VString<string, "optional">;
         operatingHours: import("convex/values").VArray<{
             title: string;
             startDate: string;
@@ -186,7 +186,7 @@ declare const _default: import("convex/server").SchemaDefinition<{
             price: number;
             name: string;
             points: {
-                subpoints?: string[] | undefined;
+                subpoints?: string[];
                 title: string;
             }[];
             timePriceSlots: {
@@ -198,14 +198,14 @@ declare const _default: import("convex/server").SchemaDefinition<{
             name: import("convex/values").VString<string, "required">;
             price: import("convex/values").VFloat64<number, "required">;
             points: import("convex/values").VArray<{
-                subpoints?: string[] | undefined;
+                subpoints?: string[];
                 title: string;
             }[], import("convex/values").VObject<{
-                subpoints?: string[] | undefined;
+                subpoints?: string[];
                 title: string;
             }, {
                 title: import("convex/values").VString<string, "required">;
-                subpoints: import("convex/values").VArray<string[] | undefined, import("convex/values").VString<string, "required">, "optional">;
+                subpoints: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
             }, "required", "title" | "subpoints">, "required">;
             timePriceSlots: import("convex/values").VArray<{
                 price: number;
@@ -226,219 +226,219 @@ declare const _default: import("convex/server").SchemaDefinition<{
         seniorPrice: import("convex/values").VFloat64<number, "required">;
         totalLimit: import("convex/values").VFloat64<number, "required">;
         itinerary: import("convex/values").VObject<{
-            totalDuration?: string | undefined;
-            modeOfTransport?: string | undefined;
+            totalDuration?: string;
+            modeOfTransport?: string;
             title: string;
             points: {
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
-                distance?: string | undefined;
-                travelTime?: string | undefined;
-                attractions?: number | undefined;
-                ticketsIncluded?: boolean | undefined;
+                }[];
+                distance?: string;
+                travelTime?: string;
+                attractions?: number;
+                ticketsIncluded?: boolean;
                 name: string;
                 order: number;
             }[];
             startPoint: {
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
+                }[];
                 name: string;
             };
             endPoint: {
-                description?: string | undefined;
-                image?: string | undefined;
+                description?: string;
+                image?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
                 name: string;
             };
-        } | undefined, {
+        }, {
             title: import("convex/values").VString<string, "required">;
-            totalDuration: import("convex/values").VString<string | undefined, "optional">;
-            modeOfTransport: import("convex/values").VString<string | undefined, "optional">;
+            totalDuration: import("convex/values").VString<string, "optional">;
+            modeOfTransport: import("convex/values").VString<string, "optional">;
             startPoint: import("convex/values").VObject<{
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
+                }[];
                 name: string;
             }, {
                 name: import("convex/values").VString<string, "required">;
-                description: import("convex/values").VString<string | undefined, "optional">;
-                image: import("convex/values").VString<string | undefined, "optional">;
-                duration: import("convex/values").VString<string | undefined, "optional">;
+                description: import("convex/values").VString<string, "optional">;
+                image: import("convex/values").VString<string, "optional">;
+                duration: import("convex/values").VString<string, "optional">;
                 location: import("convex/values").VObject<{
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined, {
-                    address: import("convex/values").VString<string | undefined, "optional">;
-                    lat: import("convex/values").VFloat64<number | undefined, "optional">;
-                    lng: import("convex/values").VFloat64<number | undefined, "optional">;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                }, {
+                    address: import("convex/values").VString<string, "optional">;
+                    lat: import("convex/values").VFloat64<number, "optional">;
+                    lng: import("convex/values").VFloat64<number, "optional">;
                 }, "optional", "address" | "lat" | "lng">;
-                highlights: import("convex/values").VArray<string[] | undefined, import("convex/values").VString<string, "required">, "optional">;
-                thingsToDo: import("convex/values").VArray<string[] | undefined, import("convex/values").VString<string, "required">, "optional">;
+                highlights: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
+                thingsToDo: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
                 nearbyThingsToDo: import("convex/values").VArray<{
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined, import("convex/values").VObject<{
-                    description?: string | undefined;
-                    image?: string | undefined;
+                }[], import("convex/values").VObject<{
+                    description?: string;
+                    image?: string;
                     name: string;
                 }, {
                     name: import("convex/values").VString<string, "required">;
-                    image: import("convex/values").VString<string | undefined, "optional">;
-                    description: import("convex/values").VString<string | undefined, "optional">;
+                    image: import("convex/values").VString<string, "optional">;
+                    description: import("convex/values").VString<string, "optional">;
                 }, "required", "description" | "name" | "image">, "optional">;
             }, "required", "description" | "highlights" | "name" | "image" | "duration" | "location" | "thingsToDo" | "nearbyThingsToDo" | "location.address" | "location.lat" | "location.lng">;
             points: import("convex/values").VArray<{
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
-                distance?: string | undefined;
-                travelTime?: string | undefined;
-                attractions?: number | undefined;
-                ticketsIncluded?: boolean | undefined;
+                }[];
+                distance?: string;
+                travelTime?: string;
+                attractions?: number;
+                ticketsIncluded?: boolean;
                 name: string;
                 order: number;
             }[], import("convex/values").VObject<{
-                description?: string | undefined;
-                highlights?: string[] | undefined;
-                image?: string | undefined;
-                duration?: string | undefined;
+                description?: string;
+                highlights?: string[];
+                image?: string;
+                duration?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
-                thingsToDo?: string[] | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                thingsToDo?: string[];
                 nearbyThingsToDo?: {
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined;
-                distance?: string | undefined;
-                travelTime?: string | undefined;
-                attractions?: number | undefined;
-                ticketsIncluded?: boolean | undefined;
+                }[];
+                distance?: string;
+                travelTime?: string;
+                attractions?: number;
+                ticketsIncluded?: boolean;
                 name: string;
                 order: number;
             }, {
                 order: import("convex/values").VFloat64<number, "required">;
                 name: import("convex/values").VString<string, "required">;
-                description: import("convex/values").VString<string | undefined, "optional">;
-                image: import("convex/values").VString<string | undefined, "optional">;
-                duration: import("convex/values").VString<string | undefined, "optional">;
-                distance: import("convex/values").VString<string | undefined, "optional">;
-                travelTime: import("convex/values").VString<string | undefined, "optional">;
+                description: import("convex/values").VString<string, "optional">;
+                image: import("convex/values").VString<string, "optional">;
+                duration: import("convex/values").VString<string, "optional">;
+                distance: import("convex/values").VString<string, "optional">;
+                travelTime: import("convex/values").VString<string, "optional">;
                 location: import("convex/values").VObject<{
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined, {
-                    address: import("convex/values").VString<string | undefined, "optional">;
-                    lat: import("convex/values").VFloat64<number | undefined, "optional">;
-                    lng: import("convex/values").VFloat64<number | undefined, "optional">;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                }, {
+                    address: import("convex/values").VString<string, "optional">;
+                    lat: import("convex/values").VFloat64<number, "optional">;
+                    lng: import("convex/values").VFloat64<number, "optional">;
                 }, "optional", "address" | "lat" | "lng">;
-                highlights: import("convex/values").VArray<string[] | undefined, import("convex/values").VString<string, "required">, "optional">;
-                thingsToDo: import("convex/values").VArray<string[] | undefined, import("convex/values").VString<string, "required">, "optional">;
-                attractions: import("convex/values").VFloat64<number | undefined, "optional">;
-                ticketsIncluded: import("convex/values").VBoolean<boolean | undefined, "optional">;
+                highlights: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
+                thingsToDo: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
+                attractions: import("convex/values").VFloat64<number, "optional">;
+                ticketsIncluded: import("convex/values").VBoolean<boolean, "optional">;
                 nearbyThingsToDo: import("convex/values").VArray<{
-                    description?: string | undefined;
-                    image?: string | undefined;
+                    description?: string;
+                    image?: string;
                     name: string;
-                }[] | undefined, import("convex/values").VObject<{
-                    description?: string | undefined;
-                    image?: string | undefined;
+                }[], import("convex/values").VObject<{
+                    description?: string;
+                    image?: string;
                     name: string;
                 }, {
                     name: import("convex/values").VString<string, "required">;
-                    image: import("convex/values").VString<string | undefined, "optional">;
-                    description: import("convex/values").VString<string | undefined, "optional">;
+                    image: import("convex/values").VString<string, "optional">;
+                    description: import("convex/values").VString<string, "optional">;
                 }, "required", "description" | "name" | "image">, "optional">;
             }, "required", "description" | "highlights" | "name" | "image" | "duration" | "location" | "thingsToDo" | "nearbyThingsToDo" | "location.address" | "location.lat" | "location.lng" | "order" | "distance" | "travelTime" | "attractions" | "ticketsIncluded">, "required">;
             endPoint: import("convex/values").VObject<{
-                description?: string | undefined;
-                image?: string | undefined;
+                description?: string;
+                image?: string;
                 location?: {
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
                 name: string;
             }, {
                 name: import("convex/values").VString<string, "required">;
-                description: import("convex/values").VString<string | undefined, "optional">;
-                image: import("convex/values").VString<string | undefined, "optional">;
+                description: import("convex/values").VString<string, "optional">;
+                image: import("convex/values").VString<string, "optional">;
                 location: import("convex/values").VObject<{
-                    address?: string | undefined;
-                    lat?: number | undefined;
-                    lng?: number | undefined;
-                } | undefined, {
-                    address: import("convex/values").VString<string | undefined, "optional">;
-                    lat: import("convex/values").VFloat64<number | undefined, "optional">;
-                    lng: import("convex/values").VFloat64<number | undefined, "optional">;
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                }, {
+                    address: import("convex/values").VString<string, "optional">;
+                    lat: import("convex/values").VFloat64<number, "optional">;
+                    lng: import("convex/values").VFloat64<number, "optional">;
                 }, "optional", "address" | "lat" | "lng">;
             }, "required", "description" | "name" | "image" | "location" | "location.address" | "location.lat" | "location.lng">;
         }, "optional", "title" | "points" | "totalDuration" | "modeOfTransport" | "startPoint" | "endPoint" | "startPoint.description" | "startPoint.highlights" | "startPoint.name" | "startPoint.image" | "startPoint.duration" | "startPoint.location" | "startPoint.thingsToDo" | "startPoint.nearbyThingsToDo" | "startPoint.location.address" | "startPoint.location.lat" | "startPoint.location.lng" | "endPoint.description" | "endPoint.name" | "endPoint.image" | "endPoint.location" | "endPoint.location.address" | "endPoint.location.lat" | "endPoint.location.lng">;
-        isMainCard: import("convex/values").VBoolean<boolean | undefined, "optional">;
-        isTopExperience: import("convex/values").VBoolean<boolean | undefined, "optional">;
-        isMustDo: import("convex/values").VBoolean<boolean | undefined, "optional">;
-        isPopular: import("convex/values").VBoolean<boolean | undefined, "optional">;
-        blogSlug: import("convex/values").VString<string | undefined, "optional">;
+        isMainCard: import("convex/values").VBoolean<boolean, "optional">;
+        isTopExperience: import("convex/values").VBoolean<boolean, "optional">;
+        isMustDo: import("convex/values").VBoolean<boolean, "optional">;
+        isPopular: import("convex/values").VBoolean<boolean, "optional">;
+        blogSlug: import("convex/values").VString<string, "optional">;
         categoryId: import("convex/values").VId<import("convex/values").GenericId<"category">, "required">;
         subcategoryId: import("convex/values").VId<import("convex/values").GenericId<"subcategory">, "required">;
         cityId: import("convex/values").VId<import("convex/values").GenericId<"city">, "required">;
@@ -467,11 +467,11 @@ declare const _default: import("convex/server").SchemaDefinition<{
         bySubcategoryName: ["subcategoryName", "_creationTime"];
     }, {}, {}>;
     city: import("convex/server").TableDefinition<import("convex/values").VObject<{
-        image?: string | undefined;
+        image?: string;
         cityName: string;
         countryName: string;
     }, {
-        image: import("convex/values").VString<string | undefined, "optional">;
+        image: import("convex/values").VString<string, "optional">;
         cityName: import("convex/values").VString<string, "required">;
         countryName: import("convex/values").VString<string, "required">;
     }, "required", "image" | "cityName" | "countryName">, {
@@ -506,17 +506,17 @@ declare const _default: import("convex/server").SchemaDefinition<{
         byUser: ["userId", "_creationTime"];
     }, {}, {}>;
     users: import("convex/server").TableDefinition<import("convex/values").VObject<{
-        name?: string | undefined;
-        image?: string | undefined;
+        name?: string;
+        image?: string;
         email: string;
         provider: string;
         providerId: string;
         createdAt: string;
         updatedAt: string;
     }, {
-        name: import("convex/values").VString<string | undefined, "optional">;
+        name: import("convex/values").VString<string, "optional">;
         email: import("convex/values").VString<string, "required">;
-        image: import("convex/values").VString<string | undefined, "optional">;
+        image: import("convex/values").VString<string, "optional">;
         provider: import("convex/values").VString<string, "required">;
         providerId: import("convex/values").VString<string, "required">;
         createdAt: import("convex/values").VString<string, "required">;

@@ -1,12 +1,12 @@
 export declare const getAllCities: import("convex/server").RegisteredQuery<"public", {
-    limit?: number | undefined;
-    offset?: number | undefined;
+    limit?: number;
+    offset?: number;
 }, Promise<{
     page: {
-        imageUrl: string | null;
+        imageUrl: any;
         _id: import("convex/values").GenericId<"city">;
         _creationTime: number;
-        image?: string | undefined;
+        image?: string;
         cityName: string;
         countryName: string;
     }[];
@@ -18,42 +18,42 @@ export declare const getAllCities: import("convex/server").RegisteredQuery<"publ
 export declare const getCityById: import("convex/server").RegisteredQuery<"public", {
     id: import("convex/values").GenericId<"city">;
 }, Promise<{
-    imageUrl: string | null;
+    imageUrl: any;
     _id: import("convex/values").GenericId<"city">;
     _creationTime: number;
-    image?: string | undefined;
+    image?: string;
     cityName: string;
     countryName: string;
-} | null>>;
+}>>;
 export declare const getCitiesByCityName: import("convex/server").RegisteredQuery<"public", {
     cityName: string;
 }, Promise<{
-    imageUrl: string | null;
+    imageUrl: any;
     _id: import("convex/values").GenericId<"city">;
     _creationTime: number;
-    image?: string | undefined;
+    image?: string;
     cityName: string;
     countryName: string;
 }[]>>;
 export declare const getCitiesByCountryName: import("convex/server").RegisteredQuery<"public", {
     countryName: string;
 }, Promise<{
-    imageUrl: string | null;
+    imageUrl: any;
     _id: import("convex/values").GenericId<"city">;
     _creationTime: number;
-    image?: string | undefined;
+    image?: string;
     cityName: string;
     countryName: string;
 }[]>>;
 export declare const createCity: import("convex/server").RegisteredMutation<"public", {
-    image?: string | undefined;
+    image?: string;
     cityName: string;
     countryName: string;
 }, Promise<import("convex/values").GenericId<"city">>>;
 export declare const updateCity: import("convex/server").RegisteredMutation<"public", {
-    image?: string | undefined;
-    cityName?: string | undefined;
-    countryName?: string | undefined;
+    image?: string;
+    cityName?: string;
+    countryName?: string;
     id: import("convex/values").GenericId<"city">;
 }, Promise<void>>;
 export declare const deleteCity: import("convex/server").RegisteredMutation<"public", {

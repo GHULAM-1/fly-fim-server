@@ -1,6 +1,6 @@
 export declare const getAllReviews: import("convex/server").RegisteredQuery<"public", {
-    limit?: number | undefined;
-    offset?: number | undefined;
+    limit?: number;
+    offset?: number;
 }, Promise<{
     page: any[];
     isDone: boolean;
@@ -25,9 +25,9 @@ export declare const createReview: import("convex/server").RegisteredMutation<"p
     text: string;
 }, Promise<import("convex/values").GenericId<"reviews">>>;
 export declare const updateReview: import("convex/server").RegisteredMutation<"public", {
-    images?: import("convex/values").GenericId<"_storage">[] | undefined;
-    stars?: number | undefined;
-    text?: string | undefined;
+    images?: import("convex/values").GenericId<"_storage">[];
+    stars?: number;
+    text?: string;
     id: import("convex/values").GenericId<"reviews">;
 }, Promise<void>>;
 export declare const deleteReview: import("convex/server").RegisteredMutation<"public", {

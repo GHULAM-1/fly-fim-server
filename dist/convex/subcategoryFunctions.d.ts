@@ -1,6 +1,6 @@
 export declare const getAllSubcategories: import("convex/server").RegisteredQuery<"public", {
-    limit?: number | undefined;
-    offset?: number | undefined;
+    limit?: number;
+    offset?: number;
 }, Promise<import("convex/server").PaginationResult<{
     _id: import("convex/values").GenericId<"subcategory">;
     _creationTime: number;
@@ -12,7 +12,7 @@ export declare const getSubcategoryById: import("convex/server").RegisteredQuery
     _id: import("convex/values").GenericId<"subcategory">;
     _creationTime: number;
     subcategoryName: string;
-} | null>>;
+}>>;
 export declare const createSubcategory: import("convex/server").RegisteredMutation<"public", {
     subcategoryName: string;
 }, Promise<import("convex/values").GenericId<"subcategory">>>;
