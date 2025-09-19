@@ -17,43 +17,21 @@ const convex = new ConvexHttpClient(CONVEX_URL);
 
 convexService.setClient(convex);
 
-// Environment-based CORS origins
-const getAllowedOrigins = (): string[] => {
-  const frontendUrl = getFrontendUrl();
-
-  if (isProduction()) {
-    // Production: allow production frontend + www variant
-    return [
-      frontendUrl,
-      frontendUrl.replace('https://', 'https://www.'),
-      "https://fly-fim.vercel.app",
-      "https://www.fly-fim.vercel.app"
-    ];
-  } else {
-    // Development: allow localhost variants
-    return [
-      frontendUrl,
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://127.0.0.1:3000"
-    ];
-  }
-};
-
-const allowedOrigins = getAllowedOrigins();
-
+// Simplified CORS for production
 const corsOptions: cors.CorsOptions = {
-  origin: allowedOrigins,
+  origin: [
+    "https://fly-fim.vercel.app",
+    "https://www.fly-fim.vercel.app",
+    "http://localhost:3000",
+    "http://localhost:3001"
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly
-app.options('*', cors(corsOptions));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -66,5 +44,5 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Accepting requests from: ${allowedOrigins.join(", ")}`);
+  console.log(`Accepting requests from: ${corsOptions.origin}`);
 });
