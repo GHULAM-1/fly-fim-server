@@ -43,20 +43,11 @@ const getAllowedOrigins = (): string[] => {
 const allowedOrigins = getAllowedOrigins();
 
 const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    console.log('CORS Request from origin:', origin);
-    console.log('Allowed origins:', allowedOrigins);
-
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
