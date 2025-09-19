@@ -19,8 +19,8 @@ export interface ExperienceInformation {
     cancellationPolicy?: string;
     ticketValidity?: string;
     operatingHours: Array<{
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
         openTime: string;
         closeTime: string;
         lastEntryTime: string;
@@ -38,8 +38,8 @@ export interface ExperienceInformation {
 }
 export interface ExperienceCalendar {
     datePriceRange: Array<{
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
         price: number;
     }>;
 }

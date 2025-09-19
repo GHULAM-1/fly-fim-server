@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSubcategoryPageData = exports.getCategoryPageDataFiltered = exports.getCategoryPageData = exports.getThingsToDoPageData = exports.deleteExperience = exports.updateExperience = exports.createExperience = exports.getExperienceById = exports.getAllExperiences = void 0;
+exports.getSubcategoryPageData = exports.getSubcategoryPageDataFiltered = exports.getCategoryPageData = exports.getThingsToDoPageData = exports.deleteExperience = exports.updateExperience = exports.createExperience = exports.getExperienceById = exports.getAllExperiences = void 0;
 const server_1 = require("./_generated/server");
 const values_1 = require("convex/values");
 // Helper function to structure experience attributes (following schema field names)
@@ -174,7 +174,74 @@ exports.getAllExperiences = (0, server_1.query)({
 });
 exports.getExperienceById = (0, server_1.query)({
     args: { id: values_1.v.id("experience") },
-    handler: async (ctx, args) => ctx.db.get(args.id),
+    handler: async (ctx, args) => {
+        const exp = await ctx.db.get(args.id);
+        if (!exp)
+            return null;
+        // Resolve images array URLs
+        let imageUrls = [];
+        if (exp.images && Array.isArray(exp.images)) {
+            imageUrls = await Promise.all(exp.images.map((imageId) => safeGetImageUrl(ctx, imageId)));
+        }
+        // Resolve mainImage URLs
+        let mainImageUrls = [];
+        if (exp.mainImage && Array.isArray(exp.mainImage)) {
+            mainImageUrls = await Promise.all(exp.mainImage.map((imageId) => safeGetImageUrl(ctx, imageId)));
+        }
+        // Resolve itinerary image URLs
+        let processedItinerary = exp.itinerary;
+        if (exp.itinerary) {
+            processedItinerary = { ...exp.itinerary };
+            // Process startPoint image
+            if (exp.itinerary.startPoint?.image) {
+                processedItinerary.startPoint = {
+                    ...exp.itinerary.startPoint,
+                    image: (await safeGetImageUrl(ctx, exp.itinerary.startPoint.image)) || undefined,
+                };
+                // Process startPoint nearbyThingsToDo images
+                if (exp.itinerary.startPoint.nearbyThingsToDo) {
+                    processedItinerary.startPoint.nearbyThingsToDo = await Promise.all(exp.itinerary.startPoint.nearbyThingsToDo.map(async (item) => ({
+                        ...item,
+                        image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                    })));
+                }
+            }
+            // Process points images
+            if (exp.itinerary.points && Array.isArray(exp.itinerary.points)) {
+                processedItinerary.points = await Promise.all(exp.itinerary.points.map(async (point) => {
+                    const processedPoint = { ...point };
+                    // Process point image
+                    if (point.image) {
+                        processedPoint.image = await safeGetImageUrl(ctx, point.image);
+                    }
+                    // Process nearbyThingsToDo images
+                    if (point.nearbyThingsToDo && Array.isArray(point.nearbyThingsToDo)) {
+                        processedPoint.nearbyThingsToDo = await Promise.all(point.nearbyThingsToDo.map(async (item) => ({
+                            ...item,
+                            image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                        })));
+                    }
+                    return processedPoint;
+                }));
+            }
+            // Process endPoint image
+            if (exp.itinerary.endPoint?.image) {
+                processedItinerary.endPoint = {
+                    ...exp.itinerary.endPoint,
+                    image: (await safeGetImageUrl(ctx, exp.itinerary.endPoint.image)) || undefined,
+                };
+            }
+        }
+        return {
+            ...exp,
+            images: imageUrls,
+            mainImage: mainImageUrls,
+            itinerary: processedItinerary,
+            categoryName: (await ctx.db.get(exp.categoryId))?.categoryName || null,
+            subcategoryName: (await ctx.db.get(exp.subcategoryId))?.subcategoryName || null,
+            cityName: (await ctx.db.get(exp.cityId))?.cityName || null,
+        };
+    },
 });
 exports.createExperience = (0, server_1.mutation)({
     args: {
@@ -197,8 +264,8 @@ exports.createExperience = (0, server_1.mutation)({
         knowBeforeYouGo: values_1.v.string(),
         myTickets: values_1.v.string(),
         operatingHours: values_1.v.array(values_1.v.object({
-            startDate: values_1.v.float64(),
-            endDate: values_1.v.float64(),
+            startDate: values_1.v.string(),
+            endDate: values_1.v.string(),
             openTime: values_1.v.string(),
             closeTime: values_1.v.string(),
             lastEntryTime: values_1.v.string(),
@@ -210,8 +277,8 @@ exports.createExperience = (0, server_1.mutation)({
             lng: values_1.v.float64(),
         }),
         datePriceRange: values_1.v.array(values_1.v.object({
-            startDate: values_1.v.float64(),
-            endDate: values_1.v.float64(),
+            startDate: values_1.v.string(),
+            endDate: values_1.v.string(),
             price: values_1.v.float64(),
         })),
         packageType: values_1.v.object({
@@ -279,8 +346,8 @@ exports.updateExperience = (0, server_1.mutation)({
             knowBeforeYouGo: values_1.v.optional(values_1.v.string()),
             myTickets: values_1.v.optional(values_1.v.string()),
             operatingHours: values_1.v.optional(values_1.v.array(values_1.v.object({
-                startDate: values_1.v.number(),
-                endDate: values_1.v.number(),
+                startDate: values_1.v.string(),
+                endDate: values_1.v.string(),
                 openTime: values_1.v.string(),
                 closeTime: values_1.v.string(),
                 lastEntryTime: values_1.v.string(),
@@ -292,8 +359,8 @@ exports.updateExperience = (0, server_1.mutation)({
                 lng: values_1.v.number(),
             })),
             datePriceRange: values_1.v.optional(values_1.v.array(values_1.v.object({
-                startDate: values_1.v.number(),
-                endDate: values_1.v.number(),
+                startDate: values_1.v.string(),
+                endDate: values_1.v.string(),
                 price: values_1.v.number(),
             }))),
             packageType: values_1.v.optional(values_1.v.object({
@@ -612,25 +679,39 @@ exports.getCategoryPageData = (0, server_1.query)({
         };
     },
 });
-// ===== FILTERED CATEGORY PAGE QUERIES =====
-// Get filtered data for Category page with sorting and subcategory filtering
-exports.getCategoryPageDataFiltered = (0, server_1.query)({
+// ===== FILTERED SUBCATEGORY PAGE QUERIES =====
+// Get filtered data for Subcategory page with sorting
+exports.getSubcategoryPageDataFiltered = (0, server_1.query)({
     args: {
         cityId: values_1.v.id("city"),
         categoryId: values_1.v.id("category"),
+        subcategoryName: values_1.v.string(),
         sortBy: values_1.v.optional(values_1.v.string()), // "popular", "price_low_high", "price_high_low"
-        subcategoryNames: values_1.v.optional(values_1.v.array(values_1.v.string())), // Filter by specific subcategory names
     },
     handler: async (ctx, args) => {
-        // 1) Get city and category documents
+        // 1) Get city, category, and subcategory documents
         const cityDoc = await ctx.db.get(args.cityId);
         const categoryDoc = await ctx.db.get(args.categoryId);
-        if (!cityDoc || !categoryDoc) {
+        // Find subcategory by name (case-insensitive with dash handling)
+        const allSubcategories = await ctx.db
+            .query("subcategory")
+            .collect();
+        // Normalize the received subcategory name: replace dashes with spaces and convert to lowercase
+        const normalizedInputName = args.subcategoryName.replace(/-/g, ' ').toLowerCase().trim();
+        const subcategoryDoc = allSubcategories.find(sub => {
+            // Also normalize the database subcategory name for comparison
+            const normalizedDbName = sub.subcategoryName.replace(/-/g, ' ').toLowerCase().trim();
+            return normalizedDbName === normalizedInputName;
+        });
+        if (!cityDoc || !categoryDoc || !subcategoryDoc) {
             return {
                 category: null,
-                subcategories: [],
+                subcategory: null,
                 experiences: [],
-                reviews: [],
+                reviewStats: {
+                    averageRating: 0,
+                    totalReviews: 0,
+                },
             };
         }
         // 2) Get all experiences for this city and category
@@ -638,20 +719,8 @@ exports.getCategoryPageDataFiltered = (0, server_1.query)({
             .query("experience")
             .withIndex("byCity", (q) => q.eq("cityId", args.cityId))
             .collect();
-        // Filter by categoryId in JavaScript instead of Convex filter
-        let experiences = allCityExperiences.filter((exp) => exp.categoryId === args.categoryId);
-        // Apply subcategory filter if provided
-        if (args.subcategoryNames && args.subcategoryNames.length > 0) {
-            // Get subcategory documents to match names with IDs
-            const subcategoryDocs = await Promise.all(args.subcategoryNames.map((name) => ctx.db
-                .query("subcategory")
-                .withIndex("bySubcategoryName", (q) => q.eq("subcategoryName", name))
-                .first()));
-            const validSubcategoryIds = subcategoryDocs
-                .filter((doc) => doc !== null)
-                .map((doc) => doc._id);
-            experiences = experiences.filter((exp) => validSubcategoryIds.includes(exp.subcategoryId));
-        }
+        // Filter by categoryId and subcategoryId (specific subcategory experiences)
+        let experiences = allCityExperiences.filter((exp) => exp.categoryId === args.categoryId && exp.subcategoryId === subcategoryDoc._id);
         // Apply sorting
         if (args.sortBy) {
             switch (args.sortBy) {
@@ -670,26 +739,17 @@ exports.getCategoryPageDataFiltered = (0, server_1.query)({
                     break;
             }
         }
-        // 3) Get subcategories using all experiences (not filtered by hierarchy)
-        const subcategoryMap = new Map();
-        for (const exp of experiences) {
+        // Filter by categoryId only (all experiences in this category for subcategories list)
+        const allCategoryExperiences = allCityExperiences.filter((exp) => exp.categoryId === args.categoryId);
+        // 3) Get all subcategories in this category (just names)
+        const subcategoryNames = new Set();
+        for (const exp of allCategoryExperiences) {
             const subcategory = await ctx.db.get(exp.subcategoryId);
-            if (!subcategory)
-                continue;
-            if (!subcategoryMap.has(subcategory.subcategoryName)) {
-                subcategoryMap.set(subcategory.subcategoryName, {
-                    subcategoryName: subcategory.subcategoryName,
-                    experiences: [],
-                });
+            if (subcategory) {
+                subcategoryNames.add(subcategory.subcategoryName);
             }
-            subcategoryMap.get(subcategory.subcategoryName).experiences.push(exp);
         }
-        // 4) Convert Map to Array with image URLs
-        const subcategories = await Promise.all(Array.from(subcategoryMap.values()).map(async (sub) => ({
-            subcategoryName: sub.subcategoryName,
-            experiences: await Promise.all(sub.experiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))),
-        })));
-        // 5) Get reviews for all experiences in this category
+        // 4) Get reviews for specific subcategory experiences
         const reviews = [];
         for (const exp of experiences) {
             const expReviews = await ctx.db
@@ -698,7 +758,14 @@ exports.getCategoryPageDataFiltered = (0, server_1.query)({
                 .collect();
             reviews.push(...expReviews);
         }
-        // Get all categories and subcategories in this city with top experiences (max 15 per subcategory)
+        // 5) Calculate review statistics for specific subcategory
+        const reviewStats = {
+            averageRating: reviews.length > 0
+                ? reviews.reduce((sum, review) => sum + review.stars, 0) / reviews.length
+                : 0,
+            totalReviews: reviews.length,
+        };
+        // 6) Get all categories and subcategories in this city with top experiences (max 15 per subcategory)
         const allCategoriesMap = new Map();
         // Create a map of category -> subcategories based on experiences in this city
         for (const exp of allCityExperiences) {
@@ -764,11 +831,14 @@ exports.getCategoryPageDataFiltered = (0, server_1.query)({
         return {
             category: {
                 categoryName: categoryDoc.categoryName,
-                subcategories,
+                subcategories: Array.from(subcategoryNames), // Just names, no experiences
+            },
+            subcategory: {
+                subcategoryName: subcategoryDoc.subcategoryName,
             },
             experiences: await Promise.all(experiences.map((exp) => structureExperienceWithImageUrls(ctx, exp))),
-            reviews: await Promise.all(reviews.map((review) => structureReviewWithImageUrls(ctx, review))),
             allCategories: structuredAllCategories,
+            reviewStats,
         };
     },
 });

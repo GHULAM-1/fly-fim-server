@@ -22,7 +22,6 @@ export const getSubcategoryById = query({
 });
 
 
-
 // -------- Mutations with uniqueness --------
 
 // CREATE: (subcategoryName) must be unique
@@ -31,16 +30,17 @@ export const createSubcategory = mutation({
     subcategoryName: v.string(),
   },
   handler: async (ctx, args) => {
-    const dup = await ctx.db
-      .query("subcategory")
-      .withIndex("bySubcategoryName", (q) =>
-        q.eq("subcategoryName", args.subcategoryName)
-      )
-      .first();
+    // Check for duplicates using case-insensitive comparison
+    const allSubcategories = await ctx.db.query("subcategory").collect();
+    const normalizedForCheck = args.subcategoryName.trim().toLowerCase();
 
-    if (dup) {
+    const existing = allSubcategories.find(subcategory =>
+      subcategory.subcategoryName.toLowerCase() === normalizedForCheck
+    );
+
+    if (existing) {
       throw new Error(
-        `Subcategory '${args.subcategoryName}' already exists for this experience`
+        `Subcategory '${args.subcategoryName}' already exists`
       );
     }
 
@@ -60,16 +60,17 @@ export const updateSubcategory = mutation({
     const current = await ctx.db.get(id);
     if (!current) throw new Error("Subcategory not found");
 
-    const clash = await ctx.db
-      .query("subcategory")
-      .withIndex("bySubcategoryName", (q) =>
-        q.eq("subcategoryName", subcategoryName)
-      )
-      .first();
+    // Check for duplicates using case-insensitive comparison
+    const allSubcategories = await ctx.db.query("subcategory").collect();
+    const normalizedForCheck = subcategoryName.trim().toLowerCase();
 
-    if (clash && clash._id !== id) {
+    const existing = allSubcategories.find(subcategory =>
+      subcategory.subcategoryName.toLowerCase() === normalizedForCheck && subcategory._id !== id
+    );
+
+    if (existing) {
       throw new Error(
-        `Subcategory '${subcategoryName}' already exists for this experience`
+        `Subcategory '${subcategoryName}' already exists`
       );
     }
 

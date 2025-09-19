@@ -6,6 +6,7 @@ import {
   CreateSubcategoryRequest,
   UpdateSubcategoryRequest,
 } from "../types/subcategory.types";
+import { normalizeSubcategoryName } from "../utils/text-transform";
 
 export const getAllSubcategories = async (req: Request, res: Response) => {
   try {
@@ -54,6 +55,7 @@ export const getSubcategoryById = async (req: Request, res: Response) => {
   }
 };
 
+
 export const createSubcategory = async (req: Request, res: Response) => {
   try {
     const { subcategoryName }: CreateSubcategoryRequest = req.body;
@@ -62,20 +64,23 @@ export const createSubcategory = async (req: Request, res: Response) => {
     if (!subcategoryName) {
       const response: SubcategoryResponse = {
         success: false,
-        message: "subcategoryName are required",
+        message: "subcategoryName is required",
       };
       return res.status(400).json(response);
     }
 
+    // Normalize and validate subcategory name
+    const normalizedSubcategoryName = normalizeSubcategoryName(subcategoryName);
+
     const convex = convexService.getClient();
 
-    const subcategoryId = await convex.mutation(api.subcategoryFunctions.createSubcategory, { 
-      subcategoryName
+    const subcategoryId = await convex.mutation(api.subcategoryFunctions.createSubcategory, {
+      subcategoryName: normalizedSubcategoryName
     });
-    res.status(201).json({ 
-      success: true, 
-      message: 'Subcategory created successfully', 
-      data: { _id: subcategoryId, subcategoryName } 
+    res.status(201).json({
+      success: true,
+      message: 'Subcategory created successfully',
+      data: { _id: subcategoryId, subcategoryName: normalizedSubcategoryName }
     });
   } catch (error) {
 
@@ -101,11 +106,14 @@ export const updateSubcategory = async (req: Request, res: Response) => {
       return res.status(400).json(response);
     }
 
+    // Normalize and validate subcategory name
+    const normalizedSubcategoryName = normalizeSubcategoryName(updates.subcategoryName);
+
     const convex = convexService.getClient();
 
-    await convex.mutation(api.subcategoryFunctions.updateSubcategory, { 
-      id: id as any, 
-      subcategoryName: updates.subcategoryName! 
+    await convex.mutation(api.subcategoryFunctions.updateSubcategory, {
+      id: id as any,
+      subcategoryName: normalizedSubcategoryName
     });
     res.json({ success: true, message: 'Subcategory updated successfully' });
   } catch (error) {

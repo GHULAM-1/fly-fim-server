@@ -1,17 +1,19 @@
+import { CategoryType } from "./enums/category.enum";
+
 // Category Types
 export interface Category {
   _id: string;
   _creationTime: number;
-  categoryName: string;
+  categoryName: CategoryType;
 }
 
 // API Request/Response Types
 export interface CreateCategoryRequest {
-  categoryName: string;
+  categoryName: CategoryType;
 }
 
 export interface UpdateCategoryRequest {
-  categoryName?: string;
+  categoryName?: CategoryType;
 }
 
 export interface CategoryResponse {
@@ -23,7 +25,7 @@ export interface CategoryResponse {
 
 // Query Parameters
 export interface CategoryQueryParams {
-  categoryName?: string;
+  categoryName?: CategoryType;
   limit?: number;
   offset?: number;
 }

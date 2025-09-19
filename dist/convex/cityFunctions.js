@@ -163,18 +163,16 @@ exports.createCity = (0, server_1.mutation)({
         countryName: values_1.v.string(),
     },
     handler: async (ctx, args) => {
-        // Normalize to make uniqueness case-insensitive (optional)
-        const normalized = args.cityName.trim().toLowerCase();
-        const existing = await ctx.db
-            .query("city")
-            .withIndex("byCityName", (q) => q.eq("cityName", normalized))
-            .first();
+        // Check for duplicates using case-insensitive comparison
+        const allCities = await ctx.db.query("city").collect();
+        const normalizedForCheck = args.cityName.trim().toLowerCase();
+        const existing = allCities.find(city => city.cityName.toLowerCase() === normalizedForCheck);
         if (existing) {
             throw new Error(`City '${args.cityName}' already exists`);
         }
         return await ctx.db.insert("city", {
             image: args.image,
-            cityName: normalized,
+            cityName: args.cityName,
             countryName: args.countryName,
         });
     },

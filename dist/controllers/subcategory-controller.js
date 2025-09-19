@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteSubcategory = exports.updateSubcategory = exports.createSubcategory = exports.getSubcategoryById = exports.getAllSubcategories = void 0;
 const convex_service_1 = require("../services/convex-service");
 const api_1 = require("../convex/_generated/api");
+const text_transform_1 = require("../utils/text-transform");
 const getAllSubcategories = async (req, res) => {
     try {
         const convex = convex_service_1.convexService.getClient();
@@ -54,18 +55,20 @@ const createSubcategory = async (req, res) => {
         if (!subcategoryName) {
             const response = {
                 success: false,
-                message: "subcategoryName are required",
+                message: "subcategoryName is required",
             };
             return res.status(400).json(response);
         }
+        // Normalize and validate subcategory name
+        const normalizedSubcategoryName = (0, text_transform_1.normalizeSubcategoryName)(subcategoryName);
         const convex = convex_service_1.convexService.getClient();
         const subcategoryId = await convex.mutation(api_1.api.subcategoryFunctions.createSubcategory, {
-            subcategoryName
+            subcategoryName: normalizedSubcategoryName
         });
         res.status(201).json({
             success: true,
             message: 'Subcategory created successfully',
-            data: { _id: subcategoryId, subcategoryName }
+            data: { _id: subcategoryId, subcategoryName: normalizedSubcategoryName }
         });
     }
     catch (error) {
@@ -89,10 +92,12 @@ const updateSubcategory = async (req, res) => {
             };
             return res.status(400).json(response);
         }
+        // Normalize and validate subcategory name
+        const normalizedSubcategoryName = (0, text_transform_1.normalizeSubcategoryName)(updates.subcategoryName);
         const convex = convex_service_1.convexService.getClient();
         await convex.mutation(api_1.api.subcategoryFunctions.updateSubcategory, {
             id: id,
-            subcategoryName: updates.subcategoryName
+            subcategoryName: normalizedSubcategoryName
         });
         res.json({ success: true, message: 'Subcategory updated successfully' });
     }

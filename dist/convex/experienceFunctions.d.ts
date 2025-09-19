@@ -17,6 +17,62 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
     knowBeforeYouGo?: string | undefined;
     youExperience?: string | undefined;
     myTickets?: string | undefined;
+    itinerary?: {
+        totalDuration?: string | undefined;
+        modeOfTransport?: string | undefined;
+        title: string;
+        points: {
+            description?: string | undefined;
+            highlights?: string[] | undefined;
+            image?: string | undefined;
+            duration?: string | undefined;
+            location?: {
+                address?: string | undefined;
+                lat?: number | undefined;
+                lng?: number | undefined;
+            } | undefined;
+            thingsToDo?: string[] | undefined;
+            nearbyThingsToDo?: {
+                description?: string | undefined;
+                image?: string | undefined;
+                name: string;
+            }[] | undefined;
+            distance?: string | undefined;
+            travelTime?: string | undefined;
+            attractions?: number | undefined;
+            ticketsIncluded?: boolean | undefined;
+            name: string;
+            order: number;
+        }[];
+        startPoint: {
+            description?: string | undefined;
+            highlights?: string[] | undefined;
+            image?: string | undefined;
+            duration?: string | undefined;
+            location?: {
+                address?: string | undefined;
+                lat?: number | undefined;
+                lng?: number | undefined;
+            } | undefined;
+            thingsToDo?: string[] | undefined;
+            nearbyThingsToDo?: {
+                description?: string | undefined;
+                image?: string | undefined;
+                name: string;
+            }[] | undefined;
+            name: string;
+        };
+        endPoint: {
+            description?: string | undefined;
+            image?: string | undefined;
+            location?: {
+                address?: string | undefined;
+                lat?: number | undefined;
+                lng?: number | undefined;
+            } | undefined;
+            name: string;
+        };
+    } | undefined;
     isMainCard?: boolean | undefined;
     isTopExperience?: boolean | undefined;
     isMustDo?: boolean | undefined;
@@ -30,8 +86,8 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
     featureText: string;
     operatingHours: {
         title: string;
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
         openTime: string;
         closeTime: string;
         lastEntryTime: string;
@@ -43,12 +99,12 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
     };
     datePriceRange: {
         price: number;
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
     }[];
     packageType: {
-        name: string;
         price: number;
+        name: string;
         points: {
             subpoints?: string[] | undefined;
             title: string;
@@ -70,11 +126,71 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
 export declare const getExperienceById: import("convex/server").RegisteredQuery<"public", {
     id: import("convex/values").GenericId<"experience">;
 }, Promise<{
+    images: (string | null)[];
+    mainImage: (string | null)[];
+    itinerary: {
+        totalDuration?: string | undefined;
+        modeOfTransport?: string | undefined;
+        title: string;
+        points: {
+            description?: string | undefined;
+            highlights?: string[] | undefined;
+            image?: string | undefined;
+            duration?: string | undefined;
+            location?: {
+                address?: string | undefined;
+                lat?: number | undefined;
+                lng?: number | undefined;
+            } | undefined;
+            thingsToDo?: string[] | undefined;
+            nearbyThingsToDo?: {
+                description?: string | undefined;
+                image?: string | undefined;
+                name: string;
+            }[] | undefined;
+            distance?: string | undefined;
+            travelTime?: string | undefined;
+            attractions?: number | undefined;
+            ticketsIncluded?: boolean | undefined;
+            name: string;
+            order: number;
+        }[];
+        startPoint: {
+            description?: string | undefined;
+            highlights?: string[] | undefined;
+            image?: string | undefined;
+            duration?: string | undefined;
+            location?: {
+                address?: string | undefined;
+                lat?: number | undefined;
+                lng?: number | undefined;
+            } | undefined;
+            thingsToDo?: string[] | undefined;
+            nearbyThingsToDo?: {
+                description?: string | undefined;
+                image?: string | undefined;
+                name: string;
+            }[] | undefined;
+            name: string;
+        };
+        endPoint: {
+            description?: string | undefined;
+            image?: string | undefined;
+            location?: {
+                address?: string | undefined;
+                lat?: number | undefined;
+                lng?: number | undefined;
+            } | undefined;
+            name: string;
+        };
+    } | undefined;
+    categoryName: string | null;
+    subcategoryName: string | null;
+    cityName: string | null;
     _id: import("convex/values").GenericId<"experience">;
     _creationTime: number;
     oldPrice?: number | undefined;
     sale?: number | undefined;
-    mainImage?: string | string[] | undefined;
     tagOnCards?: string | undefined;
     highlights?: string | undefined;
     inclusions?: string | undefined;
@@ -93,13 +209,12 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
     title: string;
     description: string;
     price: number;
-    images: string[];
     features: string[];
     featureText: string;
     operatingHours: {
         title: string;
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
         openTime: string;
         closeTime: string;
         lastEntryTime: string;
@@ -111,12 +226,12 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
     };
     datePriceRange: {
         price: number;
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
     }[];
     packageType: {
-        name: string;
         price: number;
+        name: string;
         points: {
             subpoints?: string[] | undefined;
             title: string;
@@ -161,8 +276,8 @@ export declare const createExperience: import("convex/server").RegisteredMutatio
     myTickets: string;
     operatingHours: {
         title: string;
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
         openTime: string;
         closeTime: string;
         lastEntryTime: string;
@@ -174,12 +289,12 @@ export declare const createExperience: import("convex/server").RegisteredMutatio
     };
     datePriceRange: {
         price: number;
-        startDate: number;
-        endDate: number;
+        startDate: string;
+        endDate: string;
     }[];
     packageType: {
-        name: string;
         price: number;
+        name: string;
         points: {
             subpoints?: string[] | undefined;
             title: string;
@@ -221,8 +336,8 @@ export declare const updateExperience: import("convex/server").RegisteredMutatio
         myTickets?: string | undefined;
         operatingHours?: {
             title: string;
-            startDate: number;
-            endDate: number;
+            startDate: string;
+            endDate: string;
             openTime: string;
             closeTime: string;
             lastEntryTime: string;
@@ -234,12 +349,12 @@ export declare const updateExperience: import("convex/server").RegisteredMutatio
         } | undefined;
         datePriceRange?: {
             price: number;
-            startDate: number;
-            endDate: number;
+            startDate: string;
+            endDate: string;
         }[] | undefined;
         packageType?: {
-            name: string;
             price: number;
+            name: string;
             points: {
                 subpoints?: string[] | undefined;
                 title: string;
@@ -595,24 +710,27 @@ export declare const getCategoryPageData: import("convex/server").RegisteredQuer
     }[];
     subcategories?: undefined;
 }>>;
-export declare const getCategoryPageDataFiltered: import("convex/server").RegisteredQuery<"public", {
+export declare const getSubcategoryPageDataFiltered: import("convex/server").RegisteredQuery<"public", {
     sortBy?: string | undefined;
-    subcategoryNames?: string[] | undefined;
     categoryId: import("convex/values").GenericId<"category">;
     cityId: import("convex/values").GenericId<"city">;
+    subcategoryName: string;
 }, Promise<{
     category: null;
-    subcategories: never[];
+    subcategory: null;
     experiences: never[];
-    reviews: never[];
+    reviewStats: {
+        averageRating: number;
+        totalReviews: number;
+    };
     allCategories?: undefined;
 } | {
     category: {
         categoryName: string;
-        subcategories: {
-            subcategoryName: any;
-            experiences: any[];
-        }[];
+        subcategories: unknown[];
+    };
+    subcategory: {
+        subcategoryName: string;
     };
     experiences: {
         _id: any;
@@ -671,12 +789,14 @@ export declare const getCategoryPageDataFiltered: import("convex/server").Regist
             cityName: any;
         };
     }[];
-    reviews: any[];
     allCategories: {
         categoryName: any;
         subcategories: any[];
     }[];
-    subcategories?: undefined;
+    reviewStats: {
+        averageRating: number;
+        totalReviews: number;
+    };
 }>>;
 export declare const getSubcategoryPageData: import("convex/server").RegisteredQuery<"public", {
     categoryId: import("convex/values").GenericId<"category">;

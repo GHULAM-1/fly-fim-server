@@ -1,7 +1,7 @@
 // ---- Base types matching your schema ----
 export interface OperatingHour {
-  startDate: number;
-  endDate: number;
+  startDate: string;
+  endDate: string;
   openTime: string;
   closeTime: string;
   lastEntryTime: string;
@@ -15,8 +15,8 @@ export interface WhereTo {
 }
 
 export interface DatePrice {
-  startDate: number;
-  endDate: number;
+  startDate: string;
+  endDate: string;
   price: number;
 }
 

@@ -1,7 +1,8 @@
 "use strict";
-// Utility functions for parsing form data
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseExperienceData = exports.parseObjectFields = exports.parseBooleanFields = exports.parseArrayFields = exports.parseNumericFields = void 0;
+exports.parseExperienceData = exports.validateDateFields = exports.parseObjectFields = exports.parseBooleanFields = exports.parseArrayFields = exports.parseNumericFields = void 0;
+// Utility functions for parsing form data
+const dateHelpers_1 = require("../convex/dateHelpers");
 const parseNumericFields = (data, numericFields) => {
     const parsed = { ...data };
     for (const field of numericFields) {
@@ -68,8 +69,46 @@ const parseObjectFields = (data, objectFields) => {
     return parsed;
 };
 exports.parseObjectFields = parseObjectFields;
+const validateDateFields = (data, dateFields) => {
+    const errors = [];
+    const checkDateInObject = (obj, path = '') => {
+        if (!obj || typeof obj !== 'object')
+            return;
+        for (const key in obj) {
+            const currentPath = path ? `${path}.${key}` : key;
+            const value = obj[key];
+            if (dateFields.includes(key) && value !== undefined && value !== null) {
+                if (typeof value === 'string') {
+                    if (!(0, dateHelpers_1.validateDateFormat)(value)) {
+                        errors.push(`${currentPath}: must be in MM-DD-YYYY format`);
+                    }
+                }
+                else {
+                    errors.push(`${currentPath}: must be a string in MM-DD-YYYY format`);
+                }
+            }
+            else if (Array.isArray(value)) {
+                value.forEach((item, index) => {
+                    checkDateInObject(item, `${currentPath}[${index}]`);
+                });
+            }
+            else if (typeof value === 'object' && value !== null) {
+                checkDateInObject(value, currentPath);
+            }
+        }
+    };
+    checkDateInObject(data);
+    return errors;
+};
+exports.validateDateFields = validateDateFields;
 // Experience specific parsing
 const parseExperienceData = (data) => {
+    // First validate date fields
+    const dateFields = ['startDate', 'endDate'];
+    const dateErrors = (0, exports.validateDateFields)(data, dateFields);
+    if (dateErrors.length > 0) {
+        throw new Error(`Date validation failed: ${dateErrors.join(', ')}`);
+    }
     const numericFields = [
         'price',
         'oldPrice',

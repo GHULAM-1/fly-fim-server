@@ -1,4 +1,5 @@
 // Utility functions for parsing form data
+import { validateDateFormat } from "../convex/dateHelpers";
 
 export const parseNumericFields = (data: any, numericFields: string[]): any => {
   const parsed = { ...data };
@@ -71,41 +72,81 @@ export const parseObjectFields = (data: any, objectFields: string[]): any => {
   return parsed;
 };
 
+export const validateDateFields = (data: any, dateFields: string[]): string[] => {
+  const errors: string[] = [];
+
+  const checkDateInObject = (obj: any, path: string = '') => {
+    if (!obj || typeof obj !== 'object') return;
+
+    for (const key in obj) {
+      const currentPath = path ? `${path}.${key}` : key;
+      const value = obj[key];
+
+      if (dateFields.includes(key) && value !== undefined && value !== null) {
+        if (typeof value === 'string') {
+          if (!validateDateFormat(value)) {
+            errors.push(`${currentPath}: must be in MM-DD-YYYY format`);
+          }
+        } else {
+          errors.push(`${currentPath}: must be a string in MM-DD-YYYY format`);
+        }
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          checkDateInObject(item, `${currentPath}[${index}]`);
+        });
+      } else if (typeof value === 'object' && value !== null) {
+        checkDateInObject(value, currentPath);
+      }
+    }
+  };
+
+  checkDateInObject(data);
+  return errors;
+};
+
 // Experience specific parsing
 export const parseExperienceData = (data: any): any => {
+  // First validate date fields
+  const dateFields = ['startDate', 'endDate'];
+  const dateErrors = validateDateFields(data, dateFields);
+
+  if (dateErrors.length > 0) {
+    throw new Error(`Date validation failed: ${dateErrors.join(', ')}`);
+  }
+
   const numericFields = [
     'price',
-    'oldPrice', 
+    'oldPrice',
     'sale',
     'adultPrice',
     'childPrice',
     'seniorPrice',
     'totalLimit'
   ];
-  
+
   const arrayFields = [
     'images',
     'features',
     'operatingHours',
     'datePriceRange'
   ];
-  
+
   const objectFields = [
     'whereTo',
     'packageType'
   ];
-  
+
   const booleanFields = [
     'isMainCard',
     'isTopExperience',
     'isMustDo',
     'isPopular'
   ];
-  
+
   let parsed = parseNumericFields(data, numericFields);
   parsed = parseArrayFields(parsed, arrayFields);
   parsed = parseObjectFields(parsed, objectFields);
   parsed = parseBooleanFields(parsed, booleanFields);
-  
+
   return parsed;
 };
