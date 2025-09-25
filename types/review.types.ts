@@ -6,6 +6,8 @@ export interface Review {
     stars: number;
     images: string[];
     text: string;
+    userName?: string;
+    imageUrls?: (string | null)[];
   }
   
   export interface CreateReviewRequest {

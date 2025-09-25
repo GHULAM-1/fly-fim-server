@@ -13,7 +13,7 @@ export const getCategoryPageData = async (req: Request, res: Response) => {
       });
     }
 
-    
+    console.log(cityId, categoryId);
     const pageData = await convexService.query(
       "experienceFunctions:getCategoryPageData",
       {
@@ -21,6 +21,7 @@ export const getCategoryPageData = async (req: Request, res: Response) => {
         categoryId: categoryId as any
       }
     );
+    console.log(pageData);
 
     // Collect all experiences from different arrays
     const allExperiences = [

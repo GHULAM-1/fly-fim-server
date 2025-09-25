@@ -69,7 +69,7 @@ export const getReviewsByExperienceId = async (req: Request, res: Response) => {
   try {
     const { experienceId } = req.params;
 
-    const reviews = await convexService.query("reviewFunctions:getReviewsByExperienceId", {
+    const reviews = await convexService.query("reviewFunctions:getReviewsByExperience", {
       experienceId: experienceId as any,
     });
 

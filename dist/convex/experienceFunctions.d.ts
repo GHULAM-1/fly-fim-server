@@ -4,7 +4,7 @@ export declare const getAllExperiences: import("convex/server").RegisteredQuery<
 }, Promise<import("convex/server").PaginationResult<{
     _id: import("convex/values").GenericId<"experience">;
     _creationTime: number;
-    mainImage?: string | string[];
+    mainImage?: string[];
     oldPrice?: number;
     sale?: number;
     tagOnCards?: string;

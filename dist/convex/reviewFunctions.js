@@ -24,6 +24,8 @@ const safeGetImageUrl = async (ctx, imageId) => {
 };
 // Helper function to structure review with resolved image URLs
 const structureReviewWithImageUrls = async (ctx, review) => {
+    // Get user data to get the name
+    const user = await ctx.db.query("users").filter((q) => q.eq(q.field("providerId"), review.userId)).first();
     // Resolve images array URLs
     let imageUrls = [];
     if (review.images && Array.isArray(review.images)) {
@@ -31,6 +33,7 @@ const structureReviewWithImageUrls = async (ctx, review) => {
     }
     return {
         ...review,
+        userName: user?.name || 'Anonymous User',
         imageUrls
     };
 };

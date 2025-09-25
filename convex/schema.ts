@@ -8,7 +8,7 @@ export default defineSchema({
     oldPrice: v.optional(v.number()),
     sale: v.optional(v.number()),
     images: v.array(v.string()),
-    mainImage: v.optional(v.union(v.string(), v.array(v.string()))),
+    mainImage: v.optional(v.array(v.string())),
     tagOnCards: v.optional(v.string()),
     features: v.array(v.string()),
     featureText: v.string(),

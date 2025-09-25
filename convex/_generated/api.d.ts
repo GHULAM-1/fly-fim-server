@@ -20,9 +20,12 @@ import type * as experienceFunctions from "../experienceFunctions.js";
 import type * as faqFunctions from "../faqFunctions.js";
 import type * as notFoundFunctions from "../notFoundFunctions.js";
 import type * as reviewFunctions from "../reviewFunctions.js";
+import type * as searchFunctions from "../searchFunctions.js";
+import type * as seed from "../seed.js";
 import type * as storage from "../storage.js";
 import type * as subcategoryFunctions from "../subcategoryFunctions.js";
 import type * as userFunctions from "../userFunctions.js";
+import type * as worldwideFunctions from "../worldwideFunctions.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -40,9 +43,12 @@ declare const fullApi: ApiFromModules<{
   faqFunctions: typeof faqFunctions;
   notFoundFunctions: typeof notFoundFunctions;
   reviewFunctions: typeof reviewFunctions;
+  searchFunctions: typeof searchFunctions;
+  seed: typeof seed;
   storage: typeof storage;
   subcategoryFunctions: typeof subcategoryFunctions;
   userFunctions: typeof userFunctions;
+  worldwideFunctions: typeof worldwideFunctions;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

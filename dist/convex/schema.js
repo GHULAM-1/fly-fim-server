@@ -10,7 +10,7 @@ exports.default = (0, server_1.defineSchema)({
         oldPrice: values_1.v.optional(values_1.v.number()),
         sale: values_1.v.optional(values_1.v.number()),
         images: values_1.v.array(values_1.v.string()),
-        mainImage: values_1.v.optional(values_1.v.union(values_1.v.string(), values_1.v.array(values_1.v.string()))),
+        mainImage: values_1.v.optional(values_1.v.array(values_1.v.string())),
         tagOnCards: values_1.v.optional(values_1.v.string()),
         features: values_1.v.array(values_1.v.string()),
         featureText: values_1.v.string(),

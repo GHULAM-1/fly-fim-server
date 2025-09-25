@@ -10,6 +10,8 @@ import faqRoutes from './faq-routes';
 import reviewRoutes from './review-routes';
 import authRoutes from './auth-routes';
 import notFoundRoutes from './not-found-routes';
+import worldwideRoutes from './worldwide-routes';
+import searchRoutes from './search-routes';
 
 const router = Router();
 
@@ -25,6 +27,8 @@ router.use('/api/v1/faqs', faqRoutes);
 router.use('/api/v1/reviews', reviewRoutes);
 router.use('/api/v1/auth', authRoutes);
 router.use('/api/v1/not-found-page', notFoundRoutes);
+router.use('/api/v1/worldwide', worldwideRoutes);
+router.use('/api/v1/search', searchRoutes);
 
 // Health check route
 router.get('/api/health', (req, res) => {

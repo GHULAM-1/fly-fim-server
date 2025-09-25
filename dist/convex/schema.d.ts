@@ -1,6 +1,6 @@
 declare const _default: import("convex/server").SchemaDefinition<{
     experience: import("convex/server").TableDefinition<import("convex/values").VObject<{
-        mainImage?: string | string[];
+        mainImage?: string[];
         oldPrice?: number;
         sale?: number;
         tagOnCards?: string;
@@ -125,7 +125,7 @@ declare const _default: import("convex/server").SchemaDefinition<{
         oldPrice: import("convex/values").VFloat64<number, "optional">;
         sale: import("convex/values").VFloat64<number, "optional">;
         images: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">;
-        mainImage: import("convex/values").VUnion<string | string[], [import("convex/values").VString<string, "required">, import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">], "optional", never>;
+        mainImage: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "optional">;
         tagOnCards: import("convex/values").VString<string, "optional">;
         features: import("convex/values").VArray<string[], import("convex/values").VString<string, "required">, "required">;
         featureText: import("convex/values").VString<string, "required">;

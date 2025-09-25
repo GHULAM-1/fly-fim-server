@@ -11,10 +11,12 @@ const getCategoryPageData = async (req, res) => {
                 message: "City ID and Category ID are required",
             });
         }
+        console.log(cityId, categoryId);
         const pageData = await convex_service_1.convexService.query("experienceFunctions:getCategoryPageData", {
             cityId: cityId,
             categoryId: categoryId
         });
+        console.log(pageData);
         // Collect all experiences from different arrays
         const allExperiences = [
             ...pageData.topExperiences,

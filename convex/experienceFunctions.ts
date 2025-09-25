@@ -86,7 +86,7 @@ const safeGetImageUrl = async (ctx: any, imageId: string): Promise<string | null
 
 // Helper function to structure experience attributes with resolved image URLs
 const structureExperienceWithImageUrls = async (ctx: any, exp: any) => {
-  // Resolve main image URLs (now an array)
+  // Resolve main image URLs (now always an array)
   let mainImageUrls: (string | null)[] = [];
   if (exp.mainImage && Array.isArray(exp.mainImage)) {
     mainImageUrls = await Promise.all(
@@ -169,6 +169,9 @@ const structureExperienceWithImageUrls = async (ctx: any, exp: any) => {
 
 // Helper function to structure review with resolved image URLs
 const structureReviewWithImageUrls = async (ctx: any, review: any) => {
+  // Get user data to get the name
+  const user = await ctx.db.query("users").filter((q: any) => q.eq(q.field("providerId"), review.userId)).first();
+
   // Resolve images array URLs
   let imageUrls: (string | null)[] = [];
   if (review.images && Array.isArray(review.images)) {
@@ -179,6 +182,7 @@ const structureReviewWithImageUrls = async (ctx: any, review: any) => {
 
   return {
     ...review,
+    userName: user?.name || 'Anonymous User',
     imageUrls
   };
 };
@@ -211,7 +215,7 @@ export const getExperienceById = query({
       );
     }
 
-    // Resolve mainImage URLs
+    // Resolve mainImage URLs (now always an array)
     let mainImageUrls: (string | null)[] = [];
     if (exp.mainImage && Array.isArray(exp.mainImage)) {
       mainImageUrls = await Promise.all(

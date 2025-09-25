@@ -1,293 +1,375 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seedData = void 0;
+exports.seedDatabase = void 0;
 const server_1 = require("./_generated/server");
-exports.seedData = (0, server_1.mutation)({
+const dateHelpers_1 = require("./dateHelpers");
+const SAMPLE_IMAGE_ID = "kg23s9k842bc60sve9947dc6017qvbxw";
+const CITIES = [
+    { cityName: "Rome", countryName: "Italy" },
+    { cityName: "Paris", countryName: "France" },
+    { cityName: "London", countryName: "United Kingdom" },
+    { cityName: "Barcelona", countryName: "Spain" },
+    { cityName: "Amsterdam", countryName: "Netherlands" },
+    { cityName: "Dubai", countryName: "United Arab Emirates" },
+    { cityName: "New York", countryName: "United States" },
+    { cityName: "Tokyo", countryName: "Japan" }
+];
+const CATEGORIES = [
+    "Tickets",
+    "Tours",
+    "Transportation",
+    "Travel Services",
+    "Cruises",
+    "Food & Drink",
+    "Entertainment",
+    "Adventure",
+    "Water Sports",
+    "Wellness",
+    "Specials"
+];
+const SUBCATEGORIES_BY_CATEGORY = {
+    "Tickets": ["Museum Tickets", "Attraction Tickets", "Show Tickets", "Concert Tickets"],
+    "Tours": ["Walking Tours", "Bus Tours", "Private Tours", "Group Tours", "Audio Tours"],
+    "Transportation": ["Airport Transfer", "City Transport", "Car Rental", "Bike Rental"],
+    "Travel Services": ["Travel Insurance", "Visa Services", "Currency Exchange", "Hotel Booking"],
+    "Cruises": ["River Cruises", "Ocean Cruises", "Dinner Cruises", "Sunset Cruises"],
+    "Food & Drink": ["Food Tours", "Wine Tasting", "Cooking Classes", "Restaurant Experiences"],
+    "Entertainment": ["Theme Parks", "Museums", "Theaters", "Nightlife"],
+    "Adventure": ["Hiking", "Rock Climbing", "Bungee Jumping", "Zip Lining"],
+    "Water Sports": ["Scuba Diving", "Snorkeling", "Surfing", "Kayaking"],
+    "Wellness": ["Spa Treatments", "Yoga Classes", "Meditation", "Wellness Retreats"],
+    "Specials": ["Seasonal Offers", "Group Discounts", "Early Bird", "Last Minute Deals"]
+};
+const SAMPLE_FEATURES = [
+    ["2 hr", "9:30am - 7:00pm", "Free cancellation up to 7 days before the start of your experience", "Book now without paying anything. Cancel for free if your plans change", "Guided Tour"],
+    ["3 hr", "10:00am - 6:00pm", "Free cancellation up to 24 hours before", "Instant confirmation", "Audio Guide"],
+    ["4 hr", "8:00am - 8:00pm", "Free cancellation up to 3 days before", "Mobile ticket", "Professional Guide"],
+    ["1.5 hr", "11:00am - 5:00pm", "Non-refundable", "Print at home", "Small Group"],
+    ["5 hr", "9:00am - 9:00pm", "Free cancellation up to 48 hours before", "Skip the line", "Transportation included"]
+];
+const SAMPLE_DESCRIPTIONS = [
+    "Experience the best of this amazing destination with our carefully curated tour that combines history, culture, and unforgettable moments.",
+    "Discover hidden gems and iconic landmarks with our expert local guides who bring stories to life through engaging narratives.",
+    "Immerse yourself in authentic local culture while enjoying premium amenities and personalized service throughout your journey.",
+    "Create lasting memories with this unique experience that offers exclusive access to remarkable locations and insider knowledge.",
+    "Join us for an adventure that perfectly balances excitement, education, and entertainment in one comprehensive package."
+];
+const SAMPLE_ADDRESSES = [
+    "123 Historic Center, Old Town District",
+    "456 Cultural Quarter, Arts District",
+    "789 Marina Boulevard, Waterfront Area",
+    "321 Heritage Street, Museum Quarter",
+    "654 Tourist Plaza, Central District"
+];
+// Helper function to format dates in MM-DD-YYYY format
+const formatDate = (date) => {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+};
+// Helper function to get future dates
+const getFutureDates = () => {
+    const today = new Date();
+    const startDate = new Date(today);
+    startDate.setDate(today.getDate() + 1); // Tomorrow
+    const midDate = new Date(today);
+    midDate.setMonth(today.getMonth() + 6); // 6 months from now
+    const endDate = new Date(today);
+    endDate.setFullYear(today.getFullYear() + 1); // 1 year from now
+    return {
+        start: formatDate(startDate),
+        mid: formatDate(midDate),
+        end: formatDate(endDate)
+    };
+};
+exports.seedDatabase = (0, server_1.mutation)({
     args: {},
     handler: async (ctx) => {
-        const tables = [
-            "experience",
-            "city",
-            "category",
-            "subcategory",
-            "faq",
-            "reviews",
+        // Clear existing data
+        const existingCities = await ctx.db.query("city").collect();
+        const existingCategories = await ctx.db.query("category").collect();
+        const existingSubcategories = await ctx.db.query("subcategory").collect();
+        const existingExperiences = await ctx.db.query("experience").collect();
+        const existingFaqs = await ctx.db.query("faq").collect();
+        const existingReviews = await ctx.db.query("reviews").collect();
+        const existingUsers = await ctx.db.query("users").collect();
+        // Delete existing data
+        for (const item of existingExperiences)
+            await ctx.db.delete(item._id);
+        for (const item of existingFaqs)
+            await ctx.db.delete(item._id);
+        for (const item of existingReviews)
+            await ctx.db.delete(item._id);
+        for (const item of existingSubcategories)
+            await ctx.db.delete(item._id);
+        for (const item of existingCategories)
+            await ctx.db.delete(item._id);
+        for (const item of existingCities)
+            await ctx.db.delete(item._id);
+        for (const item of existingUsers)
+            await ctx.db.delete(item._id);
+        const currentDate = (0, dateHelpers_1.getCurrentCustomDate)();
+        const dates = getFutureDates();
+        // Seed Users
+        const userProviderIds = [];
+        const sampleUsers = [
+            { name: "John Smith", email: "john.smith@example.com" },
+            { name: "Sarah Johnson", email: "sarah.johnson@example.com" },
+            { name: "Mike Davis", email: "mike.davis@example.com" },
+            { name: "Emma Wilson", email: "emma.wilson@example.com" },
+            { name: "James Brown", email: "james.brown@example.com" }
         ];
-        for (const table of tables) {
-            const docs = await ctx.db.query(table).collect();
-            await Promise.all(docs.map((doc) => ctx.db.delete(doc._id)));
+        for (const user of sampleUsers) {
+            const providerId = `provider_${Math.random().toString(36).substr(2, 9)}`;
+            await ctx.db.insert("users", {
+                name: user.name,
+                email: user.email,
+                image: SAMPLE_IMAGE_ID,
+                provider: "email",
+                providerId: providerId,
+                createdAt: currentDate,
+                updatedAt: currentDate
+            });
+            userProviderIds.push(providerId);
         }
-        const createExperienceWithRelations = async (expData, faqs, reviews) => {
-            const expId = await ctx.db.insert("experience", {
-                type: expData.type,
-                title: expData.title,
-                description: expData.description,
-                price: expData.price,
-                oldPrice: expData.oldPrice,
-                sale: expData.sale,
-                images: [
-                    expData.image,
-                    "/images/r2.jpg.avif",
-                    "/images/r3.jpg.avif",
-                    "/images/r4.jpg.avif",
-                ],
-                mainImage: expData.image,
-                experienceType: "tour",
-                tagOnCards: expData.tag,
-                rating: expData.rating,
-                reviews: expData.reviewsCount,
-                features: [
-                    "Feature A",
-                    "Feature B",
-                    "Feature C",
-                    "Feature D",
-                    "Feature E",
-                    "Feature F",
-                ],
-                featureText: "Highlights of the experience",
-                highlights: "Main attractions of this wonderful experience.",
-                inclusions: "Professional guide, entry tickets",
-                exclusions: "Meals, hotel pickup and drop-off",
-                cancellationPolicy: "Free cancellation up to 24 hours before the experience starts.",
-                ticketValidity: "Valid for the selected date and time.",
-                exploreMore: "Explore more related things to do in the city.",
-                knowBeforeYouGo: "Please bring a valid photo ID.",
-                myTickets: "Your tickets will be sent to your email.",
-                operatingHours: [
-                    {
-                        startDate: Date.now(),
-                        endDate: Date.now() + 365 * 24 * 60 * 60 * 1000,
-                        openTime: "09:00",
-                        closeTime: "18:00",
-                        lastEntryTime: "17:00",
-                        title: "Regular Hours",
-                    },
-                ],
-                whereTo: {
-                    address: `${expData.city} Central Plaza`,
-                    lat: 40.7128,
-                    lng: -74.006,
-                },
-                datePriceRange: [
-                    {
-                        startDate: Date.now(),
-                        endDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
-                        price: expData.price,
-                    },
-                ],
-                packageType: {
-                    name: "Standard Admission",
-                    price: expData.price,
-                    points: [{ title: "All access pass" }],
-                    timePriceSlots: [
-                        { openTime: "09:00", closeTime: "18:00", price: expData.price },
-                    ],
-                },
-                adultPrice: expData.price,
-                childPrice: expData.price * 0.7,
-                seniorPrice: expData.price * 0.9,
-                totalLimit: 1000,
+        // Seed Cities
+        const cityIds = {};
+        for (const city of CITIES) {
+            const cityId = await ctx.db.insert("city", {
+                image: SAMPLE_IMAGE_ID,
+                cityName: city.cityName,
+                countryName: city.countryName
             });
-            await ctx.db.insert("city", {
-                experienceId: expId,
-                cityName: expData.city,
-                countryName: expData.country,
+            cityIds[city.cityName] = cityId;
+        }
+        // Seed Categories
+        const categoryIds = {};
+        for (const categoryName of CATEGORIES) {
+            const categoryId = await ctx.db.insert("category", {
+                categoryName
             });
-            for (const cat of expData.categories) {
-                await ctx.db.insert("category", {
-                    experienceId: expId,
-                    categoryName: cat,
+            categoryIds[categoryName] = categoryId;
+        }
+        // Seed Subcategories
+        const subcategoryIds = {};
+        for (const [categoryName, subcategories] of Object.entries(SUBCATEGORIES_BY_CATEGORY)) {
+            for (const subcategoryName of subcategories) {
+                const subcategoryId = await ctx.db.insert("subcategory", {
+                    subcategoryName
                 });
+                subcategoryIds[subcategoryName] = subcategoryId;
             }
-            for (const sub of expData.subcategories) {
-                await ctx.db.insert("subcategory", {
-                    experienceId: expId,
-                    subcategoryName: sub,
-                });
+        }
+        // Seed Experiences (2 per city per category)
+        let experienceCounter = 0;
+        const experienceIds = [];
+        for (const city of CITIES) {
+            for (const categoryName of CATEGORIES) {
+                const subcategories = SUBCATEGORIES_BY_CATEGORY[categoryName];
+                for (let i = 0; i < 2; i++) {
+                    const subcategoryName = subcategories[i % subcategories.length];
+                    const features = SAMPLE_FEATURES[experienceCounter % SAMPLE_FEATURES.length];
+                    const description = SAMPLE_DESCRIPTIONS[experienceCounter % SAMPLE_DESCRIPTIONS.length];
+                    const address = SAMPLE_ADDRESSES[experienceCounter % SAMPLE_ADDRESSES.length];
+                    const basePrice = 50 + (experienceCounter % 200);
+                    const oldPrice = Math.random() > 0.5 ? basePrice + 20 : undefined;
+                    const sale = oldPrice ? Math.floor(((oldPrice - basePrice) / oldPrice) * 100) : undefined;
+                    const experienceId = await ctx.db.insert("experience", {
+                        title: `${categoryName} Experience in ${city.cityName} ${i + 1}`,
+                        description,
+                        price: basePrice,
+                        oldPrice,
+                        sale,
+                        images: [SAMPLE_IMAGE_ID, SAMPLE_IMAGE_ID, SAMPLE_IMAGE_ID],
+                        mainImage: [SAMPLE_IMAGE_ID],
+                        tagOnCards: i === 0 ? "BESTSELLER" : "POPULAR",
+                        features,
+                        featureText: `Amazing ${categoryName.toLowerCase()} experience with professional guidance`,
+                        highlights: `• Expert local guide\n• Skip-the-line access\n• Premium experience\n• Photo opportunities`,
+                        inclusions: `• Professional guide\n• Entry tickets\n• Transportation\n• Refreshments`,
+                        exclusions: `• Personal expenses\n• Tips and gratuities\n• Hotel pickup (unless specified)`,
+                        cancellationPolicy: "Free cancellation up to 24 hours before the experience starts",
+                        ticketValidity: "Valid for 1 year from purchase date",
+                        exploreMore: `Discover more about ${city.cityName}'s rich culture and heritage`,
+                        knowBeforeYouGo: `• Comfortable walking shoes recommended\n• Bring sunscreen and water\n• Photography allowed`,
+                        youExperience: `You'll experience the best of ${city.cityName} with our expert guides`,
+                        myTickets: "Mobile tickets accepted",
+                        operatingHours: [
+                            {
+                                startDate: dates.start,
+                                endDate: dates.end,
+                                openTime: "09:00",
+                                closeTime: "18:00",
+                                lastEntryTime: "17:00",
+                                title: "Regular Hours"
+                            }
+                        ],
+                        whereTo: {
+                            address: `${address}, ${city.cityName}`,
+                            lat: 41.9028 + (Math.random() - 0.5) * 0.1,
+                            lng: 12.4964 + (Math.random() - 0.5) * 0.1
+                        },
+                        datePriceRange: [
+                            {
+                                startDate: dates.start,
+                                endDate: dates.mid,
+                                price: basePrice
+                            },
+                            {
+                                startDate: dates.mid,
+                                endDate: dates.end,
+                                price: basePrice + 10
+                            }
+                        ],
+                        packageType: {
+                            name: "Standard Package",
+                            price: basePrice,
+                            points: [
+                                {
+                                    title: "Included in Package",
+                                    subpoints: ["Professional guide", "Entry tickets", "Transportation"]
+                                },
+                                {
+                                    title: "Additional Benefits",
+                                    subpoints: ["Skip-the-line access", "Photo opportunities", "Local insights"]
+                                }
+                            ],
+                            timePriceSlots: [
+                                { openTime: "09:00", closeTime: "12:00", price: basePrice },
+                                { openTime: "14:00", closeTime: "17:00", price: basePrice + 5 }
+                            ]
+                        },
+                        adultPrice: basePrice,
+                        childPrice: Math.floor(basePrice * 0.7),
+                        seniorPrice: Math.floor(basePrice * 0.8),
+                        totalLimit: 50,
+                        itinerary: {
+                            title: `${categoryName} Journey in ${city.cityName}`,
+                            totalDuration: "3 hours",
+                            modeOfTransport: "Walking",
+                            startPoint: {
+                                name: "Meeting Point",
+                                description: "Central location easy to find",
+                                image: SAMPLE_IMAGE_ID,
+                                duration: "15 min",
+                                location: {
+                                    address: `Meeting Point, ${city.cityName}`,
+                                    lat: 41.9028,
+                                    lng: 12.4964
+                                },
+                                highlights: ["Historic significance", "Photo opportunity"],
+                                thingsToDo: ["Take photos", "Meet your guide"]
+                            },
+                            points: [
+                                {
+                                    order: 1,
+                                    name: "First Stop",
+                                    description: "Explore the main attraction",
+                                    image: SAMPLE_IMAGE_ID,
+                                    duration: "45 min",
+                                    distance: "500m",
+                                    travelTime: "10 min",
+                                    location: {
+                                        address: `First Stop, ${city.cityName}`,
+                                        lat: 41.9038,
+                                        lng: 12.4974
+                                    },
+                                    highlights: ["Historical importance", "Architecture"],
+                                    thingsToDo: ["Guided tour", "Photography"],
+                                    attractions: 1,
+                                    ticketsIncluded: true
+                                },
+                                {
+                                    order: 2,
+                                    name: "Second Stop",
+                                    description: "Cultural immersion experience",
+                                    image: SAMPLE_IMAGE_ID,
+                                    duration: "60 min",
+                                    distance: "300m",
+                                    travelTime: "5 min",
+                                    location: {
+                                        address: `Second Stop, ${city.cityName}`,
+                                        lat: 41.9048,
+                                        lng: 12.4984
+                                    },
+                                    highlights: ["Local culture", "Interactive experience"],
+                                    thingsToDo: ["Participate in activities", "Learn local customs"],
+                                    attractions: 2,
+                                    ticketsIncluded: true
+                                }
+                            ],
+                            endPoint: {
+                                name: "Tour Conclusion",
+                                description: "End of amazing journey",
+                                image: SAMPLE_IMAGE_ID,
+                                location: {
+                                    address: `End Point, ${city.cityName}`,
+                                    lat: 41.9058,
+                                    lng: 12.4994
+                                }
+                            }
+                        },
+                        isMainCard: i === 0,
+                        isTopExperience: Math.random() > 0.7,
+                        isMustDo: Math.random() > 0.8,
+                        isPopular: Math.random() > 0.6,
+                        blogSlug: `${categoryName.toLowerCase().replace(/\s+/g, '-')}-${city.cityName.toLowerCase()}-${i + 1}`,
+                        categoryId: categoryIds[categoryName],
+                        subcategoryId: subcategoryIds[subcategoryName],
+                        cityId: cityIds[city.cityName]
+                    });
+                    experienceIds.push(experienceId);
+                    experienceCounter++;
+                }
             }
-            for (const f of faqs) {
-                await ctx.db.insert("faq", {
-                    experienceId: expId,
-                    question: f.q,
-                    answer: f.a,
-                });
-            }
-            for (const r of reviews) {
+        }
+        // Seed FAQs (2 per experience)
+        for (const experienceId of experienceIds) {
+            await ctx.db.insert("faq", {
+                experienceId: experienceId,
+                question: "What should I bring for this experience?",
+                answer: "Please bring comfortable walking shoes, sunscreen, water, and your camera. All other necessary equipment will be provided."
+            });
+            await ctx.db.insert("faq", {
+                experienceId: experienceId,
+                question: "Is this experience suitable for children?",
+                answer: "Yes, this experience is family-friendly and suitable for children aged 6 and above. Children under 18 must be accompanied by an adult."
+            });
+        }
+        // Seed Reviews (3 per experience)
+        const reviewTexts = [
+            "Amazing experience! The guide was knowledgeable and friendly. Highly recommended!",
+            "Perfect way to explore the city. Great value for money and well-organized tour.",
+            "Exceeded my expectations. The highlights were incredible and the service was excellent.",
+            "Wonderful experience with beautiful sights. The guide made it very engaging and fun.",
+            "Outstanding tour! Professional service and amazing photo opportunities throughout."
+        ];
+        for (let i = 0; i < experienceIds.length; i++) {
+            const experienceId = experienceIds[i];
+            for (let j = 0; j < 3; j++) {
+                const userId = userProviderIds[j % userProviderIds.length];
                 await ctx.db.insert("reviews", {
-                    userId: r.user,
-                    experienceId: expId,
-                    stars: r.stars,
-                    images: [],
-                    text: r.text,
+                    userId,
+                    experienceId: experienceId,
+                    stars: 4 + Math.floor(Math.random() * 2), // 4 or 5 stars
+                    images: [SAMPLE_IMAGE_ID],
+                    text: reviewTexts[j % reviewTexts.length]
                 });
+            }
+        }
+        return {
+            message: "Database seeded successfully!",
+            stats: {
+                users: userProviderIds.length,
+                cities: CITIES.length,
+                categories: CATEGORIES.length,
+                subcategories: Object.values(SUBCATEGORIES_BY_CATEGORY).flat().length,
+                experiences: experienceIds.length,
+                faqs: experienceIds.length * 2,
+                reviews: experienceIds.length * 3
             }
         };
-        await createExperienceWithRelations({
-            city: "London",
-            country: "United Kingdom",
-            title: "London Musicals Extravaganza",
-            description: "Experience the magic of London's West End with tickets to a top musical.",
-            type: "ticket",
-            categories: ["Entertainment"],
-            subcategories: ["Musicals"],
-            price: 75,
-            image: "/images/d5.jpg.avif",
-            rating: 4.8,
-            reviewsCount: 1200,
-            tag: "Popular",
-        }, [{ q: "What is the duration?", a: "Approx. 2.5 hours." }], [{ user: "jane_doe", stars: 5, text: "Absolutely stunning performance!" }]);
-        await createExperienceWithRelations({
-            city: "London",
-            country: "United Kingdom",
-            title: "Historic Landmarks of London Tour",
-            description: "Discover the rich history of London's most famous landmarks.",
-            type: "tour",
-            categories: ["Tours", "Tickets"],
-            subcategories: ["Landmarks", "Walking Tours"],
-            price: 50,
-            image: "/images/r1.jpg.avif",
-            rating: 4.6,
-            reviewsCount: 950,
-            tag: "Free cancellation",
-        }, [
-            {
-                q: "Is this a walking tour?",
-                a: "Yes, it involves a moderate amount of walking.",
-            },
-        ], [{ user: "john_smith", stars: 4, text: "Very informative guide." }]);
-        await createExperienceWithRelations({
-            city: "London",
-            country: "United Kingdom",
-            title: "Day Trip to Stonehenge & Bath",
-            description: "Explore the ancient mystery of Stonehenge and the Roman Baths.",
-            type: "tour",
-            categories: ["Tours"],
-            subcategories: ["Day Trips"],
-            price: 120,
-            image: "/images/r2.jpg.avif",
-            rating: 4.9,
-            reviewsCount: 2500,
-            tag: "Best Seller",
-        }, [{ q: "Is lunch included?", a: "Lunch is not included." }], [
-            {
-                user: "emily_jones",
-                stars: 5,
-                text: "A long but totally worthwhile day!",
-            },
-        ]);
-        await createExperienceWithRelations({
-            city: "London",
-            country: "United Kingdom",
-            title: "Thames River Evening Cruise",
-            description: "See London's skyline light up from the iconic River Thames.",
-            type: "cruise",
-            categories: ["Cruises"],
-            subcategories: ["Cruises"],
-            price: 45,
-            image: "/images/d3.jpg.avif",
-            rating: 4.7,
-            reviewsCount: 1800,
-        }, [{ q: "Are drinks available?", a: "Yes, there is a bar on board." }], [{ user: "michael_brown", stars: 5, text: "So romantic and beautiful." }]);
-        await createExperienceWithRelations({
-            city: "Paris",
-            country: "France",
-            title: "Eiffel Tower Summit Experience",
-            description: "Skip the lines and head straight to the top of the iconic Eiffel Tower for breathtaking views.",
-            type: "ticket",
-            categories: ["Tickets", "Sightseeing"],
-            subcategories: ["Landmarks"],
-            price: 89,
-            image: "/images/d2.jpg.avif",
-            rating: 4.9,
-            reviewsCount: 3450,
-            tag: "Skip The Line",
-        }, [
-            {
-                q: "How long can I stay at the top?",
-                a: "You can stay as long as you like until closing time.",
-            },
-        ], [
-            {
-                user: "sophie_martin",
-                stars: 5,
-                text: "The view is worth every penny. Unforgettable!",
-            },
-        ]);
-        await createExperienceWithRelations({
-            city: "Rome",
-            country: "Italy",
-            title: "Colosseum & Roman Forum Guided Tour",
-            description: "Step back in time with a guided tour of ancient Rome's most important sites.",
-            type: "tour",
-            categories: ["Tours", "History"],
-            subcategories: ["Landmarks", "Guided Tours"],
-            price: 79,
-            image: "/images/d3.jpg.avif",
-            rating: 4.8,
-            reviewsCount: 4200,
-            tag: "Expert Guide",
-        }, [
-            {
-                q: "Is this tour suitable for children?",
-                a: "Yes, it is engaging for all ages.",
-            },
-        ], [
-            {
-                user: "luca_rossi",
-                stars: 5,
-                text: "Our guide was fantastic! So much history.",
-            },
-        ]);
-        await createExperienceWithRelations({
-            city: "Dubai",
-            country: "United Arab Emirates",
-            title: "Desert Safari with BBQ Dinner",
-            description: "Experience dune bashing, camel rides, and a traditional BBQ dinner under the stars.",
-            type: "adventure",
-            categories: ["Adventure", "Tours"],
-            subcategories: ["Day Trips"],
-            price: 95,
-            image: "/images/d4.jpg.avif",
-            rating: 4.7,
-            reviewsCount: 5100,
-            tag: "Top Rated",
-        }, [
-            {
-                q: "Is hotel pickup included?",
-                a: "Yes, pickup from most central Dubai hotels is included.",
-            },
-        ], [
-            {
-                user: "fatima_ali",
-                stars: 5,
-                text: "So much fun! The food was delicious and the entertainment was great.",
-            },
-        ]);
-        await createExperienceWithRelations({
-            city: "New York",
-            country: "United States",
-            title: "Statue of Liberty & Ellis Island Ferry",
-            description: "Visit two of America's most iconic landmarks with this convenient ferry ticket.",
-            type: "ticket",
-            categories: ["Tickets", "Sightseeing"],
-            subcategories: ["Landmarks"],
-            price: 45,
-            image: "/images/d6.jpeg.avif",
-            rating: 4.6,
-            reviewsCount: 6300,
-        }, [
-            {
-                q: "Does this include pedestal or crown access?",
-                a: "This ticket includes grounds access. Pedestal and crown access must be booked separately.",
-            },
-        ], [
-            {
-                user: "kevin_lee",
-                stars: 4,
-                text: "A must-do in NYC, but be prepared for crowds.",
-            },
-        ]);
-        return "✅ Seed data inserted";
-    },
+    }
 });
 //# sourceMappingURL=seed.js.map

@@ -110,7 +110,7 @@ exports.updateFaq = updateFaq;
 const getFaqsByExperience = async (req, res) => {
     try {
         const { experienceId } = req.params;
-        const faqs = await convex_service_1.convexService.query("faqFunctions:getFaqsByExperienceId", {
+        const faqs = await convex_service_1.convexService.query("faqFunctions:getFaqsByExperience", {
             experienceId: experienceId,
         });
         const response = {
