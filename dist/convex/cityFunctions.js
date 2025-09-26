@@ -191,16 +191,14 @@ exports.updateCity = (0, server_1.mutation)({
             updateData.image = image;
         }
         if (cityName !== undefined) {
-            const normalized = cityName.trim().toLowerCase();
-            // Check uniqueness (ignore the current document)
-            const clash = await ctx.db
-                .query("city")
-                .withIndex("byCityName", (q) => q.eq("cityName", normalized))
-                .first();
-            if (clash && clash._id !== id) {
+            // Check for duplicates using case-insensitive comparison (exclude current record)
+            const allCities = await ctx.db.query("city").collect();
+            const normalizedForCheck = cityName.trim().toLowerCase();
+            const existing = allCities.find(city => city.cityName.toLowerCase() === normalizedForCheck && city._id !== id);
+            if (existing) {
                 throw new Error(`City '${cityName}' already exists`);
             }
-            updateData.cityName = normalized;
+            updateData.cityName = cityName; // Save the properly formatted name, not lowercase
         }
         if (countryName !== undefined) {
             updateData.countryName = countryName;
@@ -213,6 +211,16 @@ exports.updateCity = (0, server_1.mutation)({
 exports.deleteCity = (0, server_1.mutation)({
     args: { id: values_1.v.id("city") },
     handler: async (ctx, args) => {
+        // First, find and delete all experiences that belong to this city
+        const experiences = await ctx.db
+            .query("experience")
+            .withIndex("byCity", (q) => q.eq("cityId", args.id))
+            .collect();
+        // Delete all related experiences
+        for (const experience of experiences) {
+            await ctx.db.delete(experience._id);
+        }
+        // Then delete the city itself
         await ctx.db.delete(args.id);
     },
 });

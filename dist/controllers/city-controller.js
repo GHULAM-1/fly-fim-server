@@ -109,12 +109,28 @@ const updateCity = async (req, res) => {
         res.json({ success: true, message: 'City updated successfully' });
     }
     catch (error) {
+        let errorMessage = "Failed to update city";
+        let statusCode = 500;
+        if (error instanceof Error) {
+            // Handle duplicate city error
+            if (error.message.includes("already exists")) {
+                errorMessage = error.message;
+                statusCode = 409; // Conflict
+            }
+            else if (error.message.includes("not found")) {
+                errorMessage = "City not found";
+                statusCode = 404;
+            }
+            else {
+                // For other errors, use a generic message
+                errorMessage = "Failed to update city";
+            }
+        }
         const response = {
             success: false,
-            message: "Failed to update city",
-            error: error instanceof Error ? error.message : "Unknown error",
+            message: errorMessage,
         };
-        res.status(500).json(response);
+        res.status(statusCode).json(response);
     }
 };
 exports.updateCity = updateCity;

@@ -61,7 +61,7 @@ export interface ExperiencePackages {
 export interface ExperienceTicketPrice {
     adultPrice: number;
     childPrice: number;
-    seniorPrice: number;
+    infantPrice: number;
     totalLimit: number;
 }
 export interface ExperienceFlags {

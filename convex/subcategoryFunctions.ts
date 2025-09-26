@@ -81,6 +81,18 @@ export const updateSubcategory = mutation({
 export const deleteSubcategory = mutation({
   args: { id: v.id("subcategory") },
   handler: async (ctx, args) => {
+    // First, find and delete all experiences that belong to this subcategory
+    const experiences = await ctx.db
+      .query("experience")
+      .withIndex("bySubcategory", (q) => q.eq("subcategoryId", args.id))
+      .collect();
+
+    // Delete all related experiences
+    for (const experience of experiences) {
+      await ctx.db.delete(experience._id);
+    }
+
+    // Then delete the subcategory itself
     await ctx.db.delete(args.id);
   },
 });

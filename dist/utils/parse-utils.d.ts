@@ -4,4 +4,5 @@ export declare const parseBooleanFields: (data: any, booleanFields: string[]) =>
 export declare const parseObjectFields: (data: any, objectFields: string[]) => any;
 export declare const validateDateFields: (data: any, dateFields: string[]) => string[];
 export declare const parseExperienceData: (data: any) => any;
+export declare const processDynamicItineraryImages: (data: any) => any;
 //# sourceMappingURL=parse-utils.d.ts.map

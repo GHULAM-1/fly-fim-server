@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteSubcategory = exports.updateSubcategory = exports.createSubcategory = exports.getSubcategoryById = exports.getAllSubcategories = void 0;
 const convex_service_1 = require("../services/convex-service");
+const text_transform_1 = require("../utils/text-transform");
 // GET /api/subcategories
 const getAllSubcategories = async (req, res) => {
     try {
@@ -60,7 +61,12 @@ exports.getSubcategoryById = getSubcategoryById;
 const createSubcategory = async (req, res) => {
     try {
         const body = req.body;
-        const newId = await convex_service_1.convexService.mutation("subcategoryFunctions:createSubcategory", body);
+        // Normalize subcategory name
+        const normalizedData = {
+            ...body,
+            subcategoryName: (0, text_transform_1.normalizeSubcategoryName)(body.subcategoryName)
+        };
+        const newId = await convex_service_1.convexService.mutation("subcategoryFunctions:createSubcategory", normalizedData);
         const createdSubcategory = await convex_service_1.convexService.query("subcategoryFunctions:getSubcategoryById", { id: newId });
         const response = {
             success: true,
@@ -84,9 +90,14 @@ const updateSubcategory = async (req, res) => {
     try {
         const { id } = req.params;
         const patch = req.body;
+        // Normalize subcategory name if provided
+        const normalizedPatch = { ...patch };
+        if (patch.subcategoryName) {
+            normalizedPatch.subcategoryName = (0, text_transform_1.normalizeSubcategoryName)(patch.subcategoryName);
+        }
         await convex_service_1.convexService.mutation("subcategoryFunctions:updateSubcategory", {
             id: id,
-            patch,
+            subcategoryName: normalizedPatch.subcategoryName,
         });
         const response = {
             success: true,
@@ -95,12 +106,28 @@ const updateSubcategory = async (req, res) => {
         res.json(response);
     }
     catch (error) {
+        let errorMessage = "Failed to update subcategory";
+        let statusCode = 500;
+        if (error instanceof Error) {
+            // Handle duplicate subcategory error
+            if (error.message.includes("already exists")) {
+                errorMessage = error.message;
+                statusCode = 409; // Conflict
+            }
+            else if (error.message.includes("not found")) {
+                errorMessage = "Subcategory not found";
+                statusCode = 404;
+            }
+            else {
+                // For other errors, use a generic message
+                errorMessage = "Failed to update subcategory";
+            }
+        }
         const response = {
             success: false,
-            message: "Failed to update subcategory",
-            error: error instanceof Error ? error.message : "Unknown error",
+            message: errorMessage,
         };
-        res.status(500).json(response);
+        res.status(statusCode).json(response);
     }
 };
 exports.updateSubcategory = updateSubcategory;

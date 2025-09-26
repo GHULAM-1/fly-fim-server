@@ -47,7 +47,7 @@ export declare const getCategoryPageData: import("convex/server").RegisteredQuer
             packageType: any;
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         itinerary: any;
@@ -91,7 +91,7 @@ export declare const getCategoryPageData: import("convex/server").RegisteredQuer
             packageType: any;
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         itinerary: any;
@@ -151,7 +151,7 @@ export declare const getFilteredCategoryPageData: import("convex/server").Regist
             packageType: any;
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         itinerary: any;
@@ -195,7 +195,7 @@ export declare const getFilteredCategoryPageData: import("convex/server").Regist
             packageType: any;
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         itinerary: any;
@@ -262,7 +262,7 @@ export declare const getWorldwideSubcategoryPageData: import("convex/server").Re
             packageType: any;
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         itinerary: any;
@@ -327,7 +327,7 @@ export declare const getWorldwideSubcategoryPageDataFiltered: import("convex/ser
             packageType: any;
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         itinerary: any;

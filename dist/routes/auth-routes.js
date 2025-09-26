@@ -48,6 +48,19 @@ router.post("/signin", async (req, res) => {
         else {
             return res.status(400).json({ error: "Unsupported provider" });
         }
+        // Check if user exists with a different provider
+        const emailCheck = await convex_service_1.convexService.query("userFunctions:checkEmailExists", {
+            email: userInfo.email.toLowerCase(),
+        });
+        if (emailCheck.exists && emailCheck.provider !== provider) {
+            const providerName = emailCheck.provider === "email" ? "magic link" : emailCheck.provider;
+            return res.status(409).json({
+                error: "EMAIL_ALREADY_EXISTS",
+                message: `An account with this email already exists using ${providerName} authentication. Please sign in using ${providerName} instead.`,
+                existingProvider: emailCheck.provider,
+                attemptedProvider: provider,
+            });
+        }
         const userId = await convex_service_1.convexService.mutation("userFunctions:createUser", {
             email: userInfo.email,
             name: userInfo.name || userInfo.login,
@@ -108,6 +121,19 @@ router.get("/verify", async (req, res) => {
         if (decoded.purpose !== "magic-link") {
             return res.status(400).json({
                 error: "Invalid token type",
+            });
+        }
+        // Check if user exists with a different provider
+        const emailCheck = await convex_service_1.convexService.query("userFunctions:checkEmailExists", {
+            email: decoded.email.toLowerCase(),
+        });
+        if (emailCheck.exists && emailCheck.provider !== "email") {
+            const providerName = emailCheck.provider === "email" ? "magic link" : emailCheck.provider;
+            return res.status(409).json({
+                error: "EMAIL_ALREADY_EXISTS",
+                message: `An account with this email already exists using ${providerName} authentication. Please sign in using ${providerName} instead.`,
+                existingProvider: emailCheck.provider,
+                attemptedProvider: "email",
             });
         }
         // Create or get user
@@ -212,6 +238,46 @@ router.post("/signout", async (req, res) => {
         res.status(500).json({ error: "Internal server error during sign out" });
     }
 });
+// Pre-authentication email conflict check
+router.post("/check-email", async (req, res) => {
+    try {
+        const { email, intendedProvider } = req.body;
+        if (!email || !email.includes("@")) {
+            return res.status(400).json({
+                error: "Valid email address is required",
+            });
+        }
+        if (!intendedProvider) {
+            return res.status(400).json({
+                error: "Intended provider is required",
+            });
+        }
+        // Check if user exists with a different provider
+        const emailCheck = await convex_service_1.convexService.query("userFunctions:checkEmailExists", {
+            email: email.toLowerCase(),
+        });
+        if (emailCheck.exists && emailCheck.provider !== intendedProvider) {
+            const providerName = emailCheck.provider === "email" ? "magic link" : emailCheck.provider;
+            return res.status(409).json({
+                error: "EMAIL_ALREADY_EXISTS",
+                message: `An account with this email already exists using ${providerName} authentication. Please sign in using ${providerName} instead.`,
+                existingProvider: emailCheck.provider,
+                attemptedProvider: intendedProvider,
+            });
+        }
+        // Email is available or already exists with the same provider
+        res.json({
+            success: true,
+            message: "Email can be used with the intended provider",
+            emailExists: emailCheck.exists,
+            provider: emailCheck.exists ? emailCheck.provider : null,
+        });
+    }
+    catch (error) {
+        console.error("Email check error:", error);
+        res.status(500).json({ error: "Internal server error during email check" });
+    }
+});
 // Magic Link Authentication Routes
 router.post("/send-magic-link", async (req, res) => {
     try {
@@ -219,6 +285,19 @@ router.post("/send-magic-link", async (req, res) => {
         if (!email || !email.includes("@")) {
             return res.status(400).json({
                 error: "Valid email address is required",
+            });
+        }
+        // Check if user exists with a different provider before sending magic link
+        const emailCheck = await convex_service_1.convexService.query("userFunctions:checkEmailExists", {
+            email: email.toLowerCase(),
+        });
+        if (emailCheck.exists && emailCheck.provider !== "email") {
+            const providerName = emailCheck.provider === "email" ? "magic link" : emailCheck.provider;
+            return res.status(409).json({
+                error: `An account with this email already exists using ${providerName} authentication. Please sign in using ${providerName} instead.`,
+                message: `An account with this email already exists using ${providerName} authentication. Please sign in using ${providerName} instead.`,
+                existingProvider: emailCheck.provider,
+                attemptedProvider: "email",
             });
         }
         // Create JWT magic link token (no database needed!)
@@ -240,68 +319,6 @@ router.post("/send-magic-link", async (req, res) => {
     }
     catch (error) {
         console.error("Send magic link error:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-router.get("/verify", async (req, res) => {
-    try {
-        const { token } = req.query;
-        if (!token || typeof token !== "string") {
-            return res.status(400).json({
-                error: "Invalid verification token",
-            });
-        }
-        // Verify JWT magic link token (no database lookup needed!)
-        let decoded;
-        try {
-            decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        }
-        catch (jwtError) {
-            return res.status(400).json({
-                error: "Invalid or expired magic link",
-            });
-        }
-        // Verify it's actually a magic link token
-        if (decoded.purpose !== "magic-link") {
-            return res.status(400).json({
-                error: "Invalid token type",
-            });
-        }
-        // Create or get user
-        const userId = await convex_service_1.convexService.mutation("userFunctions:createUser", {
-            email: decoded.email,
-            name: decoded.email.split("@")[0], // Use email prefix as default name
-            provider: "email",
-            providerId: decoded.email,
-        });
-        // Create auth JWT token (different from magic link token)
-        const authPayload = {
-            userId: userId,
-            email: decoded.email,
-        };
-        const authToken = jsonwebtoken_1.default.sign(authPayload, process.env.JWT_SECRET, {
-            expiresIn: "30d",
-        });
-        // Debug: Log before setting cookie
-        console.log("Setting cookie with authToken:", authToken.substring(0, 20) + "...");
-        // Set HTTP-only cookie
-        res.cookie("authToken", authToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-            path: "/",
-        });
-        console.log("Cookie set, preparing redirect...");
-        // Redirect to frontend success page
-        const frontendUrl = (0, config_1.getFrontendUrl)();
-        // Use 302 redirect to ensure cookie is set
-        res.status(302);
-        res.location(`${frontendUrl}?auth=success`);
-        res.end();
-    }
-    catch (error) {
-        console.error("Magic link verification error:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 });

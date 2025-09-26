@@ -4,6 +4,8 @@ const server_1 = require("convex/server");
 const values_1 = require("convex/values");
 exports.default = (0, server_1.defineSchema)({
     experience: (0, server_1.defineTable)({
+        featureText: values_1.v.optional(values_1.v.string()),
+        ticketValidity: values_1.v.optional(values_1.v.string()),
         title: values_1.v.string(),
         description: values_1.v.string(),
         price: values_1.v.number(),
@@ -13,16 +15,90 @@ exports.default = (0, server_1.defineSchema)({
         mainImage: values_1.v.optional(values_1.v.array(values_1.v.string())),
         tagOnCards: values_1.v.optional(values_1.v.string()),
         features: values_1.v.array(values_1.v.string()),
-        featureText: values_1.v.string(),
+        //remaining fields
         highlights: values_1.v.optional(values_1.v.string()),
         inclusions: values_1.v.optional(values_1.v.string()),
         exclusions: values_1.v.optional(values_1.v.string()),
         cancellationPolicy: values_1.v.optional(values_1.v.string()),
-        ticketValidity: values_1.v.optional(values_1.v.string()),
-        exploreMore: values_1.v.optional(values_1.v.string()),
-        knowBeforeYouGo: values_1.v.optional(values_1.v.string()),
         youExperience: values_1.v.optional(values_1.v.string()),
+        knowBeforeYouGo: values_1.v.optional(values_1.v.string()),
         myTickets: values_1.v.optional(values_1.v.string()),
+        exploreMore: values_1.v.optional(values_1.v.string()),
+        // Itinerary (Optional)
+        blogSlug: values_1.v.optional(values_1.v.array(values_1.v.string())),
+        //till
+        itinerary: values_1.v.optional(values_1.v.object({
+            title: values_1.v.string(),
+            totalDuration: values_1.v.optional(values_1.v.string()),
+            modeOfTransport: values_1.v.optional(values_1.v.string()),
+            startPoint: values_1.v.object({
+                name: values_1.v.string(),
+                description: values_1.v.optional(values_1.v.string()),
+                image: values_1.v.optional(values_1.v.string()),
+                duration: values_1.v.optional(values_1.v.string()),
+                location: values_1.v.optional(values_1.v.object({
+                    address: values_1.v.optional(values_1.v.string()),
+                    lat: values_1.v.optional(values_1.v.number()),
+                    lng: values_1.v.optional(values_1.v.number()),
+                })),
+                highlights: values_1.v.optional(values_1.v.array(values_1.v.object({
+                    name: values_1.v.string(),
+                    image: values_1.v.optional(values_1.v.string()),
+                    description: values_1.v.optional(values_1.v.string()),
+                }))),
+                thingsToDo: values_1.v.optional(values_1.v.array(values_1.v.object({
+                    name: values_1.v.string(),
+                    image: values_1.v.optional(values_1.v.string()),
+                    description: values_1.v.optional(values_1.v.string()),
+                }))),
+                nearbyThingsToDo: values_1.v.optional(values_1.v.array(values_1.v.object({
+                    name: values_1.v.string(),
+                    image: values_1.v.optional(values_1.v.string()),
+                    description: values_1.v.optional(values_1.v.string()),
+                }))),
+            }),
+            points: values_1.v.array(values_1.v.object({
+                order: values_1.v.number(),
+                name: values_1.v.string(),
+                description: values_1.v.optional(values_1.v.string()),
+                image: values_1.v.optional(values_1.v.string()),
+                duration: values_1.v.optional(values_1.v.string()),
+                distance: values_1.v.optional(values_1.v.string()),
+                travelTime: values_1.v.optional(values_1.v.string()),
+                location: values_1.v.optional(values_1.v.object({
+                    address: values_1.v.optional(values_1.v.string()),
+                    lat: values_1.v.optional(values_1.v.number()),
+                    lng: values_1.v.optional(values_1.v.number()),
+                })),
+                highlights: values_1.v.optional(values_1.v.array(values_1.v.object({
+                    name: values_1.v.string(),
+                    image: values_1.v.optional(values_1.v.string()),
+                    description: values_1.v.optional(values_1.v.string()),
+                }))),
+                thingsToDo: values_1.v.optional(values_1.v.array(values_1.v.object({
+                    name: values_1.v.string(),
+                    image: values_1.v.optional(values_1.v.string()),
+                    description: values_1.v.optional(values_1.v.string()),
+                }))),
+                attractions: values_1.v.optional(values_1.v.number()),
+                ticketsIncluded: values_1.v.optional(values_1.v.boolean()),
+                nearbyThingsToDo: values_1.v.optional(values_1.v.array(values_1.v.object({
+                    name: values_1.v.string(),
+                    image: values_1.v.optional(values_1.v.string()),
+                    description: values_1.v.optional(values_1.v.string()),
+                }))),
+            })),
+            endPoint: values_1.v.object({
+                name: values_1.v.string(),
+                description: values_1.v.optional(values_1.v.string()),
+                image: values_1.v.optional(values_1.v.string()),
+                location: values_1.v.optional(values_1.v.object({
+                    address: values_1.v.optional(values_1.v.string()),
+                    lat: values_1.v.optional(values_1.v.number()),
+                    lng: values_1.v.optional(values_1.v.number()),
+                })),
+            }),
+        })),
         operatingHours: values_1.v.array(values_1.v.object({
             startDate: values_1.v.string(),
             endDate: values_1.v.string(),
@@ -56,71 +132,13 @@ exports.default = (0, server_1.defineSchema)({
         }),
         adultPrice: values_1.v.number(),
         childPrice: values_1.v.number(),
-        seniorPrice: values_1.v.number(),
+        infantPrice: values_1.v.number(),
         totalLimit: values_1.v.number(),
-        // Itinerary (Optional)
-        itinerary: values_1.v.optional(values_1.v.object({
-            title: values_1.v.string(),
-            totalDuration: values_1.v.optional(values_1.v.string()),
-            modeOfTransport: values_1.v.optional(values_1.v.string()),
-            startPoint: values_1.v.object({
-                name: values_1.v.string(),
-                description: values_1.v.optional(values_1.v.string()),
-                image: values_1.v.optional(values_1.v.string()),
-                duration: values_1.v.optional(values_1.v.string()),
-                location: values_1.v.optional(values_1.v.object({
-                    address: values_1.v.optional(values_1.v.string()),
-                    lat: values_1.v.optional(values_1.v.number()),
-                    lng: values_1.v.optional(values_1.v.number()),
-                })),
-                highlights: values_1.v.optional(values_1.v.array(values_1.v.string())),
-                thingsToDo: values_1.v.optional(values_1.v.array(values_1.v.string())),
-                nearbyThingsToDo: values_1.v.optional(values_1.v.array(values_1.v.object({
-                    name: values_1.v.string(),
-                    image: values_1.v.optional(values_1.v.string()),
-                    description: values_1.v.optional(values_1.v.string()),
-                }))),
-            }),
-            points: values_1.v.array(values_1.v.object({
-                order: values_1.v.number(),
-                name: values_1.v.string(),
-                description: values_1.v.optional(values_1.v.string()),
-                image: values_1.v.optional(values_1.v.string()),
-                duration: values_1.v.optional(values_1.v.string()),
-                distance: values_1.v.optional(values_1.v.string()),
-                travelTime: values_1.v.optional(values_1.v.string()),
-                location: values_1.v.optional(values_1.v.object({
-                    address: values_1.v.optional(values_1.v.string()),
-                    lat: values_1.v.optional(values_1.v.number()),
-                    lng: values_1.v.optional(values_1.v.number()),
-                })),
-                highlights: values_1.v.optional(values_1.v.array(values_1.v.string())),
-                thingsToDo: values_1.v.optional(values_1.v.array(values_1.v.string())),
-                attractions: values_1.v.optional(values_1.v.number()),
-                ticketsIncluded: values_1.v.optional(values_1.v.boolean()),
-                nearbyThingsToDo: values_1.v.optional(values_1.v.array(values_1.v.object({
-                    name: values_1.v.string(),
-                    image: values_1.v.optional(values_1.v.string()),
-                    description: values_1.v.optional(values_1.v.string()),
-                }))),
-            })),
-            endPoint: values_1.v.object({
-                name: values_1.v.string(),
-                description: values_1.v.optional(values_1.v.string()),
-                image: values_1.v.optional(values_1.v.string()),
-                location: values_1.v.optional(values_1.v.object({
-                    address: values_1.v.optional(values_1.v.string()),
-                    lat: values_1.v.optional(values_1.v.number()),
-                    lng: values_1.v.optional(values_1.v.number()),
-                })),
-            }),
-        })),
         // UI Hierarchy Fields
         isMainCard: values_1.v.optional(values_1.v.boolean()),
         isTopExperience: values_1.v.optional(values_1.v.boolean()),
         isMustDo: values_1.v.optional(values_1.v.boolean()),
         isPopular: values_1.v.optional(values_1.v.boolean()),
-        blogSlug: values_1.v.optional(values_1.v.string()),
         // Relationship Fields
         categoryId: values_1.v.id("category"),
         subcategoryId: values_1.v.id("subcategory"),
@@ -174,5 +192,37 @@ exports.default = (0, server_1.defineSchema)({
     })
         .index("byEmail", ["email"])
         .index("byProvider", ["provider", "providerId"]),
+    bookings: (0, server_1.defineTable)({
+        userId: values_1.v.id("users"),
+        experienceId: values_1.v.id("experience"),
+        bookingDate: values_1.v.string(),
+        experienceDate: values_1.v.string(),
+        adultCount: values_1.v.number(),
+        childCount: values_1.v.number(),
+        infantCount: values_1.v.number(),
+        totalAmount: values_1.v.number(),
+        status: values_1.v.string(), // "pending", "confirmed", "cancelled"
+        createdAt: values_1.v.string(),
+        // Primary Guest (Adult 1) - Required
+        primaryGuest: values_1.v.object({
+            fullName: values_1.v.string(),
+            email: values_1.v.string(),
+            confirmEmail: values_1.v.string(),
+            phoneNumber: values_1.v.string(),
+        }),
+        // Additional Adults (Adult 2, 3, etc.) - Optional
+        additionalAdults: values_1.v.optional(values_1.v.array(values_1.v.object({
+            fullName: values_1.v.string(),
+            phoneNumber: values_1.v.string(),
+        }))),
+        // Children (6-12 years) - Optional
+        children: values_1.v.optional(values_1.v.array(values_1.v.object({
+            fullName: values_1.v.string(),
+        }))),
+        // Note: Infants/Children Under 5 - Only counted for pricing, no details collected
+    })
+        .index("byUser", ["userId"])
+        .index("byExperience", ["experienceId"])
+        .index("byStatus", ["status"]),
 });
 //# sourceMappingURL=schema.js.map

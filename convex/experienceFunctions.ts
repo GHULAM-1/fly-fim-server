@@ -27,7 +27,7 @@ const structureExperience = (exp: any) => ({
   cancellationPolicy: exp.cancellationPolicy,
   ticketValidity: exp.ticketValidity,
   operatingHours: exp.operatingHours,
-  yourExperience: exp.yourExperience,
+  yourExperience: exp.youExperience,
   knowBeforeYouGo: exp.knowBeforeYouGo,
   myTickets: exp.myTickets,
   whereTo: exp.whereTo,
@@ -45,7 +45,7 @@ const structureExperience = (exp: any) => ({
   ticketPrice: {
     adultPrice: exp.adultPrice,
     childPrice: exp.childPrice,
-    seniorPrice: exp.seniorPrice,
+    infantPrice: exp.infantPrice,
     totalLimit: exp.totalLimit,
   },
 
@@ -127,7 +127,7 @@ const structureExperienceWithImageUrls = async (ctx: any, exp: any) => {
     cancellationPolicy: exp.cancellationPolicy,
     ticketValidity: exp.ticketValidity,
     operatingHours: exp.operatingHours,
-    yourExperience: exp.yourExperience,
+    yourExperience: exp.youExperience,
     knowBeforeYouGo: exp.knowBeforeYouGo,
     myTickets: exp.myTickets,
     whereTo: exp.whereTo,
@@ -145,7 +145,7 @@ const structureExperienceWithImageUrls = async (ctx: any, exp: any) => {
     ticketPrice: {
       adultPrice: exp.adultPrice,
       childPrice: exp.childPrice,
-      seniorPrice: exp.seniorPrice,
+      infantPrice: exp.infantPrice,
       totalLimit: exp.totalLimit,
     },
 
@@ -191,13 +191,153 @@ export const getAllExperiences = query({
   args: { limit: v.optional(v.number()), offset: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const { limit = 50, offset = 0 } = args;
-    return await ctx.db
+    const result = await ctx.db
       .query("experience")
       .order("desc")
       .paginate({
         numItems: limit,
         cursor: offset > 0 ? offset.toString() : null,
       });
+
+    // Transform each experience to include image URLs and relationship names
+    const experiencesWithUrls = await Promise.all(
+      result.page.map(async (exp) => {
+        // Resolve images array URLs
+        let imageUrls: (string | null)[] = [];
+        if (exp.images && Array.isArray(exp.images)) {
+          imageUrls = await Promise.all(
+            exp.images.map((imageId: string) => safeGetImageUrl(ctx, imageId))
+          );
+        }
+
+        // Resolve mainImage URLs
+        let mainImageUrls: (string | null)[] = [];
+        if (exp.mainImage && Array.isArray(exp.mainImage)) {
+          mainImageUrls = await Promise.all(
+            exp.mainImage.map((imageId: string) => safeGetImageUrl(ctx, imageId))
+          );
+        }
+
+        // Resolve itinerary image URLs (same as getExperienceById)
+        let processedItinerary = exp.itinerary;
+        if (exp.itinerary) {
+          processedItinerary = { ...exp.itinerary };
+
+          // Process startPoint images
+          if (exp.itinerary.startPoint?.image) {
+            processedItinerary.startPoint = {
+              ...exp.itinerary.startPoint,
+              image: (await safeGetImageUrl(ctx, exp.itinerary.startPoint.image)) || undefined,
+            };
+
+            // Process startPoint highlights images
+            if (exp.itinerary.startPoint.highlights) {
+              processedItinerary.startPoint.highlights = await Promise.all(
+                exp.itinerary.startPoint.highlights.map(async (item: any) => ({
+                  ...item,
+                  image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                }))
+              );
+            }
+
+            // Process startPoint thingsToDo images
+            if (exp.itinerary.startPoint.thingsToDo) {
+              processedItinerary.startPoint.thingsToDo = await Promise.all(
+                exp.itinerary.startPoint.thingsToDo.map(async (item: any) => ({
+                  ...item,
+                  image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                }))
+              );
+            }
+
+            // Process startPoint nearbyThingsToDo images
+            if (exp.itinerary.startPoint.nearbyThingsToDo) {
+              processedItinerary.startPoint.nearbyThingsToDo = await Promise.all(
+                exp.itinerary.startPoint.nearbyThingsToDo.map(async (item: any) => ({
+                  ...item,
+                  image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                }))
+              );
+            }
+          }
+
+          // Process points images
+          if (exp.itinerary.points && Array.isArray(exp.itinerary.points)) {
+            processedItinerary.points = await Promise.all(
+              exp.itinerary.points.map(async (point: any) => {
+                const processedPoint = { ...point };
+
+                // Process point image
+                if (point.image) {
+                  processedPoint.image = await safeGetImageUrl(ctx, point.image);
+                }
+
+                // Process highlights images
+                if (point.highlights && Array.isArray(point.highlights)) {
+                  processedPoint.highlights = await Promise.all(
+                    point.highlights.map(async (item: any) => ({
+                      ...item,
+                      image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                    }))
+                  );
+                }
+
+                // Process thingsToDo images
+                if (point.thingsToDo && Array.isArray(point.thingsToDo)) {
+                  processedPoint.thingsToDo = await Promise.all(
+                    point.thingsToDo.map(async (item: any) => ({
+                      ...item,
+                      image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                    }))
+                  );
+                }
+
+                // Process nearbyThingsToDo images
+                if (point.nearbyThingsToDo && Array.isArray(point.nearbyThingsToDo)) {
+                  processedPoint.nearbyThingsToDo = await Promise.all(
+                    point.nearbyThingsToDo.map(async (item: any) => ({
+                      ...item,
+                      image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                    }))
+                  );
+                }
+
+                return processedPoint;
+              })
+            );
+          }
+
+          // Process endPoint images
+          if (exp.itinerary.endPoint?.image) {
+            processedItinerary.endPoint = {
+              ...exp.itinerary.endPoint,
+              image: (await safeGetImageUrl(ctx, exp.itinerary.endPoint.image)) || undefined,
+            };
+          }
+        }
+
+        // Resolve relationship names
+        const city = await ctx.db.get(exp.cityId);
+        const subcategory = await ctx.db.get(exp.subcategoryId);
+        const category = await ctx.db.get(exp.categoryId);
+
+        return {
+          ...exp,
+          images: imageUrls,
+          mainImage: mainImageUrls,
+          itinerary: processedItinerary,
+          cityName: city?.cityName || null,
+          countryName: city?.countryName || null,
+          subcategoryName: subcategory?.subcategoryName || null,
+          categoryName: category?.categoryName || null,
+        };
+      })
+    );
+
+    return {
+      ...result,
+      page: experiencesWithUrls,
+    };
   },
 });
 
@@ -235,6 +375,26 @@ export const getExperienceById = query({
             image: (await safeGetImageUrl(ctx, exp.itinerary.startPoint.image)) || undefined,
           };
 
+        // Process startPoint highlights images
+        if (exp.itinerary.startPoint.highlights) {
+          processedItinerary.startPoint.highlights = await Promise.all(
+            exp.itinerary.startPoint.highlights.map(async (item: any) => ({
+              ...item,
+              image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+            }))
+          );
+        }
+
+        // Process startPoint thingsToDo images
+        if (exp.itinerary.startPoint.thingsToDo) {
+          processedItinerary.startPoint.thingsToDo = await Promise.all(
+            exp.itinerary.startPoint.thingsToDo.map(async (item: any) => ({
+              ...item,
+              image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+            }))
+          );
+        }
+
         // Process startPoint nearbyThingsToDo images
         if (exp.itinerary.startPoint.nearbyThingsToDo) {
           processedItinerary.startPoint.nearbyThingsToDo = await Promise.all(
@@ -255,6 +415,26 @@ export const getExperienceById = query({
             // Process point image
             if (point.image) {
               processedPoint.image = await safeGetImageUrl(ctx, point.image);
+            }
+
+            // Process highlights images
+            if (point.highlights && Array.isArray(point.highlights)) {
+              processedPoint.highlights = await Promise.all(
+                point.highlights.map(async (item: any) => ({
+                  ...item,
+                  image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                }))
+              );
+            }
+
+            // Process thingsToDo images
+            if (point.thingsToDo && Array.isArray(point.thingsToDo)) {
+              processedPoint.thingsToDo = await Promise.all(
+                point.thingsToDo.map(async (item: any) => ({
+                  ...item,
+                  image: item.image ? await safeGetImageUrl(ctx, item.image) : item.image,
+                }))
+              );
             }
 
             // Process nearbyThingsToDo images
@@ -304,13 +484,12 @@ export const createExperience = mutation({
     mainImage: v.array(v.string()),
     tagOnCards: v.optional(v.string()),
     features: v.array(v.string()),
-    featureText: v.string(),
     highlights: v.string(),
     inclusions: v.string(),
     exclusions: v.string(),
     cancellationPolicy: v.string(),
-    ticketValidity: v.string(),
     exploreMore: v.string(),
+    youExperience: v.string(),
     knowBeforeYouGo: v.string(),
     myTickets: v.string(),
     operatingHours: v.array(
@@ -354,7 +533,7 @@ export const createExperience = mutation({
     }),
     adultPrice: v.float64(),
     childPrice: v.float64(),
-    seniorPrice: v.float64(),
+    infantPrice: v.float64(),
     totalLimit: v.float64(),
 
     // UI Hierarchy Fields
@@ -362,12 +541,86 @@ export const createExperience = mutation({
     isTopExperience: v.optional(v.boolean()),
     isMustDo: v.optional(v.boolean()),
     isPopular: v.optional(v.boolean()),
-    blogSlug: v.optional(v.string()),
+    blogSlug: v.optional(v.array(v.string())),
 
     // Relationship Fields
     categoryId: v.id("category"),
     subcategoryId: v.id("subcategory"),
     cityId: v.id("city"),
+
+    // Itinerary (Optional)
+    itinerary: v.optional(v.object({
+      title: v.string(),
+      totalDuration: v.optional(v.string()),
+      modeOfTransport: v.optional(v.string()),
+      startPoint: v.object({
+        name: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()),
+        duration: v.optional(v.string()),
+        location: v.optional(v.object({
+          address: v.optional(v.string()),
+          lat: v.optional(v.number()),
+          lng: v.optional(v.number()),
+        })),
+        highlights: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+        thingsToDo: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+        nearbyThingsToDo: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+      }),
+      points: v.array(v.object({
+        order: v.number(),
+        name: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()),
+        duration: v.optional(v.string()),
+        distance: v.optional(v.string()),
+        travelTime: v.optional(v.string()),
+        location: v.optional(v.object({
+          address: v.optional(v.string()),
+          lat: v.optional(v.number()),
+          lng: v.optional(v.number()),
+        })),
+        highlights: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+        thingsToDo: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+        attractions: v.optional(v.number()),
+        ticketsIncluded: v.optional(v.boolean()),
+        nearbyThingsToDo: v.optional(v.array(v.object({
+          name: v.string(),
+          image: v.optional(v.string()),
+          description: v.optional(v.string()),
+        }))),
+      })),
+      endPoint: v.object({
+        name: v.string(),
+        description: v.optional(v.string()),
+        image: v.optional(v.string()),
+        location: v.optional(v.object({
+          address: v.optional(v.string()),
+          lat: v.optional(v.number()),
+          lng: v.optional(v.number()),
+        })),
+      }),
+    })),
   },
   handler: async (ctx, args) => {
     // Ensure only one hierarchy flag is true
@@ -402,6 +655,7 @@ export const updateExperience = mutation({
       tagOnCards: v.optional(v.string()),
       features: v.optional(v.array(v.string())),
       featureText: v.optional(v.string()),
+      youExperience: v.string(),
       highlights: v.optional(v.string()),
       inclusions: v.optional(v.string()),
       exclusions: v.optional(v.string()),
@@ -459,15 +713,89 @@ export const updateExperience = mutation({
       ),
       adultPrice: v.optional(v.number()),
       childPrice: v.optional(v.number()),
-      seniorPrice: v.optional(v.number()),
+      infantPrice: v.optional(v.number()),
       totalLimit: v.optional(v.number()),
+
+      // Itinerary (Optional)
+      itinerary: v.optional(v.object({
+        title: v.string(),
+        totalDuration: v.optional(v.string()),
+        modeOfTransport: v.optional(v.string()),
+        startPoint: v.object({
+          name: v.string(),
+          description: v.optional(v.string()),
+          image: v.optional(v.string()),
+          duration: v.optional(v.string()),
+          location: v.optional(v.object({
+            address: v.optional(v.string()),
+            lat: v.optional(v.number()),
+            lng: v.optional(v.number()),
+          })),
+          highlights: v.optional(v.array(v.object({
+            name: v.string(),
+            image: v.optional(v.string()),
+            description: v.optional(v.string()),
+          }))),
+          thingsToDo: v.optional(v.array(v.object({
+            name: v.string(),
+            image: v.optional(v.string()),
+            description: v.optional(v.string()),
+          }))),
+          nearbyThingsToDo: v.optional(v.array(v.object({
+            name: v.string(),
+            image: v.optional(v.string()),
+            description: v.optional(v.string()),
+          }))),
+        }),
+        points: v.array(v.object({
+          order: v.number(),
+          name: v.string(),
+          description: v.optional(v.string()),
+          image: v.optional(v.string()),
+          duration: v.optional(v.string()),
+          distance: v.optional(v.string()),
+          travelTime: v.optional(v.string()),
+          location: v.optional(v.object({
+            address: v.optional(v.string()),
+            lat: v.optional(v.number()),
+            lng: v.optional(v.number()),
+          })),
+          highlights: v.optional(v.array(v.object({
+            name: v.string(),
+            image: v.optional(v.string()),
+            description: v.optional(v.string()),
+          }))),
+          thingsToDo: v.optional(v.array(v.object({
+            name: v.string(),
+            image: v.optional(v.string()),
+            description: v.optional(v.string()),
+          }))),
+          attractions: v.optional(v.number()),
+          ticketsIncluded: v.optional(v.boolean()),
+          nearbyThingsToDo: v.optional(v.array(v.object({
+            name: v.string(),
+            image: v.optional(v.string()),
+            description: v.optional(v.string()),
+          }))),
+        })),
+        endPoint: v.object({
+          name: v.string(),
+          description: v.optional(v.string()),
+          image: v.optional(v.string()),
+          location: v.optional(v.object({
+            address: v.optional(v.string()),
+            lat: v.optional(v.number()),
+            lng: v.optional(v.number()),
+          })),
+        }),
+      })),
 
       // UI Hierarchy Fields
       isMainCard: v.optional(v.boolean()),
       isTopExperience: v.optional(v.boolean()),
       isMustDo: v.optional(v.boolean()),
       isPopular: v.optional(v.boolean()),
-      blogSlug: v.optional(v.string()),
+      blogSlug: v.optional(v.array(v.string())),
 
       // Relationship Fields
       categoryId: v.optional(v.id("category")),

@@ -1,128 +1,154 @@
 export declare const getAllExperiences: import("convex/server").RegisteredQuery<"public", {
     limit?: number;
     offset?: number;
-}, Promise<import("convex/server").PaginationResult<{
-    _id: import("convex/values").GenericId<"experience">;
-    _creationTime: number;
-    mainImage?: string[];
-    oldPrice?: number;
-    sale?: number;
-    tagOnCards?: string;
-    highlights?: string;
-    inclusions?: string;
-    exclusions?: string;
-    cancellationPolicy?: string;
-    ticketValidity?: string;
-    exploreMore?: string;
-    knowBeforeYouGo?: string;
-    myTickets?: string;
-    isMainCard?: boolean;
-    isTopExperience?: boolean;
-    isMustDo?: boolean;
-    isPopular?: boolean;
-    blogSlug?: string;
-    youExperience?: string;
-    itinerary?: {
-        totalDuration?: string;
-        modeOfTransport?: string;
-        title: string;
-        points: {
-            image?: string;
-            description?: string;
-            highlights?: string[];
-            duration?: string;
-            location?: {
-                address?: string;
-                lat?: number;
-                lng?: number;
-            };
-            thingsToDo?: string[];
-            nearbyThingsToDo?: {
-                image?: string;
-                description?: string;
-                name: string;
-            }[];
-            distance?: string;
-            travelTime?: string;
-            attractions?: number;
-            ticketsIncluded?: boolean;
-            name: string;
-            order: number;
-        }[];
-        startPoint: {
-            image?: string;
-            description?: string;
-            highlights?: string[];
-            duration?: string;
-            location?: {
-                address?: string;
-                lat?: number;
-                lng?: number;
-            };
-            thingsToDo?: string[];
-            nearbyThingsToDo?: {
-                image?: string;
-                description?: string;
-                name: string;
-            }[];
-            name: string;
-        };
-        endPoint: {
-            image?: string;
-            description?: string;
-            location?: {
-                address?: string;
-                lat?: number;
-                lng?: number;
-            };
-            name: string;
-        };
-    };
-    images: string[];
-    title: string;
-    description: string;
-    price: number;
-    features: string[];
-    featureText: string;
-    operatingHours: {
-        title: string;
-        startDate: string;
-        endDate: string;
-        openTime: string;
-        closeTime: string;
-        lastEntryTime: string;
-    }[];
-    whereTo: {
-        address: string;
-        lat: number;
-        lng: number;
-    };
-    datePriceRange: {
-        price: number;
-        startDate: string;
-        endDate: string;
-    }[];
-    packageType: {
-        price: number;
-        name: string;
-        points: {
-            subpoints?: string[];
+}, Promise<{
+    page: {
+        images: string[];
+        mainImage: string[];
+        itinerary: {
+            totalDuration?: string;
+            modeOfTransport?: string;
             title: string;
-        }[];
-        timePriceSlots: {
-            price: number;
+            startPoint: {
+                image?: string;
+                description?: string;
+                highlights?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                nearbyThingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                thingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                duration?: string;
+                location?: {
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                name: string;
+            };
+            points: {
+                image?: string;
+                description?: string;
+                highlights?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                nearbyThingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                thingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                duration?: string;
+                location?: {
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                distance?: string;
+                travelTime?: string;
+                attractions?: number;
+                ticketsIncluded?: boolean;
+                name: string;
+                order: number;
+            }[];
+            endPoint: {
+                image?: string;
+                description?: string;
+                location?: {
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                name: string;
+            };
+        };
+        cityName: string;
+        countryName: string;
+        subcategoryName: string;
+        categoryName: string;
+        _id: import("convex/values").GenericId<"experience">;
+        _creationTime: number;
+        oldPrice?: number;
+        sale?: number;
+        tagOnCards?: string;
+        featureText?: string;
+        highlights?: string;
+        inclusions?: string;
+        exclusions?: string;
+        cancellationPolicy?: string;
+        ticketValidity?: string;
+        exploreMore?: string;
+        knowBeforeYouGo?: string;
+        myTickets?: string;
+        isMainCard?: boolean;
+        isTopExperience?: boolean;
+        isMustDo?: boolean;
+        isPopular?: boolean;
+        blogSlug?: string[];
+        youExperience?: string;
+        title: string;
+        description: string;
+        price: number;
+        features: string[];
+        operatingHours: {
+            title: string;
+            startDate: string;
+            endDate: string;
             openTime: string;
             closeTime: string;
+            lastEntryTime: string;
         }[];
-    };
-    adultPrice: number;
-    childPrice: number;
-    seniorPrice: number;
-    totalLimit: number;
-    categoryId: import("convex/values").GenericId<"category">;
-    subcategoryId: import("convex/values").GenericId<"subcategory">;
-    cityId: import("convex/values").GenericId<"city">;
-}>>>;
+        whereTo: {
+            address: string;
+            lat: number;
+            lng: number;
+        };
+        datePriceRange: {
+            price: number;
+            startDate: string;
+            endDate: string;
+        }[];
+        packageType: {
+            price: number;
+            name: string;
+            points: {
+                subpoints?: string[];
+                title: string;
+            }[];
+            timePriceSlots: {
+                price: number;
+                openTime: string;
+                closeTime: string;
+            }[];
+        };
+        adultPrice: number;
+        childPrice: number;
+        infantPrice: number;
+        totalLimit: number;
+        categoryId: import("convex/values").GenericId<"category">;
+        subcategoryId: import("convex/values").GenericId<"subcategory">;
+        cityId: import("convex/values").GenericId<"city">;
+    }[];
+    isDone: boolean;
+    continueCursor: import("convex/server").Cursor;
+    splitCursor?: import("convex/server").Cursor | null;
+    pageStatus?: "SplitRecommended" | "SplitRequired" | null;
+}>>;
 export declare const getExperienceById: import("convex/server").RegisteredQuery<"public", {
     id: import("convex/values").GenericId<"experience">;
 }, Promise<{
@@ -132,22 +158,56 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
         totalDuration?: string;
         modeOfTransport?: string;
         title: string;
-        points: {
+        startPoint: {
             image?: string;
             description?: string;
-            highlights?: string[];
+            highlights?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            nearbyThingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            thingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
             duration?: string;
             location?: {
                 address?: string;
                 lat?: number;
                 lng?: number;
             };
-            thingsToDo?: string[];
+            name: string;
+        };
+        points: {
+            image?: string;
+            description?: string;
+            highlights?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
             nearbyThingsToDo?: {
                 image?: string;
                 description?: string;
                 name: string;
             }[];
+            thingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            duration?: string;
+            location?: {
+                address?: string;
+                lat?: number;
+                lng?: number;
+            };
             distance?: string;
             travelTime?: string;
             attractions?: number;
@@ -155,24 +215,6 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
             name: string;
             order: number;
         }[];
-        startPoint: {
-            image?: string;
-            description?: string;
-            highlights?: string[];
-            duration?: string;
-            location?: {
-                address?: string;
-                lat?: number;
-                lng?: number;
-            };
-            thingsToDo?: string[];
-            nearbyThingsToDo?: {
-                image?: string;
-                description?: string;
-                name: string;
-            }[];
-            name: string;
-        };
         endPoint: {
             image?: string;
             description?: string;
@@ -192,6 +234,7 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
     oldPrice?: number;
     sale?: number;
     tagOnCards?: string;
+    featureText?: string;
     highlights?: string;
     inclusions?: string;
     exclusions?: string;
@@ -204,13 +247,12 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
     isTopExperience?: boolean;
     isMustDo?: boolean;
     isPopular?: boolean;
-    blogSlug?: string;
+    blogSlug?: string[];
     youExperience?: string;
     title: string;
     description: string;
     price: number;
     features: string[];
-    featureText: string;
     operatingHours: {
         title: string;
         startDate: string;
@@ -244,7 +286,7 @@ export declare const getExperienceById: import("convex/server").RegisteredQuery<
     };
     adultPrice: number;
     childPrice: number;
-    seniorPrice: number;
+    infantPrice: number;
     totalLimit: number;
     categoryId: import("convex/values").GenericId<"category">;
     subcategoryId: import("convex/values").GenericId<"subcategory">;
@@ -258,19 +300,89 @@ export declare const createExperience: import("convex/server").RegisteredMutatio
     isTopExperience?: boolean;
     isMustDo?: boolean;
     isPopular?: boolean;
-    blogSlug?: string;
+    blogSlug?: string[];
+    itinerary?: {
+        totalDuration?: string;
+        modeOfTransport?: string;
+        title: string;
+        startPoint: {
+            image?: string;
+            description?: string;
+            highlights?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            nearbyThingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            thingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            duration?: string;
+            location?: {
+                address?: string;
+                lat?: number;
+                lng?: number;
+            };
+            name: string;
+        };
+        points: {
+            image?: string;
+            description?: string;
+            highlights?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            nearbyThingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            thingsToDo?: {
+                image?: string;
+                description?: string;
+                name: string;
+            }[];
+            duration?: string;
+            location?: {
+                address?: string;
+                lat?: number;
+                lng?: number;
+            };
+            distance?: string;
+            travelTime?: string;
+            attractions?: number;
+            ticketsIncluded?: boolean;
+            name: string;
+            order: number;
+        }[];
+        endPoint: {
+            image?: string;
+            description?: string;
+            location?: {
+                address?: string;
+                lat?: number;
+                lng?: number;
+            };
+            name: string;
+        };
+    };
     mainImage: string[];
     images: string[];
     title: string;
     description: string;
     price: number;
     features: string[];
-    featureText: string;
     highlights: string;
     inclusions: string;
     exclusions: string;
     cancellationPolicy: string;
-    ticketValidity: string;
     exploreMore: string;
     knowBeforeYouGo: string;
     myTickets: string;
@@ -307,11 +419,12 @@ export declare const createExperience: import("convex/server").RegisteredMutatio
     };
     adultPrice: number;
     childPrice: number;
-    seniorPrice: number;
+    infantPrice: number;
     totalLimit: number;
     categoryId: import("convex/values").GenericId<"category">;
     subcategoryId: import("convex/values").GenericId<"subcategory">;
     cityId: import("convex/values").GenericId<"city">;
+    youExperience: string;
 }, Promise<import("convex/values").GenericId<"experience">>>;
 export declare const updateExperience: import("convex/server").RegisteredMutation<"public", {
     id: import("convex/values").GenericId<"experience">;
@@ -367,16 +480,89 @@ export declare const updateExperience: import("convex/server").RegisteredMutatio
         };
         adultPrice?: number;
         childPrice?: number;
-        seniorPrice?: number;
+        infantPrice?: number;
         totalLimit?: number;
         isMainCard?: boolean;
         isTopExperience?: boolean;
         isMustDo?: boolean;
         isPopular?: boolean;
-        blogSlug?: string;
+        blogSlug?: string[];
         categoryId?: import("convex/values").GenericId<"category">;
         subcategoryId?: import("convex/values").GenericId<"subcategory">;
         cityId?: import("convex/values").GenericId<"city">;
+        itinerary?: {
+            totalDuration?: string;
+            modeOfTransport?: string;
+            title: string;
+            startPoint: {
+                image?: string;
+                description?: string;
+                highlights?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                nearbyThingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                thingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                duration?: string;
+                location?: {
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                name: string;
+            };
+            points: {
+                image?: string;
+                description?: string;
+                highlights?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                nearbyThingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                thingsToDo?: {
+                    image?: string;
+                    description?: string;
+                    name: string;
+                }[];
+                duration?: string;
+                location?: {
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                distance?: string;
+                travelTime?: string;
+                attractions?: number;
+                ticketsIncluded?: boolean;
+                name: string;
+                order: number;
+            }[];
+            endPoint: {
+                image?: string;
+                description?: string;
+                location?: {
+                    address?: string;
+                    lat?: number;
+                    lng?: number;
+                };
+                name: string;
+            };
+        };
+        youExperience: string;
     };
 }, Promise<void>>;
 export declare const deleteExperience: import("convex/server").RegisteredMutation<"public", {
@@ -436,7 +622,7 @@ export declare const getThingsToDoPageData: import("convex/server").RegisteredQu
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {
@@ -493,7 +679,7 @@ export declare const getThingsToDoPageData: import("convex/server").RegisteredQu
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {
@@ -550,7 +736,7 @@ export declare const getThingsToDoPageData: import("convex/server").RegisteredQu
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {
@@ -627,7 +813,7 @@ export declare const getCategoryPageData: import("convex/server").RegisteredQuer
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {
@@ -684,7 +870,7 @@ export declare const getCategoryPageData: import("convex/server").RegisteredQuer
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {
@@ -770,7 +956,7 @@ export declare const getSubcategoryPageDataFiltered: import("convex/server").Reg
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {
@@ -858,7 +1044,7 @@ export declare const getSubcategoryPageData: import("convex/server").RegisteredQ
         ticketPrice: {
             adultPrice: any;
             childPrice: any;
-            seniorPrice: any;
+            infantPrice: any;
             totalLimit: any;
         };
         flags: {

@@ -117,12 +117,28 @@ export const updateCity = async (req: Request, res: Response) => {
     await convexService.mutation("cityFunctions:updateCity", { id: id as any, ...transformedUpdates });
     res.json({ success: true, message: 'City updated successfully' });
   } catch (error) {
+    let errorMessage = "Failed to update city";
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      // Handle duplicate city error
+      if (error.message.includes("already exists")) {
+        errorMessage = error.message;
+        statusCode = 409; // Conflict
+      } else if (error.message.includes("not found")) {
+        errorMessage = "City not found";
+        statusCode = 404;
+      } else {
+        // For other errors, use a generic message
+        errorMessage = "Failed to update city";
+      }
+    }
+
     const response: CityResponse = {
       success: false,
-      message: "Failed to update city",
-      error: error instanceof Error ? error.message : "Unknown error",
+      message: errorMessage,
     };
-    res.status(500).json(response);
+    res.status(statusCode).json(response);
   }
 };
 

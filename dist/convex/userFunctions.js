@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserByProvider = exports.getUserByEmail = exports.getUserById = exports.createUser = void 0;
+exports.deleteUserById = exports.getAllUsers = exports.getUserByProvider = exports.getUserByEmail = exports.getUserById = exports.checkEmailExists = exports.createUser = void 0;
 const values_1 = require("convex/values");
 const server_1 = require("./_generated/server");
 const dateHelpers_1 = require("./dateHelpers");
@@ -38,6 +38,16 @@ exports.createUser = (0, server_1.mutation)({
         return userId;
     },
 });
+exports.checkEmailExists = (0, server_1.query)({
+    args: { email: values_1.v.string() },
+    handler: async (ctx, args) => {
+        const user = await ctx.db
+            .query("users")
+            .withIndex("byEmail", (q) => q.eq("email", args.email.toLowerCase()))
+            .first();
+        return user ? { exists: true, provider: user.provider } : { exists: false };
+    },
+});
 exports.getUserById = (0, server_1.query)({
     args: { userId: values_1.v.id("users") },
     handler: async (ctx, args) => {
@@ -63,6 +73,19 @@ exports.getUserByProvider = (0, server_1.query)({
             .query("users")
             .withIndex("byProvider", (q) => q.eq("provider", args.provider).eq("providerId", args.providerId))
             .first();
+    },
+});
+exports.getAllUsers = (0, server_1.query)({
+    args: {},
+    handler: async (ctx) => {
+        return await ctx.db.query("users").collect();
+    },
+});
+exports.deleteUserById = (0, server_1.mutation)({
+    args: { userId: values_1.v.id("users") },
+    handler: async (ctx, args) => {
+        await ctx.db.delete(args.userId);
+        return { success: true };
     },
 });
 //# sourceMappingURL=userFunctions.js.map

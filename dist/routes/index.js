@@ -14,6 +14,8 @@ const subcategory_page_routes_1 = __importDefault(require("./subcategory-page-ro
 const faq_routes_1 = __importDefault(require("./faq-routes"));
 const review_routes_1 = __importDefault(require("./review-routes"));
 const auth_routes_1 = __importDefault(require("./auth-routes"));
+const user_routes_1 = __importDefault(require("./user-routes"));
+const booking_routes_1 = __importDefault(require("./booking-routes"));
 const not_found_routes_1 = __importDefault(require("./not-found-routes"));
 const worldwide_routes_1 = __importDefault(require("./worldwide-routes"));
 const search_routes_1 = __importDefault(require("./search-routes"));
@@ -29,6 +31,8 @@ router.use('/api/v1/subcategory-page', subcategory_page_routes_1.default);
 router.use('/api/v1/faqs', faq_routes_1.default);
 router.use('/api/v1/reviews', review_routes_1.default);
 router.use('/api/v1/auth', auth_routes_1.default);
+router.use('/api/v1/users', user_routes_1.default);
+router.use('/api/v1/bookings', booking_routes_1.default);
 router.use('/api/v1/not-found-page', not_found_routes_1.default);
 router.use('/api/v1/worldwide', worldwide_routes_1.default);
 router.use('/api/v1/search', search_routes_1.default);

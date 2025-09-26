@@ -42,6 +42,18 @@ export const createUser = mutation({
   },
 });
 
+export const checkEmailExists = query({
+  args: { email: v.string() },
+  handler: async (ctx, args) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("byEmail", (q) => q.eq("email", args.email.toLowerCase()))
+      .first();
+
+    return user ? { exists: true, provider: user.provider } : { exists: false };
+  },
+});
+
 export const getUserById = query({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
@@ -73,4 +85,20 @@ export const getUserByProvider = query({
       .first();
   },
 });
+
+export const getAllUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("users").collect();
+  },
+});
+
+export const deleteUserById = mutation({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.userId);
+    return { success: true };
+  },
+});
+
 

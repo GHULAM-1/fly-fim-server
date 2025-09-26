@@ -5,6 +5,7 @@ import {
   CreateSubcategoryRequest,
   UpdateSubcategoryRequest,
 } from "../types/subcategory.types";
+import { normalizeSubcategoryName } from "../utils/text-transform";
 
 // GET /api/subcategories
 export const getAllSubcategories = async (req: Request, res: Response) => {
@@ -68,7 +69,13 @@ export const createSubcategory = async (req: Request, res: Response) => {
   try {
     const body: CreateSubcategoryRequest = req.body;
 
-    const newId = await convexService.mutation("subcategoryFunctions:createSubcategory", body);
+    // Normalize subcategory name
+    const normalizedData = {
+      ...body,
+      subcategoryName: normalizeSubcategoryName(body.subcategoryName)
+    };
+
+    const newId = await convexService.mutation("subcategoryFunctions:createSubcategory", normalizedData);
 
     const createdSubcategory = await convexService.query("subcategoryFunctions:getSubcategoryById", { id: newId });
 
@@ -94,9 +101,15 @@ export const updateSubcategory = async (req: Request, res: Response) => {
     const { id } = req.params;
     const patch: UpdateSubcategoryRequest = req.body;
 
+    // Normalize subcategory name if provided
+    const normalizedPatch = { ...patch };
+    if (patch.subcategoryName) {
+      normalizedPatch.subcategoryName = normalizeSubcategoryName(patch.subcategoryName);
+    }
+
     await convexService.mutation("subcategoryFunctions:updateSubcategory", {
       id: id as any,
-      patch,
+      subcategoryName: normalizedPatch.subcategoryName,
     });
 
     const response: SubcategoryResponse = {
@@ -105,12 +118,28 @@ export const updateSubcategory = async (req: Request, res: Response) => {
     };
     res.json(response);
   } catch (error) {
+    let errorMessage = "Failed to update subcategory";
+    let statusCode = 500;
+
+    if (error instanceof Error) {
+      // Handle duplicate subcategory error
+      if (error.message.includes("already exists")) {
+        errorMessage = error.message;
+        statusCode = 409; // Conflict
+      } else if (error.message.includes("not found")) {
+        errorMessage = "Subcategory not found";
+        statusCode = 404;
+      } else {
+        // For other errors, use a generic message
+        errorMessage = "Failed to update subcategory";
+      }
+    }
+
     const response: SubcategoryResponse = {
       success: false,
-      message: "Failed to update subcategory",
-      error: error instanceof Error ? error.message : "Unknown error",
+      message: errorMessage,
     };
-    res.status(500).json(response);
+    res.status(statusCode).json(response);
   }
 };
 

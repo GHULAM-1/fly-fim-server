@@ -62,7 +62,7 @@ export interface Experience {
     packageType: PackageType;
     adultPrice: number;
     childPrice: number;
-    seniorPrice: number;
+    infantPrice: number;
     totalLimit: number;
     isMainCard?: boolean;
     isTopExperience?: boolean;
