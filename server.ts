@@ -19,12 +19,7 @@ convexService.setClient(convex);
 
 // Simplified CORS for production
 const corsOptions: cors.CorsOptions = {
-  origin: [
-    "https://fly-fim.vercel.app",
-    "https://www.fly-fim.vercel.app",
-    "http://localhost:3000",
-    "http://localhost:3001"
-  ],
+  origin:"*",
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
