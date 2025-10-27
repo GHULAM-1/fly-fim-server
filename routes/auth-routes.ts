@@ -24,6 +24,11 @@ router.post("/signin", async (req: Request, res: Response) => {
     let userInfo: any;
 
     if (provider === "google") {
+      const finalRedirectUri = redirectUri || `${getFrontendUrl()}/auth/callback`;
+      console.log('[OAuth Debug Backend] redirectUri from request:', redirectUri);
+      console.log('[OAuth Debug Backend] getFrontendUrl():', getFrontendUrl());
+      console.log('[OAuth Debug Backend] Final redirect_uri:', finalRedirectUri);
+
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: {
@@ -34,11 +39,12 @@ router.post("/signin", async (req: Request, res: Response) => {
           client_secret: process.env.AUTH_GOOGLE_SECRET!,
           code,
           grant_type: "authorization_code",
-          redirect_uri: redirectUri || `${getFrontendUrl()}/auth/callback`,
+          redirect_uri: finalRedirectUri,
         }),
       });
 
       const tokenData: any = await tokenResponse.json();
+      console.log('[OAuth Debug Backend] Token response:', tokenData);
 
       if (!tokenData.access_token) {
         return res.status(400).json({ error: "Failed to get access token" });
