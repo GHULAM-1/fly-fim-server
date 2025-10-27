@@ -17,9 +17,25 @@ const convex = new ConvexHttpClient(CONVEX_URL);
 
 convexService.setClient(convex);
 
-// Simplified CORS for production
+// CORS configuration
+const allowedOrigins = [
+  'https://main.d1mrducerc4zwf.amplifyapp.com',
+  'http://localhost:3000',
+  'http://localhost:5000',
+];
+
 const corsOptions: cors.CorsOptions = {
-  origin:"*",
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('[CORS] Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
