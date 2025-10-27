@@ -109,6 +109,7 @@ router.post("/signin", async (req: Request, res: Response) => {
 
     res.json({
       success: true,
+      token, // Include token in response for cross-domain auth
       user: {
         id: userId,
         email: userInfo.email,
