@@ -110,6 +110,7 @@ export default defineSchema({
         closeTime: v.string(),
         lastEntryTime: v.string(),
         title: v.string(),
+        excludedDays: v.optional(v.array(v.string())),
       })
     ),
     whereTo: v.object({
