@@ -500,6 +500,7 @@ export const createExperience = mutation({
         closeTime: v.string(),
         lastEntryTime: v.string(),
         title: v.string(),
+        excludedDays: v.optional(v.array(v.string())),
       })
     ),
     whereTo: v.object({
@@ -673,6 +674,7 @@ export const updateExperience = mutation({
             closeTime: v.string(),
             lastEntryTime: v.string(),
             title: v.string(),
+            excludedDays: v.optional(v.array(v.string())),
           })
         )
       ),
